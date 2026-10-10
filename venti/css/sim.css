@@ -1,0 +1,63 @@
+/* Simulador y rig SVG: la guía de estilo gobierna color, fuente y movimiento. */
+.sim [hidden] { display: none !important; }
+.sim button { min-height: 64px; padding: 10px 16px; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--panel-bg); color: var(--text-main); font: 600 var(--text-min)/1.15 var(--font-data); cursor: pointer; touch-action: manipulation; transition: background var(--dur-quick) var(--ease-breeze-in), border-color var(--dur-quick) var(--ease-breeze-in), box-shadow var(--dur-quick) var(--ease-breeze-in); }
+.sim button:hover { border-color: var(--signal-active); background: var(--bg-horizon); }
+.sim button:active { box-shadow: inset 0 0 0 2px var(--signal-active); }
+.sim button:focus-visible { outline: 3px solid var(--selector-gold); outline-offset: 4px; }
+.sim button[aria-pressed="true"] { color: var(--signal-active); border-color: var(--signal-active); background: rgba(var(--signal-active-rgb), .14); }
+.sim-tabs { position: absolute; right: 110px; top: 110px; display: flex; gap: 12px; }
+.sim-tabs button { min-width: 140px; }
+.sim-tabs .sim-reset { margin-left: 8px; color: var(--text-muted); }
+.sim-presets { position: absolute; left: 110px; top: 218px; width: 1020px; display: flex; gap: 8px; }
+.sim-presets button { padding: 8px 10px; }
+.sim-panel { left: 1170px; top: 190px; width: 640px; min-height: 720px; padding: 16px; }
+.sim-panel h2 { margin: 4px 0; font: 600 var(--text-label)/1.1 var(--font-data); color: var(--text-main); }
+.sim-panel h3 { margin: 24px 0 12px; font: 500 var(--text-min)/1.2 var(--font-data); color: var(--text-muted); }
+.sim-controls { display: flex; gap: 12px; }
+.sim-controls button { flex: 1; }
+.sim-bit { display: inline-flex; align-items: center; justify-content: center; gap: 14px; font-size: var(--text-label) !important; }
+.sim-bit b { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: var(--text-muted); background: var(--bg-space); }
+.sim-bit[aria-pressed="true"] b { color: var(--bg-space); background: var(--signal-active); }
+.sim-select { margin-top: 16px; }
+.sim-select button, .sim-variables button[data-bit="a"], .sim-variables button[data-bit="b"] { color: var(--selector-gold); border-color: rgba(var(--selector-gold-rgb), .6); }
+.sim-select button[aria-pressed="true"], .sim-variables button[data-bit="a"][aria-pressed="true"], .sim-variables button[data-bit="b"][aria-pressed="true"] { background: rgba(var(--selector-gold-rgb), .16); border-color: var(--selector-gold); }
+.sim-select button[aria-pressed="true"] b, .sim-variables button[data-bit="a"][aria-pressed="true"] b, .sim-variables button[data-bit="b"][aria-pressed="true"] b { background: var(--selector-gold); }
+.sim-rig-caption { position: absolute; left: 110px; top: 190px; margin: 0; font: 500 var(--text-label)/1.2 var(--font-data); color: var(--selector-gold); }
+.sim[data-mode="funcion"] .sim-rig-caption { top: 177px; }
+.sim-result { position: absolute; left: 110px; top: 866px; width: 1020px; font: 600 var(--text-body)/1.2 var(--font-data); color: var(--signal-active); }
+.sim-result.sim-error { color: var(--signal-error); }
+.sim-equation { position: absolute; left: 110px; top: 918px; width: 1030px; font-size: var(--text-min); line-height: 1.4; }
+.sim-equation .t { padding: 4px 8px; }
+.sim[data-mode="demux"] .sim-equation { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+.sim[data-mode="funcion"] .sim-equation { top: 902px; }
+.sim-equation > span:not(.t):not(.op) { color: var(--selector-gold); }
+.sim-equation > div { display: flex; gap: 16px; margin-top: 6px; }
+.sim-table { width: 100%; font-size: var(--text-label) !important; }
+.sim-table caption { text-align: left; color: var(--text-muted); font: 500 var(--text-min)/1.1 var(--font-data); padding: 0; }
+.sim-table-wrap { margin-top: 28px; }
+.sim-table th, .sim-table td { padding: 12px 10px !important; }
+.sim-table tbody tr.hot td:first-child { box-shadow: inset 4px 0 var(--signal-active); }
+.sim-output-list { display: flex; justify-content: space-between; margin-top: 20px; font: 600 var(--text-min)/1.2 var(--font-data); color: var(--text-muted); }
+.sim-chosen { color: var(--signal-active); text-decoration: underline; text-underline-offset: 6px; }
+.sim-edit { margin-top: 4px; }
+.sim-edit th { padding: 4px 8px !important; height: 34px; }
+.sim-edit td { padding: 0 8px !important; height: 64px; }
+.sim-edit .sim-cell { min-width: 82px; width: 100%; height: 64px; border-radius: 8px; }
+.sim-mark { color: var(--signal-active); }
+.sim-check-bar { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
+.sim-check { flex: 1; }
+.sim-check-status { font: 500 var(--text-min)/1.1 var(--font-data); color: var(--signal-active); max-width: 180px; }
+/* El SVG también se usa en las diapositivas explicativas. */
+.sim-rig-body { fill: var(--panel-bg-soft); stroke: var(--selector-gold); stroke-width: var(--wire-off); }
+.sim-rig-wire { fill: none; stroke: var(--signal-inactive); stroke-width: var(--wire-off); stroke-linecap: round; transition: stroke var(--dur-quick) var(--ease-breeze-in), stroke-width var(--dur-quick) var(--ease-breeze-in); }
+.sim-rig-wire.sim-rig-active { stroke: var(--signal-active); stroke-width: var(--wire-on); filter: drop-shadow(0 0 6px rgba(var(--signal-active-rgb), .5)); }
+.sim-rig-orb { fill: var(--signal-inactive); stroke: var(--selector-gold); stroke-width: var(--wire-off); transition: fill var(--dur-quick) var(--ease-breeze-in); }
+.sim-rig-orb.sim-rig-active { fill: var(--signal-active); filter: drop-shadow(0 0 12px rgba(var(--signal-active-rgb), .5)); }
+.sim-rig-wire.sim-rig-string { stroke: rgba(var(--selector-gold-rgb), .6); stroke-width: var(--wire-sel); }
+.sim-rig-wire.sim-rig-string.sim-rig-active { stroke: var(--selector-gold); filter: drop-shadow(0 0 6px rgba(var(--selector-gold-rgb), .5)); }
+.sim-rig-knob { fill: var(--selector-gold); }
+.sim-rig-gust { fill: none; stroke: var(--text-main); stroke-width: var(--wire-on); stroke-linecap: round; stroke-dasharray: 18 150; animation: sim-wind var(--dur-data-travel) var(--ease-float) infinite; }
+@keyframes sim-wind { to { stroke-dashoffset: -168; } }
+.sim-rig-snap *, .sim-rig-snap { transition: none !important; }
+:root.calm .sim-rig-gust { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sim-rig-gust { animation: none; } }

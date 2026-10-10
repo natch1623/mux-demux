@@ -1,0 +1,113 @@
+/* Identidad del bardo y de Mondstadt; ilustraciones vectoriales propias. */
+#mondstadt-symbols { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+.mondstadt-frame, .mondstadt-city { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; fill: none; stroke: var(--selector-gold); }
+.mondstadt-frame { stroke-width: 2.5; opacity: .7; filter: drop-shadow(0 2px 2px var(--bg-abyss)); }
+.frame-line { opacity: .65; }
+.frame-detail { opacity: .7; }
+.frame-gem { fill: url(#md-metal); stroke: var(--ornament-gold-light); stroke-width: 1; filter: drop-shadow(0 1px 3px var(--ornament-gold-dark)); }
+.metal-light { stop-color: var(--ornament-gold-light); }
+.metal-mid { stop-color: var(--selector-gold); }
+.metal-dark { stop-color: var(--ornament-gold-dark); }
+.ivory-light { stop-color: var(--text-main); }
+.ivory-mid { stop-color: var(--ornament-ivory); }
+.ivory-dark { stop-color: var(--ornament-teal); }
+.material-feather path:first-child, .material-flower path { fill: url(#md-ivory); stroke: var(--ornament-ivory); stroke-width: 1; }
+.material-feather path:nth-child(2) { fill: none; stroke: var(--ornament-gold-dark); stroke-width: 1; }
+.material-flower circle { fill: url(#md-metal); }
+.material-mill { fill: url(#md-metal); stroke: var(--ornament-gold-dark); }
+.mondstadt-city { stroke-width: 2; opacity: .4; }
+.city-fill { fill: var(--bg-abyss); fill-opacity: .65; stroke: none; }
+.bard-emblem { position: absolute; top: 22px; left: 50%; width: 660px; height: 440px; transform: translateX(-50%); pointer-events: none; }
+.bard-emblem img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 16px 24px rgba(var(--bg-abyss-rgb), .7)); }
+.city-art { position: absolute; inset: 0; background: url('../assets/ornamentos/ciudad-del-viento.png') center / cover no-repeat; pointer-events: none; }
+.city-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(var(--bg-abyss-rgb), .15), transparent 30%, rgba(var(--bg-abyss-rgb), .26) 70%, rgba(var(--bg-abyss-rgb), .65)), radial-gradient(ellipse 52% 32% at 50% 63%, rgba(var(--bg-abyss-rgb), .66), transparent); }
+.bard-crest { width: 100%; height: 100%; fill: none; stroke: var(--selector-gold); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(var(--glow-gold)); }
+.crest-orbit { stroke-width: .8; opacity: .5; stroke-dasharray: 3 12; }
+.crest-orbit.inner { stroke-dasharray: none; opacity: .2; }
+.lyre-body { stroke-width: 5; fill: rgba(var(--bg-abyss-rgb), .6); }
+.lyre-string { stroke-width: 1.5; stroke: var(--text-main); opacity: .8; }
+.lyre-gem { fill: var(--signal-active); stroke: var(--text-main); stroke-width: 1; }
+.crest-spark { fill: var(--selector-gold); stroke: none; }
+.bard-caption { position: absolute; left: 0; right: 0; top: 435px; margin: 0; font: 600 28px/1 var(--font-title); color: var(--selector-gold); letter-spacing: .16em; text-transform: uppercase; }
+.bard-caption span { padding: 0 18px; color: var(--signal-active); }
+.cover-title { font-size: 120px; }
+.cover-kicker { letter-spacing: .2em; }
+.cover-team li { border-color: rgba(var(--selector-gold-rgb), .32); border-radius: 5px 18px; background: var(--panel-bg); position: relative; }
+.cover-team li::before { content: ""; position: absolute; left: 20px; right: 20px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--selector-gold), transparent); }
+.cover-team b { color: var(--selector-gold); }
+#s-portada .cover-flat { visibility: hidden; }
+#s-portada .mondstadt-frame { opacity: .9; }
+.kicker::before { width: 17px; height: 17px; background: none; border: 1px solid var(--selector-gold); transform: rotate(45deg); margin-right: 22px; }
+.panel, .say { border-radius: 6px 22px; border-color: rgba(var(--selector-gold-rgb), .3); }
+.panel { background: linear-gradient(135deg, rgba(var(--bg-horizon-rgb), .9), var(--panel-bg) 55%); }
+.say { background: var(--panel-bg); }
+.cc { overflow: hidden; }
+.cc header, .cc p { position: relative; z-index: 1; }
+.bard-card-mark { position: absolute; right: -24px; bottom: -54px; width: 190px; height: 200px; fill: none; stroke: var(--selector-gold); stroke-width: 3; opacity: .1; pointer-events: none; }
+.mondstadt-seal { position: absolute; left: 22px; bottom: 24px; width: 75px; height: 56px; }
+.mondstadt-seal img { width: 100%; height: 100%; object-fit: contain; }
+.hud-who .hud-name:not(:empty)::before { display: none; }
+.hud-track { background: rgba(var(--selector-gold-rgb), .24); }
+/* Respaldo 2D: se conservan los ornamentos y la zona de lectura despejada. */
+body.no3d .flat-wind { opacity: .35; }
+
+/* Acabado ilustrado para las otras diecinueve diapositivas. */
+.illustrated-slide > .mondstadt-frame { display: none; }
+.scene-atmosphere, .frame-art { position: absolute; inset: 0; pointer-events: none; }
+.scene-atmosphere { background: url('../assets/ornamentos/balcon-esmeralda.png') center / cover; opacity: .32; mask-image: linear-gradient(90deg, var(--bg-abyss), transparent 12%, transparent 88%, var(--bg-abyss)); }
+.illustrated-story .scene-atmosphere { opacity: .75; mask-image: none; }
+.illustrated-story .scene-atmosphere::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 75% 70% at 50% 46%, rgba(var(--bg-abyss-rgb), .42), rgba(var(--bg-abyss-rgb), .75)); }
+.frame-art { inset: -36px; background: url('../assets/ornamentos/marco-floral.png') center / 100% 100% no-repeat; opacity: .78; mask-image: linear-gradient(90deg, var(--bg-abyss), transparent 7%, transparent 93%, var(--bg-abyss)), linear-gradient(180deg, var(--bg-abyss), transparent 8%, transparent 92%, var(--bg-abyss)); }
+.illustrated-slide:not(.illustrated-story) .frame-art { opacity: .56; }
+.illustrated-slide .title { text-shadow: 0 3px 16px var(--bg-abyss); }
+.illustrated-slide .panel, .illustrated-slide .say, .illustrated-slide .refs li {
+  background: linear-gradient(140deg, rgba(var(--bg-horizon-rgb), .98), rgba(var(--bg-abyss-rgb), .96));
+  border: 1px solid rgba(var(--selector-gold-rgb), .45);
+  box-shadow: inset 0 1px 0 rgba(var(--text-main-rgb), .16), inset 0 -2px 0 rgba(var(--bg-abyss-rgb), .65), 0 14px 30px rgba(var(--bg-abyss-rgb), .45);
+}
+.illustrated-slide .panel { border-top: 3px solid var(--selector-gold); }
+.illustrated-slide table.truth thead { background: rgba(var(--selector-gold-rgb), .07); }
+.illustrated-slide table.truth tr.hot { box-shadow: inset 4px 0 var(--signal-active); background: linear-gradient(90deg, rgba(var(--signal-active-rgb), .16), rgba(var(--signal-active-rgb), .03)); }
+.illustrated-slide .chip { background: linear-gradient(135deg, var(--bg-horizon), var(--bg-abyss)); border-color: rgba(var(--selector-gold-rgb), .55); box-shadow: inset 0 1px rgba(var(--text-main-rgb), .15); }
+.illustrated-slide .expr { text-shadow: 0 3px 20px var(--bg-abyss); }
+.jade-light { stop-color: var(--ornament-teal); }
+.jade-mid { stop-color: var(--bg-space); }
+.jade-dark { stop-color: var(--bg-abyss); }
+.illustrated-slide .defs .body, .illustrated-slide .body3,
+.illustrated-slide .apps .alu, .illustrated-slide .apps .reg rect, .illustrated-slide .apps .mem rect,
+.illustrated-slide .prob .chan rect { fill: url(#md-jade); stroke: var(--selector-gold); filter: drop-shadow(0 5px 5px rgba(var(--bg-abyss-rgb), .7)); }
+.illustrated-slide svg.logic .gate:not(.open) { fill: url(#md-jade); }
+.card-illustration { position: absolute; right: 10px; bottom: 2px; width: 160px; height: 106px; object-fit: contain; opacity: .12; pointer-events: none; }
+.illustrated-slide .cc { padding-right: 50px; }
+.illustrated-slide .refs li { border-radius: 5px 18px; }
+.illustrated-slide .refs li::before { border: 1px solid rgba(var(--selector-gold-rgb), .35); background: linear-gradient(135deg, var(--bg-horizon), var(--bg-abyss)); text-align: center; border-radius: 6px; }
+.illustrated-slide .sim-tabs button, .illustrated-slide .sim-presets button { box-shadow: inset 0 1px 0 rgba(var(--text-main-rgb), .12), 0 4px 8px rgba(var(--bg-abyss-rgb), .2); }
+.closing-illustration { width: 280px; height: 187px; object-fit: contain; filter: drop-shadow(0 10px 16px var(--bg-abyss)); }
+.illustrated-slide .ask svg { display: none; }
+
+/* Tres composiciones complementarias; el contenido técnico conserva su posición. */
+.scene-archive .scene-atmosphere {
+  background-image: url('../assets/ornamentos/archivo-esmeralda.png');
+  opacity: .68;
+  mask-image: linear-gradient(90deg, var(--bg-abyss), transparent 16%, transparent 84%, var(--bg-abyss));
+}
+.scene-windmill .scene-atmosphere {
+  background-image: url('../assets/ornamentos/molinos-crepusculo.png');
+  opacity: .68;
+  mask-image: linear-gradient(90deg, var(--bg-abyss), transparent 12%, transparent 80%, var(--bg-abyss));
+}
+.scene-archive .frame-art, .scene-windmill .frame-art {
+  opacity: .34 !important;
+  mask-image: linear-gradient(180deg, var(--bg-abyss), transparent 6%, transparent 94%, var(--bg-abyss));
+}
+.scene-archive .panel { border-top-color: var(--ornament-gold-light); border-radius: 4px 4px 20px 4px; }
+.scene-windmill .panel { border-radius: 22px 6px; }
+.crystal-insignia {
+  position: absolute; right: 110px; top: 6px; width: 150px; height: 100px;
+  object-fit: contain; pointer-events: none; opacity: .82;
+  mask-image: radial-gradient(ellipse, var(--bg-abyss) 42%, transparent 72%);
+}
+.scene-crystal .panel, .scene-crystal .sim-shell {
+  border-color: rgba(var(--signal-active-rgb), .45);
+  box-shadow: inset 0 1px 0 rgba(var(--text-main-rgb), .16), 0 12px 30px rgba(var(--bg-abyss-rgb), .5);
+}

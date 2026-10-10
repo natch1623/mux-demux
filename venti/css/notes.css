@@ -1,0 +1,23 @@
+/* Notas del orador: ventana aparte (tecla N) y panel en pantalla (tecla H) */
+body.notes-window { margin: 0; padding: 24px 30px; background: var(--bg-abyss); color: var(--text-main); font: 400 20px/1.45 var(--font-data); }
+#notes header, #inline-notes header { display: flex; gap: 18px; margin-bottom: 14px; }
+#notes header > div, #inline-notes header > div { flex: 1; padding: 10px 14px; border-radius: 14px; background: var(--panel-bg-soft); border: 1px solid var(--panel-border); font: 700 34px/1.1 var(--font-data); font-variant-numeric: tabular-nums; }
+#notes header small, #inline-notes header small { display: block; font: 500 14px/1.4 var(--font-data); color: var(--text-muted); }
+#notes header div small:last-child, #inline-notes header div small:last-child { display: inline; }
+#notes .late, #inline-notes .late { color: var(--signal-error); }
+#notes h2, #inline-notes h2 { margin: 6px 0 10px; font: 600 32px/1.1 var(--font-title); color: var(--text-main); }
+#notes h2 span, #inline-notes h2 span { display: block; font: 600 16px var(--font-data); color: var(--selector-gold); letter-spacing: .08em; text-transform: uppercase; margin-top: 6px; }
+#notes ol, #inline-notes ol { list-style: none; margin: 0; padding: 0; }
+#notes li, #inline-notes li { padding: 10px 14px; margin: 6px 0; border-radius: 12px; color: var(--text-muted); border: 1px solid transparent; font-size: 19px; }
+#notes li b, #inline-notes li b { display: inline-block; min-width: 76px; color: var(--selector-gold); font-weight: 600; }
+#notes li.now, #inline-notes li.now { color: var(--text-main); background: rgba(var(--signal-active-rgb), .1); border-color: var(--panel-border); font-size: 22px; }
+#notes li.done, #inline-notes li.done { opacity: .55; }
+#notes .extra, #inline-notes .extra { margin-top: 12px; padding: 12px 14px; border-left: 3px solid var(--selector-gold); color: var(--text-main); font-size: 17px; background: rgba(var(--selector-gold-rgb), .06); }
+#notes .next, #inline-notes .next { margin-top: 14px; color: var(--text-muted); }
+#notes .next b, #inline-notes .next b { color: var(--signal-active); }
+#notes nav, #inline-notes nav { display: flex; gap: 10px; margin-top: 16px; }
+#notes button, #inline-notes button { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--panel-bg-soft); color: var(--text-main); font: 600 18px var(--font-data); cursor: pointer; }
+#notes button[data-act="next"], #inline-notes button[data-act="next"] { background: rgba(var(--signal-active-rgb), .18); }
+#inline-notes header > div { font-size: 24px; }
+#inline-notes li { font-size: 16px; }
+#inline-notes li.now { font-size: 18px; }

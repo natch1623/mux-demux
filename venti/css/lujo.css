@@ -1,0 +1,90 @@
+/* =====================================================================
+   Lujo — acabado de material (js/core/lujo.js). Solo variables de tokens.css;
+   los degradados y filtros #lj-* se generan con esos mismos colores.
+   ===================================================================== */
+
+/* ---------- compuertas: jade biselado, filo de marfil, incrustación dorada ---------- */
+svg.logic .gate, .defs .body, .body3 {
+  fill: url(#lj-jade); stroke: url(#lj-rim); stroke-width: 3.5; filter: url(#lj-relief);
+}
+svg.logic .gate.open { fill: url(#lj-jade-on); stroke: url(#lj-rim-on); filter: url(#lj-relief-on); }
+svg.logic .gate.shut { opacity: .62; }
+svg.logic .bubble { fill: url(#lj-pearl); stroke: url(#lj-rim); stroke-width: 2.5; }
+svg.logic .dot { fill: url(#lj-pearl); stroke: var(--ornament-gold-dark); stroke-width: 2; filter: url(#lj-soft); }
+
+/* ---------- cables: funda oscura + hilo + núcleo de energía ---------- */
+svg.logic .lj-sheath { fill: none; stroke: var(--bg-abyss); stroke-opacity: .9; stroke-width: calc(var(--wire-off) + 6px); stroke-linecap: round; stroke-linejoin: round;
+  transition: stroke var(--dur-quick), stroke-width var(--dur-quick), stroke-opacity var(--dur-quick); }
+svg.logic .lj-sheath.on { stroke: var(--ornament-teal); stroke-opacity: .85; stroke-width: calc(var(--wire-on) + 9px); filter: drop-shadow(0 0 12px rgba(var(--signal-active-rgb), .55)); }
+svg.logic .lj-sheath.sel { stroke: var(--bg-abyss); }
+svg.logic .lj-sheath.sel.on { stroke: var(--ornament-gold-dark); stroke-opacity: .8; filter: drop-shadow(0 0 10px rgba(var(--selector-gold-rgb), .5)); }
+svg.logic .lj-sheath.chan { stroke-width: 18px; }
+svg.logic .lj-core { fill: none; stroke: var(--text-main); stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 16 52; opacity: 0;
+  transition: opacity var(--dur-quick); pointer-events: none; }
+svg.logic .lj-core.on { opacity: .95; animation: ljflow 1.1s linear infinite; filter: drop-shadow(0 0 5px var(--signal-active)) drop-shadow(0 0 12px rgba(var(--signal-active-rgb), .7)); }
+svg.logic .lj-core.sel.on { stroke: var(--ornament-gold-light); filter: drop-shadow(0 0 6px var(--selector-gold)); animation-duration: 1.6s; }
+@keyframes ljflow { from { stroke-dashoffset: 68; } to { stroke-dashoffset: 0; } }
+:root.calm svg.logic .lj-core.on { animation: none; stroke-dasharray: none; opacity: .35; }
+
+/* ---------- paneles: doble filo, brillo superior y esquinas de orfebrería ---------- */
+.panel, .say, .def-card {
+  box-shadow:
+    inset 0 1px 0 rgba(var(--text-main-rgb), .12),
+    inset 0 0 0 5px rgba(var(--bg-space-rgb), .55),
+    inset 0 0 0 6px rgba(var(--selector-gold-rgb), .16),
+    inset 0 -40px 60px -40px rgba(var(--signal-active-rgb), .08),
+    0 24px 60px rgba(var(--bg-abyss-rgb), .55),
+    0 2px 0 rgba(var(--bg-abyss-rgb), .6);
+}
+.panel::after, .say::after, .def-card::after {
+  content: ""; position: absolute; inset: -1px; pointer-events: none; border-radius: inherit;
+  background:
+    linear-gradient(var(--selector-gold), var(--selector-gold)) left top / 26px 2px,
+    linear-gradient(var(--selector-gold), var(--selector-gold)) left top / 2px 26px,
+    linear-gradient(var(--selector-gold), var(--selector-gold)) right bottom / 26px 2px,
+    linear-gradient(var(--selector-gold), var(--selector-gold)) right bottom / 2px 26px,
+    radial-gradient(circle, var(--ornament-gold-light) 0 3px, transparent 3.5px) left 9px top 9px / 8px 8px,
+    radial-gradient(circle, var(--ornament-gold-light) 0 3px, transparent 3.5px) right 9px bottom 9px / 8px 8px,
+    linear-gradient(90deg, transparent 15%, rgba(var(--ornament-gold-light-rgb), .55) 50%, transparent 85%) center top / 70% 1px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- chips de valor 0/1: gema facetada ---------- */
+.lbl3d.rig .v { background: linear-gradient(160deg, rgba(var(--bg-horizon-rgb), .95), rgba(var(--bg-abyss-rgb), .95)); border-color: rgba(var(--selector-gold-rgb), .28);
+  box-shadow: inset 0 1px 0 rgba(var(--text-main-rgb), .14), 0 3px 8px rgba(var(--bg-abyss-rgb), .6); }
+.lbl3d.rig.hi .v { background: linear-gradient(160deg, var(--text-main), var(--signal-active) 45%, var(--ornament-teal)); color: var(--bg-abyss);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), inset 0 -3px 6px rgba(var(--bg-abyss-rgb), .25), var(--glow-active); }
+.lbl3d.rig.sel.hi .v { background: linear-gradient(160deg, var(--ornament-gold-light), var(--selector-gold) 50%, var(--ornament-gold-dark));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), var(--glow-gold); }
+
+/* ---------- tablas: fila activa como cinta de luz ---------- */
+table.truth tr.hot td, table.truth tr.now td {
+  background: linear-gradient(90deg, rgba(var(--signal-active-rgb), .04), rgba(var(--signal-active-rgb), .2) 50%, rgba(var(--signal-active-rgb), .04));
+  box-shadow: inset 0 1px 0 rgba(var(--signal-active-rgb), .45), inset 0 -1px 0 rgba(var(--signal-active-rgb), .45);
+}
+table.truth th { text-shadow: 0 0 18px rgba(var(--selector-gold-rgb), .35); }
+
+/* ---------- títulos: brillo de metal ---------- */
+.title em { text-shadow: 0 0 24px rgba(var(--signal-active-rgb), .35), 0 2px 30px rgba(var(--bg-abyss-rgb), .5); }
+
+/* ---------- piezas propias de algunas diapositivas ---------- */
+/* 2 · problema: canal, receptor y fuentes como piezas engastadas */
+.prob .chan rect, .prob .rx { fill: url(#lj-jade); filter: url(#lj-relief); }
+.prob .wire { stroke-width: 5; filter: drop-shadow(0 2px 0 rgba(var(--bg-abyss-rgb), .9)); }
+.prob .orb { filter: url(#lj-soft); stroke: url(#lj-rim); stroke-width: 3; }
+/* 5 · árbol: nodos de oro y hojas-gema */
+.trees .edge { stroke-width: 4; filter: drop-shadow(0 2px 0 rgba(var(--bg-abyss-rgb), .9)); }
+.trees .node { fill: url(#lj-jade); stroke: url(#lj-gold); stroke-width: 3.5; filter: url(#lj-soft); }
+.trees .node.hot { fill: url(#lj-gold); }
+.trees .leaf { fill: url(#lj-pearl); fill-opacity: .55; stroke: url(#lj-rim); filter: url(#lj-soft); }
+.trees .leaf.hot { fill: url(#lj-gem); fill-opacity: 1; filter: drop-shadow(0 0 10px rgba(var(--signal-active-rgb), .8)); }
+/* 6 · ruta interna del MUX pequeño */
+.mini .route { stroke: rgba(var(--text-main-rgb), .2); }
+/* 16 · registros, ALU y memorias */
+.apps rect { fill: url(#lj-jade); stroke: url(#lj-rim); filter: url(#lj-relief); }
+.apps .alu { stroke: url(#lj-gold); }
+/* 17 · TDM: ranuras, eje y destinos */
+.tdm .slot rect, .tdm .hub { fill: url(#lj-jade); filter: url(#lj-relief); }
+.tdm .dst circle { fill: url(#lj-jade); stroke: url(#lj-rim); filter: url(#lj-soft); }
+.tdm .dst.hit circle { fill: url(#lj-gem); }
+.tdm .arm line { stroke: url(#lj-gold); filter: drop-shadow(0 0 8px rgba(var(--selector-gold-rgb), .55)); }

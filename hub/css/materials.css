@@ -1,0 +1,263 @@
+/* =====================================================================
+   Materiales, composiciones y revelaciones
+   Cada mundo cambia de formas y materiales (no solo de color):
+   hielo tallado · escenario oscuro · materia orgánica · oro y relojería
+   ===================================================================== */
+
+/* ---------------- composiciones ---------------- */
+/* DEMUX: espejo del MUX (la figura a la izquierda, el texto a la derecha) */
+.side-demux.lay-split .st-in{flex-direction:row-reverse}
+
+/* la ecuación ocupa el centro y se arma por etapas */
+.lay-center .st-in{flex-direction:column;justify-content:center}
+.eq-stage{width:100%;display:flex;flex-direction:column;align-items:center;text-align:center}
+.eq-stage .chip{justify-content:center}
+.eq-stage h2{font-size:84px}
+.eq.hero{margin:56px 0 0;font-size:92px;line-height:1.1;color:var(--dim);display:flex;align-items:flex-start;justify-content:center;gap:26px;white-space:nowrap}
+.eq.hero .eq-y{color:var(--cream)}
+.eq.hero .plus{opacity:.55}
+.eq .term{display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 10px 0;border-radius:14px}
+.eq .term small,.eq.line small{font-family:var(--mono);font-size:20px;letter-spacing:.1em;color:var(--faint);margin-top:10px;transition:color .5s}
+.eq .term.on small,.eq.line.on small{color:var(--acc)}
+.eq .term.on{background:radial-gradient(60% 60% at 50% 40%,var(--acc-soft),transparent)}
+.eq-stage .lede.sm{margin:36px auto 0;max-width:46ch}
+.eq-grid{display:grid;grid-template-columns:auto auto;gap:8px 110px;margin-top:44px}
+.eq-grid .eq.line{font-size:70px;cursor:pointer;text-align:left}
+.eq-grid .eq.line small{margin-left:20px}
+.eq-stage .ice-table.compact{margin-top:40px}
+/* tabla en tira horizontal: cada combinación es una columna */
+.ice-table.strip{display:flex;margin-top:54px;font-size:32px}
+.ice-table.strip thead,.ice-table.strip tbody{display:flex}
+.ice-table.strip tr{display:flex;flex-direction:column}
+.ice-table.strip th,.ice-table.strip td{padding:12px 34px!important;text-align:center;border-bottom:1px solid var(--line)}
+.ice-table.strip th{font-size:22px;padding:15px 26px!important}
+.ice-table.strip tr.on{background:linear-gradient(180deg,var(--acc-soft),transparent 90%)}
+.ice-table.strip tr.on td:first-child{box-shadow:inset 0 3px 0 var(--acc)}
+/* etapas: Y = … aparece primero, luego cada término con su combinación, al final la tabla */
+.build .eq-y{animation:stageIn .7s var(--expo) .2s both}
+.build .term,.build .plus{animation:stageIn .8s var(--expo) calc(.6s + var(--i) * .55s) both}
+.build .plus{animation-delay:calc(.35s + var(--i) * .55s)}
+.build .eq.line{animation:stageIn .8s var(--expo) calc(.5s + var(--i) * .5s) both}
+.build .ice-table,.build .lede.sm{animation:stageUp .9s var(--expo) 2.8s both}
+@keyframes stageIn{from{opacity:0;transform:translateY(34px) scale(.92);filter:blur(10px)}}
+@keyframes stageUp{from{opacity:0;transform:translateY(24px)}}
+
+/* la cascada se despliega por toda la pantalla */
+.lay-full .st-in{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px;padding:96px 130px 200px}
+.full-head{display:flex;justify-content:space-between;align-items:flex-end;gap:70px}
+.full-title h2{font-size:100px}
+.full-side{flex:0 1 700px}
+.full-side .lede{margin:0;font-size:27px;max-width:none}
+.full-side .formula{margin-top:16px;font-size:25px}
+.full-side .ctrl{margin-top:18px}
+.lay-full .tree-box{flex:1;min-height:0;display:flex;align-items:center}
+.lay-full .tree-box .fig{width:100%;height:100%;max-height:none}
+.tree .lvl{animation:unfold .6s var(--expo) calc(var(--l) * .17s) both}
+.side-demux .tree .lvl{animation-name:unfoldR}
+@keyframes unfold{from{opacity:0;transform:translateX(-60px)}}
+@keyframes unfoldR{from{opacity:0;transform:translateX(60px)}}
+.fig .pin.out{fill:var(--cr-on);stroke:var(--wire-on)}
+
+/* los sensores rodean el MUX: la esfera ocupa toda la estación */
+.lay-ring .st-in{display:block}
+.ring-fig{position:absolute;inset:0;width:100%;height:100%;max-height:none}
+.ring-text{position:absolute;left:130px;top:96px;width:470px;z-index:1}
+.ring-text h2{font-size:92px}
+.ring-text .lede{font-size:28px}
+.ring-fig .dial circle{fill:none;stroke:var(--blk-stroke);stroke-width:2;opacity:.35}
+.ring-fig .dial circle.in{stroke-dasharray:3 12;opacity:.3}
+.ring-fig .dial path{fill:none;stroke:var(--blk-stroke);stroke-width:3;opacity:.4}
+.ring-fig .clock-hand{fill:var(--wire-on);opacity:.75}
+.ring-fig .hand-g{transition:transform .9s cubic-bezier(.34,1.56,.64,1)}
+.fig .gauge .g-face{fill:url(#m-gold-side);stroke:var(--blk-stroke);stroke-width:4;transition:stroke .3s}
+.fig .gauge .g-ticks{fill:none;stroke:var(--blk-stroke);stroke-width:3}
+.fig .gauge .g-needle{stroke:var(--wire-on);stroke-width:4;stroke-linecap:round}
+.fig .gauge .g-hub{fill:var(--wire-on)}
+.fig .gauge text{text-anchor:middle!important;font-size:21px}
+.fig .gauge .s-val{font-size:22px}
+.fig .gauge.on .g-face{stroke:var(--wire-on);stroke-width:6;filter:drop-shadow(0 0 16px var(--acc))}
+.fig .gauge [role=button],.fig .gauge{cursor:pointer}
+
+/* ---------------- volumen y materiales de los bloques ---------------- */
+.fig .blk-side{stroke:none}
+.fig .blk-src{visibility:hidden}
+.fig .blk-t{paint-order:stroke;stroke:rgba(5,8,18,.85);stroke-width:7px;stroke-linejoin:round}
+.fig .w-case{fill:none;stroke:rgba(0,0,0,.55);stroke-width:13;stroke-linecap:round;pointer-events:none}
+.fig .orn{pointer-events:none}
+
+/* hielo tallado */
+.w-tsaritsa .fig .blk,.w-tsaritsa .fig .gate{fill:url(#m-ice);stroke:#EAF6FF;stroke-width:3}
+.w-tsaritsa .fig .blk-side{fill:url(#m-ice-side)}
+.w-tsaritsa .fig .w-case{stroke:rgba(8,20,52,.85)}
+.w-tsaritsa .o-facet{fill:none;stroke:rgba(234,246,255,.38);stroke-width:1.6}
+.w-tsaritsa .o-inner{fill:none;stroke:rgba(234,246,255,.28);stroke-width:1.5}
+.w-tsaritsa .o-glint{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;opacity:.85}
+.w-tsaritsa .key-body{rx:8px}
+.w-tsaritsa .readout{background:linear-gradient(90deg,rgba(159,212,255,.14),transparent 80%);padding:14px 22px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.w-tsaritsa h2{background:linear-gradient(180deg,#FFFFFF 25%,#CFE6FF 60%,#8FBDF2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.w-tsaritsa h2 em{-webkit-text-fill-color:var(--acc)}
+.w-tsaritsa .tg{border-radius:10px}
+
+/* escenario musical oscuro: gabinetes con rejilla, cables de instrumento */
+.w-marceline .fig .blk,.w-marceline .fig .gate{fill:url(#m-tolex);stroke:#FF8A98;stroke-width:3.5}
+.w-marceline .fig .blk-side{fill:#050102}
+.w-marceline .fig .w-case{stroke:#000;stroke-width:15}
+.w-marceline .o-grille{stroke:rgba(255,138,152,.25);stroke-width:1.5}
+.w-marceline .o-corner{fill:#A9AEB6;stroke:#2A2E33;stroke-width:2}
+.w-marceline .key-body{rx:12px;stroke-width:3}
+.w-marceline .cr .cr-facet{fill:none;stroke:#FF8A98;stroke-opacity:.45;stroke-width:2}
+.w-marceline .readout{background:#0A0204;border:2px solid #3A0C14;border-radius:10px;padding:14px 20px;color:#FF7A8A;text-shadow:0 0 10px rgba(255,42,68,.7)}
+.w-marceline .readout b{color:#FFD0D6}
+.w-marceline h2{font-family:"Bebas Neue",var(--display);font-weight:400;font-size:112px;line-height:.92;letter-spacing:.015em;text-transform:uppercase}
+.w-marceline h2 em{font-style:normal;color:#FF5A6E;text-shadow:0 0 18px #FF2A44,0 0 54px rgba(255,42,68,.55)}
+.w-marceline .eq-stage h2,.w-marceline .full-title h2{font-size:96px}
+.w-dio .ring-text h2{font-size:74px}
+.w-marceline .tg{border-radius:12px;background:linear-gradient(180deg,#2A2E33,#0E0F11);border-color:#FF5A6E}
+.w-marceline .tg[aria-pressed=true]{background:#FF5A6E}
+
+/* materia orgánica: bordes que respiran, venas y tentáculos */
+.w-venom .fig .blk,.w-venom .fig .gate{fill:url(#m-goo);stroke:#B79BFF;stroke-width:3}
+.w-venom .fig .blk-side{fill:#000}
+.w-venom .fig .w-case{stroke:#000;stroke-width:16}
+.w-venom .o-vein{fill:none;stroke:#9A6BFF;stroke-width:2.5;opacity:.55;stroke-linecap:round}
+.w-venom .o-tendril{fill:none;stroke:#05020A;stroke-width:10;stroke-linecap:round}
+.w-venom .key-body{rx:30px}
+.w-venom .cr .cr-facet{fill:rgba(236,230,255,.22);stroke:none}
+.w-venom .readout{border:2px solid #5B3A99;border-radius:46px 70px 54px 80px/70px 44px 80px 52px;background:radial-gradient(120% 140% at 20% 0%,rgba(91,58,153,.35),rgba(8,4,16,.85));padding:16px 28px}
+.w-venom h2{font-family:"Fraunces",var(--display);font-weight:900;font-variation-settings:"SOFT" 100,"WONK" 1;font-size:104px;line-height:.98;letter-spacing:-.01em}
+.w-venom h2 em{font-style:normal;color:#C9B2FF;text-shadow:0 0 30px rgba(154,107,255,.7),0 4px 0 #000}
+.w-venom .tg{border-radius:40px 30px 44px 28px/30px 44px 28px 40px}
+
+/* metal dorado y relojería: oro bruñido, remaches, engranajes */
+.w-dio .fig .blk,.w-dio .fig .gate{fill:url(#m-gold);stroke:#FFF0B8;stroke-width:3}
+.w-dio .fig .blk-side{fill:url(#m-gold-side)}
+.w-dio .fig .blk-t{fill:#1E1404;stroke:#FFF0B8;stroke-width:4px;font-family:"Cinzel",var(--display);font-style:normal;font-weight:900}
+.w-dio .fig .w-case{stroke:#1A1002}
+.w-dio .o-engrave{fill:none;stroke:rgba(40,25,4,.6);stroke-width:2.2}
+.w-dio .o-rivet{fill:#FFF0B8;stroke:#5A3A06;stroke-width:2}
+.w-dio .o-gear{fill:#2A1A04;stroke:#C9862B;stroke-width:2.5;opacity:.9;animation:spin 26s linear infinite}
+.w-dio .key-body{rx:5px;stroke-width:3}
+.w-dio .cr .cr-facet{fill:none;stroke:#F2C14E;stroke-opacity:.85;stroke-width:2.2}
+.w-dio .box rect,.w-dio .box path,.w-dio .sensor rect,.w-dio .reg rect,.w-dio .device rect,.w-dio .chip rect,.w-dio .chan rect{rx:5px}
+.w-dio .readout{background:linear-gradient(180deg,#2A1A04,#120B02);border:2px solid #C9862B;box-shadow:inset 0 0 0 5px #120B02,inset 0 0 0 6px rgba(242,193,78,.5);border-radius:4px;padding:16px 24px}
+.w-dio h2{font-family:"Cinzel",var(--display);font-weight:700;font-size:74px;line-height:1.08;letter-spacing:.01em;
+  background:linear-gradient(180deg,#FFF6D6 10%,#F2C14E 46%,#8C6416 54%,#E9C46A 80%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #2A1A04)}
+.w-dio h2 em{font-style:normal;-webkit-text-fill-color:#FFE7A3}
+.w-dio .tg{border-radius:6px;border-style:double;border-width:4px}
+.w-dio .st-in::before,.w-dio .st-in::after{background:none;border-top:4px double var(--acc);border-left:4px double var(--acc);opacity:.6}
+
+/* las otras temáticas tienen su propio marco (o ninguno) */
+.w-marceline .st-in::before,.w-marceline .st-in::after,.w-venom .st-in::before,.w-venom .st-in::after{display:none}
+.w-tsaritsa .st-bg::before{display:none}
+
+/* ---------------- fondos de cada mundo ---------------- */
+.bd{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.bd-tsaritsa .sh{opacity:.85}
+.bd-tsaritsa .sh-e{fill:none;stroke:rgba(234,246,255,.32);stroke-width:2}
+.bd-tsaritsa .rose path{fill:none;stroke:rgba(159,212,255,.08);stroke-width:3}
+.bd-marceline .planks{fill:none;stroke:rgba(255,90,110,.1);stroke-width:2}
+.bd-marceline .edge{fill:none;stroke:#FF5A6E;stroke-width:3;opacity:.45}
+.bd-marceline .beam{opacity:.55}
+.st.cur .bd-marceline .beam{animation:beam 6s ease-in-out infinite alternate}
+.st.cur .bd-marceline .beam.b1{animation-delay:-2s}.st.cur .bd-marceline .beam.b2{animation-delay:-4s}
+@keyframes beam{50%{opacity:.35}}
+.bd-marceline .stack rect{fill:#0C0305;stroke:#3A0C14;stroke-width:3}
+.bd-marceline .stack .cone{fill:url(#p-grille);stroke:#5A0A16;stroke-width:5}
+.bd-venom .mass{fill:#000;stroke:#5B3A99;stroke-width:3;opacity:.92}
+.bd-venom .tendril{fill:none;stroke:#000;stroke-linecap:round}
+.st.cur .bd-venom .cell{animation:cell 5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes cell{to{transform:scale(1.12)}}
+.bd-dio .ray{opacity:.24}
+.bd-dio .face,.bd-dio .hands{opacity:.5}
+.bd-dio .face path{fill:none;stroke:rgba(242,193,78,.16);stroke-width:3}
+.bd-dio .face .tk{stroke:rgba(242,193,78,.22);stroke-width:3}
+.bd-dio .face .tk.b{stroke-width:7}
+.bd-dio .face text{font-family:"Cinzel",serif;font-weight:700;font-size:46px;fill:rgba(242,193,78,.2);text-anchor:middle}
+.bd-dio .hand{fill:rgba(242,193,78,.22)}
+.st.cur .bd-dio .hand.h1{animation:spin 60s linear infinite}
+.st.cur .bd-dio .hand.h2{animation:spin 720s linear infinite}
+.bd-dio .gear path{fill:rgba(40,26,4,.85);stroke:rgba(242,193,78,.35);stroke-width:3}
+.st.cur .bd-dio .gear path{animation:spin 40s linear infinite}
+.st.cur .bd-dio .gear.rev path{animation-direction:reverse;animation-duration:26s}
+/* fuera de la estación visible, nada se mueve */
+.st:not(.cur) .o-gear{animation-play-state:paused}
+
+/* ---------------- revelación: la señal recorre el circuito ---------------- */
+.spark{pointer-events:none}
+.spark path{fill:none;stroke-linecap:round;stroke-dasharray:.16 2}
+.spark .sp-halo{stroke:var(--wire-on);stroke-width:30;opacity:.4;filter:blur(7px)}
+.spark .sp-core{stroke:#fff;stroke-width:9}
+.spark.cold .sp-halo{opacity:.15}
+.spark.cold .sp-core{stroke:var(--wire-off);stroke-width:6}
+/* la salida espera a que llegue la señal */
+.wait .cr-bit,.wait .pin-t,.wait text{opacity:.18;transition:opacity .15s}
+.wait .cr-halo{opacity:0!important}
+.readout{transition:opacity .2s}
+.readout.wait{opacity:.3}
+/* al llegar: destello */
+.arrived{animation:arrive .85s var(--expo);transform-box:fill-box;transform-origin:center}
+@keyframes arrive{0%{transform:none}28%{transform:scale(1.2);filter:brightness(1.9) drop-shadow(0 0 22px var(--wire-on))}100%{transform:none;filter:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .build *,.tree .lvl,.arrived{animation:none!important}
+  .bd *{animation:none!important}
+}
+html.still .build *,html.still .tree .lvl{animation:none!important}
+
+/* =====================================================================
+   HUB: el núcleo
+   un chip con el título impreso; las señales convergen en sus patas
+   ===================================================================== */
+.hub-art .core-glow{animation:coreGlow 5.2s ease-in-out infinite}
+@keyframes coreGlow{50%{opacity:.55}}
+.hub-art .cv-line{fill:none;stroke:rgba(159,212,255,.13);stroke-width:2.5}
+.hub-art .cv-pulse{fill:none;stroke:var(--c);stroke-width:5;stroke-linecap:round;stroke-dasharray:.09 1.4;stroke-dashoffset:.09;opacity:.9;animation:converge 5.2s cubic-bezier(.55,0,.35,1) var(--d) infinite both}
+@keyframes converge{0%{stroke-dashoffset:.09}45%,100%{stroke-dashoffset:-1}}
+.hub-art .chip-side{fill:#01030A}
+.hub-art .chip-body{stroke:rgba(207,230,255,.5);stroke-width:2.5}
+.hub-art .chip-bevel{fill:none;stroke:rgba(227,201,143,.32);stroke-width:1.5}
+.hub-art .chip-notch{fill:none;stroke:rgba(227,201,143,.55);stroke-width:2}
+.hub-art .chip-pins rect{stroke:#3A2E14;stroke-width:1}
+/* la miniatura del circuito completo: una semilla del final */
+.hub-art .die *{fill:none;stroke:var(--gold);stroke-width:1.3;vector-effect:non-scaling-stroke;opacity:.5}
+.hub-art .die .die-hub{stroke:#fff;opacity:.9;stroke-width:2}
+.hub.busy .cv-pulse{animation-play-state:paused;opacity:.25}
+/* el título: luz que lo atraviesa y un resplandor detrás */
+.hub-title::before{content:"";position:absolute;left:50%;top:44%;width:1100px;height:420px;translate:-50% -50%;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(159,212,255,.28),rgba(94,155,234,.08) 60%,transparent);animation:coreGlow 5.2s ease-in-out infinite}
+.hub-title h1{background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%) 160% 0/300% 100% no-repeat,linear-gradient(180deg,#FFFFFF 20%,#DDE9FF 60%,#9FC3F5);
+  -webkit-background-clip:text;background-clip:text;animation:sweep 7s cubic-bezier(.6,0,.3,1) 2.2s infinite}
+.hub-title h1 em{-webkit-text-fill-color:transparent;background:linear-gradient(105deg,transparent 42%,#fff 50%,transparent 58%) 160% 0/300% 100% no-repeat,linear-gradient(180deg,#E6F4FF,#9FD4FF 60%,#5E9BEA);
+  -webkit-background-clip:text;background-clip:text;animation:sweep 7s cubic-bezier(.6,0,.3,1) 2.55s infinite;padding-right:.08em}
+@keyframes sweep{0%{background-position:160% 0,0 0}35%,100%{background-position:-60% 0,0 0}}
+@media (prefers-reduced-motion:reduce){.hub-art .cv-pulse,.hub-art .core-glow,.hub-title::before,.hub-title h1,.hub-title h1 em{animation:none!important}}
+
+/* =====================================================================
+   Cierre: el alejamiento revela que los cuatro mundos eran un mismo circuito.
+   Primero se encienden los cables, luego cada mundo como un distrito
+   (en su material) y al final los rótulos.
+   ===================================================================== */
+.map .district{opacity:0;transition:opacity 1.4s ease}
+.map.revealed .district{opacity:1;transition-delay:calc(.5s + var(--i) * .55s)}
+.map .d-body,.map .d-band{stroke:var(--c);stroke-width:26}
+.map .d-band{stroke-width:14;stroke-opacity:.6}
+.map .t-tsaritsa .d-body,.map .t-tsaritsa .d-band{fill:url(#m-ice);fill-opacity:.55}
+.map .t-marceline .d-body,.map .t-marceline .d-band{fill:url(#m-tolex);fill-opacity:.85}
+.map .t-venom .d-body,.map .t-venom .d-band{fill:url(#m-goo);fill-opacity:.9}
+.map .t-dio .d-body,.map .t-dio .d-band{fill:url(#m-gold);fill-opacity:.45}
+.map.revealed .reveal{transition-delay:2.6s}
+.map-t.final{font-size:1040px;fill:var(--gold-2)}
+.map-t.district-name{paint-order:stroke;stroke:#050A18;stroke-width:80px;stroke-linejoin:round}
+/* bloques del mapa con volumen */
+.dblock .b-side{fill:#050C22;stroke:rgba(159,212,255,.25);stroke-width:4}
+.dblock .b-body{fill:url(#m-ice)}
+.dblock .b-glint{fill:none;stroke:#fff;stroke-width:12;stroke-linecap:round;opacity:.8}
+.hub-title h1{font-size:150px}
+/* en el alejamiento cada estación queda dentro de su distrito (los fondos no se desbordan) */
+html[data-mode=concl] .st-bg{inset:0;overflow:hidden}
+/* durante los vuelos, la señal que viaja va en su propia capa: al redibujarse cada cuadro
+   no obliga a repintar los fondos y figuras que tiene debajo */
+#world.moving .map.trace{will-change:transform}
+/* términos inactivos legibles; foco visible al recorrerlos con teclado */
+.eq-stage .eq .term:not(.on),.eq-grid .eq.line:not(.on){opacity:.78;color:var(--cream)}
+.eq .term:focus-visible,.eq.line:focus-visible{outline:3px solid var(--acc);outline-offset:6px;border-radius:14px}

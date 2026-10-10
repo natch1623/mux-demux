@@ -1,0 +1,104 @@
+/* =====================================================================
+   GUÍA DE ESTILO — "Balada del Viento" (MUX / DEMUX · Equipo 3)
+   ÚNICA fuente de colores, fuentes, easings, duraciones y tamaños.
+   Ningún otro archivo define colores o fuentes literales: todos usan
+   estas variables (JS las lee con Style.get('--nombre')).
+   Origen: investigación de estética con Gemini (06-10-2026), contraste
+   verificado con la fórmula WCAG 2.1 sobre --bg-space.
+   ===================================================================== */
+
+@font-face { font-family: "Cormorant Garamond"; font-weight: 500; font-style: normal; font-display: swap; src: url("../fonts/cormorant-garamond-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-weight: 500; font-style: italic; font-display: swap; src: url("../fonts/cormorant-garamond-latin-500-italic.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: normal; font-display: swap; src: url("../fonts/cormorant-garamond-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-weight: 700; font-style: normal; font-display: swap; src: url("../fonts/cormorant-garamond-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("../fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("../fonts/inter-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("../fonts/inter-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 700; font-display: swap; src: url("../fonts/inter-latin-700-normal.woff2") format("woff2"); }
+
+:root {
+  /* ---------- Color: cielo (fondo) ---------- */
+  --bg-abyss:   #0B1F1C;   /* borde del cielo / letterbox            */
+  --bg-space:   #143530;   /* fondo principal (verde pino profundo)  */
+  --bg-horizon: #1E4A42;   /* resplandor del horizonte               */
+
+  /* ---------- Color: texto ---------- */
+  --text-main:  #F4F6F1;   /* blanco cecilia · 12.2:1 sobre bg-space */
+  --text-muted: #98C5BB;   /* turquesa apaciguado · 7.0:1            */
+
+  /* ---------- Color: señales ---------- */
+  --signal-active:   #55EDC3; /* dato = 1 / ruta elegida · 9.0:1     */
+  --signal-inactive: #497B70; /* dato = 0: trazo visible, sin halo */
+  --selector-gold:   #DDB864; /* líneas de selección S1 S0 · 7.0:1  */
+  --signal-error:    #FA7869; /* colisión / limitación · 5.0:1       */
+
+  /* Versiones RGB para transparencias */
+  --signal-active-rgb: 85, 237, 195;
+  --selector-gold-rgb: 221, 184, 100;
+  --signal-error-rgb:  250, 120, 105;
+  --bg-space-rgb:      20, 53, 48;
+  --bg-horizon-rgb:    30, 74, 66;
+  /* Materiales decorativos: oro, marfil y madera. */
+  --ornament-gold-light: #FAE8B6;
+  --ornament-gold-dark: #84602C;
+  --ornament-ivory: #E9E9D4;
+  --ornament-teal: #286D62;
+  /* Absorción decorativa; nunca recolorea datos, control ni errores. */
+  --fx-pyro: #F2AA68;
+  --fx-hydro: #79C9EE;
+  --fx-cryo: #BAEAE8;
+  --fx-electro: #B7A4ED;
+  --text-main-rgb:     244, 246, 241;
+  --bg-abyss-rgb:      11, 31, 28;
+  --ornament-gold-light-rgb: 250, 232, 182;
+
+  /* ---------- Paneles translúcidos (legibilidad sobre 3D) ---------- */
+  --panel-bg:     rgba(var(--bg-space-rgb), 0.85);
+  --panel-bg-soft: rgba(var(--bg-space-rgb), 0.62);
+  --panel-border: rgba(var(--signal-active-rgb), 0.30);
+  --panel-blur:   blur(16px);
+  --panel-radius: 22px;
+  --glow-active:  0 0 20px rgba(var(--signal-active-rgb), 0.50);
+  --glow-gold:    0 0 18px rgba(var(--selector-gold-rgb), 0.45);
+
+  /* ---------- Tipografía ---------- */
+  --font-title: "Cormorant Garamond", "Palatino Linotype", "Book Antiqua", serif;
+  --font-data:  "Inter", "Segoe UI", system-ui, sans-serif;
+
+  /* Tamaños para el escenario de 1920×1080 (mínimos de proyector) */
+  --text-display: 132px;  /* portada                  */
+  --text-h1:      64px;   /* título de diapositiva    */
+  --text-h2:      48px;   /* rótulo de componente     */
+  --text-formula: 40px;   /* expresiones booleanas    */
+  --text-body:    32px;   /* frases de fase           */
+  --text-table:   34px;   /* tablas de funcionamiento */
+  --text-label:   28px;   /* etiquetas de diagrama    */
+  --text-min:     24px;   /* NADA visible por debajo  */
+
+  /* ---------- Movimiento: curvas "de brisa" ---------- */
+  --ease-breeze-in:  cubic-bezier(0.23, 1, 0.32, 1);  /* llegada sin rebote de lectura */
+  --ease-breeze-out: cubic-bezier(0.23, 1, 0.32, 1); /* dispersión inmediata */
+  --ease-float:      cubic-bezier(0.45, 0, 0.55, 1);    /* flotar / respirar             */
+  --ease-glide:      cubic-bezier(0.77, 0, 0.175, 1); /* vuelo y cintas de viento */
+  --transition-tempo: .72; /* coreografías de 0.76 a 2.30 s; fases intactas */
+
+  /* ---------- Movimiento: duraciones ---------- */
+  --dur-quick:       300ms;  /* rutas que se apagan               */
+  --dur-fade:        400ms;  /* salida / dispersión               */
+  --dur-gust:        600ms;  /* aparición de un elemento          */
+  --dur-data-travel: 800ms;  /* dato recorriendo un cable         */
+  --dur-slide:       1100ms; /* transición entre diapositivas     */
+  --dur-float:       3000ms; /* respiración continua              */
+  --dur-shake:       150ms;  /* colisión                          */
+
+  /* ---------- Trazos de diagramas ---------- */
+  --wire-off:  3px;
+  --wire-on:   6px;
+  --wire-sel:  4px;
+}
+
+/* Sin movimiento: el sistema operativo lo pide o el orador pulsa M */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-quick: 1ms; --dur-fade: 1ms; --dur-gust: 1ms; --dur-data-travel: 1ms; --dur-slide: 1ms; --dur-shake: 1ms; }
+}
+:root.calm { --dur-quick: 1ms; --dur-fade: 1ms; --dur-gust: 1ms; --dur-data-travel: 1ms; --dur-slide: 1ms; --dur-shake: 1ms; }

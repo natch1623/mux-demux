@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MUX / DEMUX</title>
+<meta name="description" content="Multiplexores y demultiplexores: presentación interactiva sobre un lienzo navegable.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='26' fill='%230A1530'/><g stroke='%23BFE3FF' stroke-width='6' stroke-linecap='round'><path d='M50 16V84M21 33L79 67M21 67L79 33'/></g></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- tipografías de cada mundo: Cinzel (DIO, grabado en metal), Bebas Neue (Marceline, cartel de concierto), Fraunces blanda (Venom, orgánica) -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,600..900,0..100,0..1&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#050A18">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/worlds.css">
+<link rel="stylesheet" href="css/materials.css">
+</head>
+<body>
+
+<!-- degradados y filtros compartidos -->
+<svg class="sprite" aria-hidden="true" focusable="false"><defs id="defs">
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <!-- en coordenadas del dibujo: no recorta líneas rectas -->
+  <!-- región ajustada al dibujo de cada estación (una región enorme congela el render al hacer zoom) -->
+  <filter id="glowU" filterUnits="userSpaceOnUse" x="-80" y="-80" width="1300" height="820">
+    <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs></svg>
+
+<!-- fondo de pantalla: auras y nieve (no se mueven con la cámara) -->
+<div id="sky" aria-hidden="true"><div class="aura"></div><div class="tint" id="tint"></div><canvas id="snow"></canvas><div class="vignette"></div></div>
+
+<!-- el lienzo: todo vive en coordenadas del mundo y la cámara lo recorre -->
+<div id="viewport">
+  <div id="world"></div>
+</div>
+
+<p class="final-phrase" id="finalPhrase" aria-live="polite"><span>El MUX decide <em>qué</em> información pasa;</span><span>el DEMUX decide <em>hacia dónde</em> se dirige.</span></p>
+
+<!-- velos de transición por temática -->
+<div id="veil" aria-hidden="true"></div>
+<!-- murciélagos de Marceline (vuelan con la señal y hacen de velo) -->
+<canvas id="bats" aria-hidden="true"></canvas>
+<!-- simbionte de Venom (se arrastra por el cable) -->
+<canvas id="venom" aria-hidden="true"></canvas>
+
+<!-- controles (aparecen dentro de las rutas) -->
+<nav class="route-ui" id="routeUi" aria-label="Navegación de la sección">
+  <button class="rbtn" id="bHub" aria-label="Volver al HUB"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5"/></svg></button>
+  <div class="route-where"><b id="rwSide"></b><span id="rwWho"></span></div>
+  <div class="route-dots" id="rwDots"></div>
+  <div class="route-arrows">
+    <button class="rbtn" id="bPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="rbtn" id="bNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</nav>
+
+<!-- herramientas discretas (siempre) -->
+<div class="tools">
+  <button class="tbtn" id="tTimer" title="Cronómetro · tocar para pausar. Se guarda en este navegador hasta «Nueva sesión»."><span id="tNow">00:00</span></button>
+  <button class="tbtn" id="tReset" aria-label="Nueva sesión: reiniciar cronómetro y progreso (tocar dos veces)" title="Nueva sesión (dos toques)"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg></button>
+  <button class="tbtn" id="tNotes" aria-label="Notas (N)" title="Notas · N"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/></svg></button>
+  <button class="tbtn" id="tFull" aria-label="Pantalla completa (F)" title="Pantalla completa · F"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+
+<aside class="notes" id="notes" aria-label="Notas del expositor">
+  <div class="notes-top"><p class="notes-meta" id="nMeta"></p><button class="tbtn" id="nClose" aria-label="Cerrar notas">✕</button></div>
+  <p class="notes-text" id="nText"></p>
+</aside>
+
+<p class="toast" id="toast" role="status"></p>
+<p class="sr-only" id="live" aria-live="polite"></p>
+
+<script src="js/util.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/bats.js"></script>
+<script src="js/venom.js"></script>
+<script src="js/dress.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/hub.js"></script>
+<script src="js/content.js"></script>
+<script src="js/worlds.js"></script>
+<script src="js/ending.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

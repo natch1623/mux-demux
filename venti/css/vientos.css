@@ -1,0 +1,35 @@
+/* =====================================================================
+   Vientos — capa de transiciones coreografiadas (js/core/vientos.js)
+   Solo usa variables de tokens.css.
+   ===================================================================== */
+#vientos { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+#vientos canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* diapositiva saliente: sigue visible mientras la transición la desarma */
+.slide.vt-out { display: block; pointer-events: none; z-index: 0; }
+/* diapositiva entrante: oculta hasta el «relevo» */
+.slide.vt-hold { visibility: hidden; }
+/* al llegar, la coreografía decide cuándo aparece cada pieza: sin las
+   transiciones propias de [data-in] y de las frases de fase */
+.slide.vt-arrive [data-in], .slide.vt-arrive .says .say { transition: none !important; }
+/* fragmentos (cortes, esquirlas) */
+.slide.vt-clone { display: block; pointer-events: none; z-index: 2; will-change: transform, opacity; }
+.slide.vt-out, .slide.current { transform-origin: 50% 50%; }
+
+/* tarjeta de relevo de orador */
+.vt-card { position: absolute; left: 960px; top: 540px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 44px 140px 50px; white-space: nowrap; text-align: center;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(var(--bg-abyss-rgb), .9), rgba(var(--bg-abyss-rgb), .55) 55%, rgba(var(--bg-abyss-rgb), 0) 100%); }
+.vt-card::before, .vt-card::after { content: ""; width: 420px; height: 2px; background: linear-gradient(90deg, transparent, var(--selector-gold), transparent); }
+.vt-card::before { height: 120px; background: url('../assets/ornamentos/cristal-alado.png') center / 180px 120px no-repeat; mask-image: radial-gradient(ellipse, var(--bg-abyss) 28%, transparent 70%); }
+.vt-card-k { font: 600 var(--text-min)/1 var(--font-data); letter-spacing: .26em; text-transform: uppercase; color: var(--selector-gold); }
+.vt-card strong { font: 600 var(--text-display)/1 var(--font-title); color: var(--text-main); letter-spacing: .01em; text-shadow: 0 0 40px rgba(var(--signal-active-rgb), .45), 0 4px 30px rgba(var(--bg-abyss-rgb), .8); }
+.vt-card-t { font: italic 500 var(--text-h2)/1.1 var(--font-title); color: var(--signal-active); }
+
+/* lira alada de la transición al simulador */
+.vt-lyre { position: absolute; left: 960px; top: 500px; width: 640px; height: 427px; transform: translate(-50%, -50%); filter: drop-shadow(var(--glow-gold)) drop-shadow(0 18px 30px rgba(var(--bg-abyss-rgb), .7)); }
+.vt-lyre img { width: 100%; height: 100%; object-fit: contain; }
+
+/* el ambiente de la diapositiva entrante (marco, atmósfera) aparece antes
+   que su contenido: fundido cruzado con el de la saliente */
+.slide.vt-hold > :is(.mondstadt-frame, .frame-art, .scene-atmosphere, .city-art, [data-vt="fijo"]) { visibility: visible; }

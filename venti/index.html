@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MUX y DEMUX · Balada del Viento · Equipo 3</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/notes.css">
+<link rel="stylesheet" href="css/slides.css">
+<link rel="stylesheet" href="css/sim.css">
+<link rel="stylesheet" href="css/mondstadt.css">
+<link rel="stylesheet" href="css/vientos.css">
+<link rel="stylesheet" href="css/lujo.css">
+</head>
+<body>
+<div id="loading">Afinando la lira…</div>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<div id="stage" role="application" aria-label="Exposición interactiva: multiplexores y demultiplexores">
+  <svg class="flat-wind" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M-100 260 C 300 200, 700 320, 1100 250 S 1800 200, 2100 260"/>
+    <path d="M-100 820 C 400 760, 800 880, 1200 800 S 1800 760, 2100 830"/>
+    <path d="M-100 540 C 360 500, 760 600, 1160 520 S 1760 480, 2100 560"/>
+    <path d="M-100 140 C 500 110, 900 170, 1300 120 S 1800 100, 2100 150"/>
+  </svg>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="slides"></div>
+  <div id="hud"></div>
+</div>
+
+<aside id="inline-notes" class="notes-inline" aria-live="polite"></aside>
+<div id="toast" role="status"></div>
+
+<!-- Librería 3D en local (sin internet): three.js r186.1 -->
+<script src="vendor/three.r186.min.js"></script>
+<!-- Núcleo -->
+<script src="js/core/engine.js"></script>
+<script src="js/core/mondstadt.js"></script>
+<script src="js/core/sky3d.js"></script>
+<script src="js/core/vientos.js"></script>
+<script src="js/core/rig3d.js"></script>
+<script src="js/core/rig-svg.js"></script>
+<script src="js/core/svgkit.js"></script>
+<script src="js/core/lujo.js"></script>
+<!-- Diapositivas (el orden de los scripts es el orden de la exposición) -->
+<script src="js/slides/01-portada.js"></script>
+<script src="js/slides/02-problema.js"></script>
+<script src="js/slides/03-definiciones.js"></script>
+<script src="js/slides/04-mux41.js"></script>
+<script src="js/slides/05-relacion.js"></script>
+<script src="js/slides/06-tabla-mux.js"></script>
+<script src="js/slides/07-expresion-mux.js"></script>
+<script src="js/slides/08-compuertas-mux.js"></script>
+<script src="js/slides/09-ejemplo.js"></script>
+<script src="js/slides/10-demux.js"></script>
+<script src="js/slides/11-tabla-demux.js"></script>
+<script src="js/slides/12-compuertas-demux.js"></script>
+<script src="js/slides/13-limitaciones.js"></script>
+<script src="js/slides/14-funcion-tabla.js"></script>
+<script src="js/slides/15-funcion-circuito.js"></script>
+<script src="js/slides/16-app-buses.js"></script>
+<script src="js/slides/17-app-telecom.js"></script>
+<script src="js/slides/18-simulador.js"></script>
+<script src="js/slides/19-conclusiones.js"></script>
+<script src="js/slides/20-referencias.js"></script>
+<script>
+  // Arranque cuando las fuentes estén listas (evita saltos de texto)
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    Deck.start();
+    Mondstadt.decorate();
+    Lujo.enhance();
+  });
+</script>
+</body>
+</html>
