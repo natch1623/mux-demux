@@ -130,90 +130,56 @@
 .secret.armed{opacity:.75;animation:secretPulse 2.6s ease-in-out infinite}
 @keyframes secretPulse{50%{filter:drop-shadow(0 0 18px #F2C14E);transform:scale(1.08)}}
 
-/* ---------- ending: mural (grabado, tinta, rojo, dorado, negro, púrpura) ---------- */
-.mural{height:1080px;--ink:#F2E3C0;--red:#C9352F;--gold:#E3B341;--plum:#6E2A6B}
-.mural-bg{position:absolute;inset:0;width:100%;height:100%}
-.mural .panel{position:absolute;top:0;width:1920px;height:1080px;padding:150px 170px;color:var(--ink);font-family:var(--display);
-  opacity:.28;filter:sepia(.5);transition:opacity 1.1s,filter 1.1s}
-.mural .panel.on{opacity:1;filter:none}
-.mural .panel.past{opacity:.4}
-.mural .mod{margin:0;font-family:var(--mono);font-size:26px;letter-spacing:.36em;text-transform:uppercase;color:var(--red)}
-.mural .mod.gold{color:var(--gold)}.mural .mod.dark{color:#8F86A8}
-.mural h2{margin:18px 0 0;font-weight:600;font-size:118px;line-height:.96;text-shadow:5px 5px 0 #3A0E12}
-.mural h2 em{font-style:italic;color:var(--gold)}
-.mural h2.big{font-size:190px}
-.mural h2.big i{color:var(--red);font-weight:500}
-.mural .tags{list-style:none;display:flex;flex-wrap:wrap;gap:18px 40px;margin:60px 0 0;padding:0;font-family:var(--mono);font-size:30px;color:rgba(242,227,192,.85)}
-.mural .tags li::before{content:"✦";color:var(--red);margin-right:14px}
-.mural .tags.v{flex-direction:column;gap:14px;margin:0}
-.mural .tags.trio{justify-content:center;font-size:40px;margin-top:40px}
+/* ---------- ending dibujado a mano (homenaje a «Roundabout»): láminas entintadas ---------- */
+#muralInk{position:fixed;inset:0;z-index:0;width:100%;height:100%;pointer-events:none;display:none}
+#tbcInk{position:fixed;inset:0;z-index:6;width:100%;height:100%;pointer-events:none;display:none}
+#muralInk.on,#tbcInk.on{display:block}
+/* cuadro congelado: todo se detiene y vira a sepia */
+.frozen #viewport,.frozen #sky,.frozen #finalPhrase{filter:sepia(.88) saturate(.85) contrast(1.12) brightness(.9)}
+.frozen #world,.frozen #world *{animation-play-state:paused!important}
+.frozen #snow{visibility:hidden}
+
+.mural{height:1080px}
+.mural .panel{position:absolute;top:0;width:1920px;height:1080px;padding:140px 130px;font-family:var(--display);color:var(--ink);
+  --ink:#2A1A0E;--acc:#8E2A1C;opacity:.5;transition:opacity 1.1s}
+.mural .panel>*{max-width:790px}
+.mural .panel.on{opacity:1}
+.mural .p1{--ink:#1E2A24;--acc:#2F5D55}
+.mural .p2{--ink:#2A1212;--acc:#7A1E1A}
+.mural .p3{--ink:#2A1E0C;--acc:#7A4A12}
+.mural .p4{--ink:#1E140C;--acc:#9A2A22}
+.mural .p5{--ink:#EDE3F7;--acc:#B9A2E8}
+.mural .p6{--ink:#3E3E46;--acc:#5A5A66}
+.mural .p7{--ink:#2A1A0E;--acc:#5A3A1E}
+.mural .mod{margin:0;font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:.36em;text-transform:uppercase;color:var(--acc)}
+.mural h2{margin:16px 0 0;font-weight:700;font-size:100px;line-height:.98;color:var(--ink)}
+.mural h2 em{font-style:italic;color:var(--acc)}
+.mural h2.big{font-size:150px;max-width:none}
+.mural h2.big i{font-weight:500;color:var(--acc)}
+.mural .clk-t{font-family:var(--mono);font-weight:600;font-size:140px;letter-spacing:.18em}
+.mural .tags{list-style:none;display:flex;flex-wrap:wrap;gap:12px 36px;margin:44px 0 0;padding:0;font-family:var(--mono);font-size:26px;font-weight:500;color:var(--ink)}
+.mural .tags li::before{content:"✦";color:var(--acc);margin-right:12px}
+.mural .tags.v{flex-direction:column;gap:10px}
 /* Módulo I: el mismo número cambia de forma */
-.mural .morph{position:relative;height:150px;margin-top:60px;font-family:var(--mono);font-size:104px;color:var(--gold)}
+.mural .morph{position:relative;height:120px;margin-top:40px;font-family:var(--mono);font-weight:600;font-size:84px;color:var(--acc)}
 .mural .morph span{position:absolute;left:0;top:0;opacity:0}
-.mural .morph sub{font-size:.4em;color:var(--red)}
+.mural .morph sub{font-size:.4em;color:var(--ink)}
 .mural .p1.on .morph span{animation:morph 6.4s linear calc(var(--d) * 1.6s) infinite both}
-@keyframes morph{0%{opacity:0;transform:translateY(24px);filter:blur(8px)}6%,22%{opacity:1;transform:none;filter:none}28%,100%{opacity:0;transform:translateY(-24px);filter:blur(8px)}}
-/* Módulo II */
-.mural .gates{width:1300px;margin-top:50px;overflow:visible}
-.mural .g-body{fill:#1A0A0A;stroke:var(--gold);stroke-width:3.5}
-.mural .gates text{font-family:var(--mono);font-size:24px;fill:var(--ink);text-anchor:middle}
-.mural .row2{display:flex;align-items:center;gap:90px;margin-top:40px}
-.mural .law{font-size:52px;margin:0}
+@keyframes morph{0%{opacity:0;transform:translateY(20px)}6%,22%{opacity:1;transform:none}28%,100%{opacity:0;transform:translateY(-20px)}}
+.mural .law{font-size:50px;font-weight:600;margin:34px 0 0}
 .mural .law .ov{text-decoration:none;border-top:3px solid currentColor;padding-top:2px}
-.mural .kmapsvg{width:190px}
-.mural .kmap rect{fill:none;stroke:rgba(242,227,192,.6);stroke-width:2}
-.mural .kmap .k-group{stroke:var(--red);stroke-width:6}
-.mural .kmap text{font-family:var(--display);font-style:italic;font-size:34px;fill:var(--gold);text-anchor:middle}
-/* Módulo III */
-.mural .chain{list-style:none;display:flex;flex-wrap:wrap;gap:22px;margin:70px 0 0;padding:0;max-width:1500px}
-.mural .chain li{font-size:46px;padding:14px 30px;border:2px solid rgba(227,179,65,.6);border-radius:999px;font-style:italic}
-.mural .p3.on .chain li{animation:mrise .9s cubic-bezier(.23,1,.32,1) calc(var(--d) * 120ms) both}
-.mural .arrow-on{position:absolute;right:120px;bottom:210px;font-size:150px;color:var(--gold);margin:0}
-/* MUX / DEMUX */
-.mural .md{width:1500px;margin-top:60px;overflow:visible}
-.mural .md path{fill:none;stroke:var(--gold);stroke-width:5}
-.mural .md .md-blk{fill:#1A0A0A;stroke:var(--ink)}
-.mural .md .md-ch{stroke:var(--red);stroke-width:8;stroke-dasharray:24 14}
-.mural .p4.on .md .md-ch{animation:mflow 1.2s linear infinite}
-.mural .md text{font-family:var(--display);font-style:italic;font-weight:600;font-size:40px;fill:var(--ink);text-anchor:middle}
-.mural .md text.it{fill:var(--gold)}
-/* CLK */
-.mural .p5{text-align:center}
-.mural .clk{width:1580px;margin:120px 0 0 -10px;overflow:visible}
-.mural .clk path{fill:none;stroke:#C9C2E6;stroke-width:6;stroke-dasharray:1;stroke-dashoffset:1}
-.mural .p5.on .clk path{animation:mdraw 6s linear .4s forwards}
-.mural .clk .edge{fill:var(--gold);opacity:0}
-.mural .p5.on .clk .edge{animation:edge 1.2s ease 1.1s both}
-@keyframes edge{0%{opacity:0;r:4}40%{opacity:1;r:30}100%{opacity:.9;r:16}}
-.mural .clk-t{font-family:var(--mono);font-size:150px;letter-spacing:.2em;margin-top:10px;text-shadow:none;color:#C9C2E6}
-/* Módulo IV: boceto */
-.mural .sketchy{color:#C9C2E6;text-shadow:none}
-.mural .sketch{width:1300px;margin-top:40px;overflow:visible}
-.mural .sketch rect,.mural .sketch circle,.mural .sketch path{fill:none;stroke:#C9C2E6;stroke-width:2.5;stroke-dasharray:14 8;opacity:.8}
-.mural .sketch text{font-family:var(--mono);font-size:26px;fill:#C9C2E6;text-anchor:middle}
-.mural .sketch text.s{font-size:22px;opacity:.7}
-.mural .p6 .tags{color:#C9C2E6}
-.mural .p6 .tags li::before{color:#8F86A8}
-/* final: el mural queda sin terminar */
-.mural .p7{display:grid;place-items:center}
-.mural .unfinished{position:absolute;left:0;top:340px;width:1600px;overflow:visible}
-.mural .unfinished path{fill:none;stroke:var(--gold);stroke-width:5;opacity:.6;stroke-dasharray:1;stroke-dashoffset:1}
-.mural .p7.on .unfinished path{animation:mdraw 3s ease forwards}
-.mural .unfinished .dash{stroke-dasharray:.04 .04;opacity:.35}
-.mural .q{font-size:300px;margin:0;color:var(--ink);opacity:0}
-.mural .p7.on .q{animation:mfade 1.6s ease 2.4s forwards}
-.mural .black{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
-.mural .p7.on .black{animation:mfade 2.4s ease 6s forwards}
-.mural .tbc{margin:0;position:absolute;left:0;right:0;top:50%;translate:0 -50%;text-align:center;font-weight:700;font-style:italic;font-size:200px;color:var(--gold);text-shadow:8px 8px 0 #6B1420}
-.mural .tbc i{font-style:normal}
-.mural .p0.on .tbc{animation:mrise 1.2s cubic-bezier(.23,1,.32,1) both}
-@keyframes mrise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.mural .chain{list-style:none;display:flex;flex-wrap:wrap;gap:18px;margin:56px 0 0;padding:0}
+.mural .chain li{font-size:38px;font-weight:600;font-style:italic;padding:8px 26px;border:3px solid var(--ink);border-radius:46% 54% 50% 50% / 60% 44% 56% 40%}
+.mural .p3.on .chain li{animation:mrise .5s steps(4,end) calc(var(--d) * 160ms + .4s) both}
+/* la flecha y el «?» los dibuja el lienzo; el texto queda para lectores y pruebas */
+.mural .tbc,.mural .q{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+.mural .black{position:absolute;inset:0;max-width:none;background:#000;opacity:0;pointer-events:none}
+.mural .p7.on .black{animation:mfade 2.6s ease 6.5s forwards}
+@keyframes mrise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @keyframes mfade{from{opacity:0}to{opacity:1}}
-@keyframes mdraw{to{stroke-dashoffset:0}}
-@keyframes mflow{to{stroke-dashoffset:-76}}
 @media (prefers-reduced-motion:reduce){
   .mural .panel *{animation-duration:.01s!important;animation-delay:0s!important}
-  .mural .p1.on .morph span{animation:none;position:static;opacity:1;display:block;font-size:56px}
+  .mural .p1.on .morph span{animation:none;position:static;opacity:1;display:block;font-size:48px}
   .mural .morph{height:auto}
 }
 
@@ -337,16 +303,3 @@
 .w-dio .st-bg{background:radial-gradient(45% 55% at 72% 50%,rgba(180,130,30,.22),transparent 70%),linear-gradient(115deg,transparent 60%,rgba(242,193,78,.05) 60.2%,transparent 75%)}
 .w-venom .st-bg{background:radial-gradient(45% 55% at 72% 50%,rgba(70,40,130,.28),transparent 70%)}
 .w-marceline .st-bg{background:radial-gradient(45% 55% at 72% 50%,rgba(150,20,40,.28),transparent 70%)}
-
-/* hilo conductor del mural */
-.mural .thread .th{opacity:.45;transition:opacity 1s}
-.mural .thread .th.on{opacity:1}
-.mural .thread path{fill:none;stroke:var(--gold);stroke-width:5;stroke-linejoin:round}
-.mural .thread .gate,.mural .thread .blk{fill:#1A0A0A;stroke:var(--gold);stroke-width:4}
-.mural .thread .canal{stroke:var(--red);stroke-width:7;stroke-dasharray:22 12}
-.mural .thread .clk{stroke:#C9C2E6}
-.mural .thread .sketch{fill:none;stroke:#C9C2E6;stroke-width:3;stroke-dasharray:14 9}
-.mural .thread .fade{opacity:.6}.mural .thread .faint{opacity:.3}
-.mural .thread text{font-family:var(--mono);text-anchor:middle;fill:var(--ink)}
-.mural .thread .bit{font-size:30px;fill:var(--gold)}
-.mural .thread .blk-t{font-size:34px}

@@ -1,0 +1,203 @@
+/* Cuatro autores, una lógica. Capa de lectura independiente del decorado. */
+:root{--realm-accent:#A8DCEC}
+.st{isolation:isolate;overflow:hidden}
+.st .st-bg{inset:0;background:none!important;perspective:1600px}
+.st-bg::before,.st-bg::after{display:none!important}
+.realm-room{position:absolute;inset:0;transform-style:preserve-3d;transform:translateZ(0)}
+.realm-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.realm-back{transform:translateZ(-60px) scale(1.065)}
+.realm-front{transform:translateZ(24px);opacity:.86}
+.side-demux .realm-front{transform:translateZ(24px) scaleX(-1)}
+.side-demux .realm-front text{transform:scaleX(-1);transform-box:fill-box;transform-origin:center}
+.realm-floor{position:absolute;left:15%;right:15%;bottom:-100px;height:205px;transform-origin:50% 100%;transform:rotateX(68deg);border:2px solid var(--acc);opacity:.1;background:repeating-linear-gradient(90deg,transparent 0 90px,var(--acc) 92px 94px)}
+.st .st-in{padding-bottom:258px;z-index:1}
+.st .st-in::before,.st .st-in::after{display:none}
+.st .chip{font-size:22px;letter-spacing:.11em;margin-bottom:22px;color:var(--dim)}
+.st .lede{color:var(--dim)}
+.st .hint{font-size:21px;letter-spacing:.04em;color:var(--dim)}
+.st .fig{filter:none;transform:perspective(2400px) rotateY(-3deg);transform-origin:center;transition:transform 220ms var(--expo)}
+.st.side-demux .fig{transform:perspective(2400px) rotateY(3deg)}
+.st .fig.tree,.st .ring-fig,.st .fig.wide{transform:none}
+.st .blk-t{font-family:var(--mono)!important;font-style:normal!important;font-weight:600!important;fill:var(--cream)!important;stroke:#080B12!important;stroke-width:5px!important}
+.st .fig .route{transition:stroke 160ms,opacity 160ms;stroke-dasharray:7 9;stroke-width:3;opacity:.42}
+.st .fig .route.on{stroke:var(--selected);stroke-dasharray:8 6;stroke-width:5;opacity:1;filter:none}
+.st .fig .w.v1{stroke:var(--wire-one)}
+.st .fig .w:not(.v1){stroke:var(--wire-zero)}
+.st .fig .w.on{stroke:var(--wire-one)}
+.st .fig .route.selected-trail{stroke:var(--selected);stroke-dasharray:9 6}
+.st .fig .cr-bit,.st .fig .key-t{font-family:var(--mono);font-style:normal}
+.st .fig .w-case{stroke-width:11px}
+.st .fig .o-gear,.st .fig .o-rivet{display:none}
+.st .fig .key-body{stroke-width:2.5}
+.st .fig .orn{opacity:.65}
+.st .readout{font-size:29px;line-height:1.4;margin-top:26px;text-shadow:none;filter:none}
+.st .readout.wait,.st .formula.wait{opacity:1}
+.st .wait .cr-bit,.st .wait .pin-t,.st .wait text{opacity:1}
+.st .arrived{animation:none}
+.st .tg{min-height:68px;padding:0 22px;gap:10px;transition:transform 120ms var(--expo),background-color 160ms;color:var(--cream)}
+.st .tg:active{transform:translateY(2px)}
+.st .tg[aria-pressed=true]{color:var(--cr-on-text)}
+.st [role=button]:focus-visible,.st button:focus-visible,.st tr:focus-visible{outline:4px solid var(--selected);outline-offset:7px}
+.st .eq .term,.st .eq.line{opacity:.86;transition:color 160ms,opacity 160ms}
+.st .eq .term.on,.st .eq.line.on{opacity:1}
+.st .ice-table{font-size:38px}
+.st .ice-table th{font-size:28px;color:var(--dim)}
+.st .ice-table td{color:var(--cream)}
+.st .ice-table tr.on{background:var(--acc-soft)}
+.st .eq-stage{padding:26px 48px 38px;border-radius:4px;background:var(--reading-surface);border:1px solid var(--line)}
+.st .eq.hero{font-size:78px;gap:16px;margin-top:38px}
+.st .eq-grid{margin-top:34px;gap:12px 90px}
+.st .eq-grid .eq.line{font-size:70px}
+.st .eq .term small,.st .eq.line small{font-size:24px;color:var(--dim)}
+.st .eq-stage .ice-table.compact{margin-top:28px;font-size:40px}
+.st .eq-stage .ice-table.compact td{padding:10px 26px}
+.st .ice-table.strip{font-size:36px;margin-top:32px}
+.st .build *,.st .tree .lvl{animation:none!important}
+.phase-hidden{visibility:hidden!important;pointer-events:none!important}
+.st.lay-full .st-in{padding-top:104px;padding-bottom:258px}
+.st.lay-full .full-title h2{font-size:92px}
+.st.lay-full .full-side .lede{font-size:28px}
+.st .ring-text{top:110px}
+.st .ring-text h2{font-size:84px}
+.st .ring-fig{height:89%;top:10px}
+.st .ring-fig .dial{opacity:.5}
+.st .ring-fig .hand-g{transition:transform 200ms var(--expo)}
+.st .parts{font-size:27px}
+.st .refs{transform:none;font-size:27px;line-height:1.55}
+/* Tablas más controles necesitan altura reservada para la barra de fases. */
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) .col-text{align-self:flex-start}
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) h2{font-size:76px}
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) .lede{font-size:28px;line-height:1.35;margin-top:22px;max-width:29ch}
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) .ice-table{margin-top:22px;font-size:34px}
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) .ice-table td{padding-top:10px;padding-bottom:10px}
+.st:is([data-id="mux-0-1"],[data-id="demux-0-1"],[data-id="mux-2-3"]) .ctrl{margin-top:24px}
+.st[data-id="mux-2-3"] h2{font-size:68px}
+.st[data-id="mux-2-3"] .lede{font-size:26px;margin-top:18px}
+.st[data-id="mux-2-3"] .ice-table{font-size:30px;margin-top:18px}
+.st[data-id="mux-2-3"] .ice-table td{padding-top:7px;padding-bottom:7px}
+.st[data-id="mux-2-3"] .ctrl{margin-top:18px}
+.st.lay-split[data-id="demux-2-3"] h2{font-size:64px}
+.st.lay-split[data-id="demux-2-3"] .lede{max-width:none;font-size:26px;margin-top:20px}
+.st.lay-split[data-id="demux-2-3"] .convention{font-size:20px;max-width:none}
+.st.lay-split[data-id="demux-3-1"] .readout{margin-top:16px;font-size:26px;padding-top:10px;padding-bottom:10px}
+.st[data-id="demux-0-0"] h2{font-size:84px}
+.st[data-id="demux-0-0"] .readout{font-size:26px}
+.st:is([data-id="demux-2-3"],[data-id="demux-3-1"]) .ice-table{margin-top:22px;font-size:32px}
+.st:is([data-id="demux-2-3"],[data-id="demux-3-1"]) .ice-table td{padding-top:10px;padding-bottom:10px}
+.st.lay-split[data-id="demux-3-1"] .ice-table td{padding-top:6px;padding-bottom:6px}
+.st.lay-split[data-id="demux-3-1"] .ctrl{margin-top:16px}
+/* Marceline: papel, vinilo, cables y madera; sin focos de concierto. */
+.w-marceline{--acc:#E98796;--acc-soft:#C63D5028;--acc-glow:transparent;--cream:#F4E7D1;--dim:#D2C6D5;--faint:#B8A8BC;--selected:#F4E7D1;--wire-one:#F4E7D1;--wire-zero:#967D91;--wire-on:#F4E7D1;--wire-off:#967D91;--blk-stroke:#DAB9BD;--cr-on:#F4E7D1;--cr-on-text:#17151F;--key-on:#C63D50;--key-stroke:#DAB9BD;--reading-surface:#17151FF5}
+.w-marceline h2,.w-marceline .full-title h2{font-family:"Patrick Hand",cursive;font-size:96px;line-height:.98;letter-spacing:0;text-transform:none;font-weight:400}
+.w-marceline h2 em{color:#E98796;text-shadow:none}
+.w-marceline .fig .blk,.w-marceline .fig .gate{fill:#352630;stroke:#DAB9BD;stroke-width:4;stroke-linejoin:round}
+.w-marceline .fig .blk-side{fill:#0D0C12}
+.w-marceline .fig .o-corner{fill:#A9A3BB}
+.w-marceline .fig .amp rect{fill:#352630;stroke:#DAB9BD;stroke-width:4}
+.w-marceline .fig .str.on{stroke:#F4E7D1;filter:none}
+.w-marceline .readout{border:0;border-left:5px solid #C63D50;background:#F4E7D1;color:#30222F;border-radius:1px;padding:14px 20px;box-shadow:7px 8px 0 #0E0D15}
+.w-marceline .readout b{color:#892639}
+.w-marceline .tg{border-radius:5px;background:#302633;border-color:#A9A3BB;box-shadow:0 7px 0 #0D0C12}
+.w-marceline .tg[aria-pressed=true]{background:#C63D50;color:#fff}
+.w-marceline .ice-table{background:#F4E7D1;color:#30222F;box-shadow:8px 9px 0 #0D0C12;padding:18px;border-collapse:separate;border-spacing:0}
+.w-marceline .ice-table :is(th,td){color:#30222F;border-color:#B8A4A2}
+.w-marceline .ice-table tr.on{background:#C63D5028}
+.w-marceline .ice-table tr.on td:first-child{box-shadow:inset 4px 0 #C63D50}
+/* Tsaritsa: l'axe du palais reste dégagé derrière le schéma. */
+.w-tsaritsa{--acc:#A8DCEC;--acc-soft:#A8DCEC22;--cream:#F1F7FA;--dim:#C5DAE8;--faint:#A7BFCE;--selected:#C8AB69;--wire-one:#F1F7FA;--wire-zero:#58758B;--wire-on:#F1F7FA;--wire-off:#58758B;--reading-surface:#09192EF5}
+.w-tsaritsa h2{font-weight:600;background:none;color:#F1F7FA}
+.w-tsaritsa h2 em{-webkit-text-fill-color:#A8DCEC;text-shadow:none}
+.w-tsaritsa .fig .blk{stroke:#C8AB69;stroke-width:3}
+.w-tsaritsa .readout{clip-path:none;background:#102A43;border-left:4px solid #C8AB69;padding:14px 24px}
+.w-tsaritsa .eq-stage{border:2px solid #C8AB6955;box-shadow:12px 12px 0 #030C19}
+.w-tsaritsa .ice-table tr.on td:first-child{box-shadow:inset 4px 0 #C8AB69}
+/* Venom: reflet froid, encre noire, chiffres blancs. */
+.w-venom{--acc:#F3F1E8;--acc-soft:#63788E30;--acc-glow:transparent;--cream:#F3F1E8;--dim:#CAD0D6;--faint:#AEB8C4;--selected:#F3F1E8;--wire-one:#F3F1E8;--wire-zero:#667382;--wire-on:#F3F1E8;--wire-off:#667382;--blk-stroke:#9CAAB7;--cr-off:#171C23;--cr-on:#F3F1E8;--cr-on-text:#050608;--key-off:#171C23;--key-stroke:#63788E;--key-on:#F3F1E8;--key-on-text:#050608;--reading-surface:#080B0FF5}
+.w-venom h2,.w-venom .full-title h2{font-family:"Anton",Impact,sans-serif;font-size:98px;line-height:1.1;font-weight:400;letter-spacing:.005em;color:#F3F1E8;text-transform:uppercase}
+.w-venom h2 em{color:#F3F1E8;text-shadow:4px 4px 0 #63788E;letter-spacing:.005em}
+.w-venom .fig .blk,.w-venom .fig .gate{fill:url(#m-goo);stroke:#9CAAB7;stroke-width:3}
+.w-venom .fig .o-vein{stroke:#63788E;opacity:.42}
+.w-venom .fig .o-tendril{stroke:#020305}
+.w-venom .fig .cr-facet{fill:#63788E44}
+.w-venom .readout{background:#F3F1E8;border:0;border-radius:3px 18px 3px 12px;color:#050608;padding:16px 24px;box-shadow:7px 7px 0 #63788E55}
+.w-venom .readout b{color:#050608}
+.w-venom .tg{background:#171C23;border-color:#63788E;border-radius:8px 18px 8px 14px}
+.w-venom .tg[aria-pressed=true]{background:#F3F1E8}
+.w-venom .seg button[aria-checked=true]{background:#F3F1E8;color:#050608}
+.w-venom .fig .route.on{stroke-width:7}
+/* DIO: la viñeta y el escenario reemplazan la relojería de fondo. */
+.w-dio{--acc:#E4B63D;--acc-soft:#E4B63D22;--acc-glow:transparent;--cream:#F6EBCB;--dim:#DACEE0;--faint:#C5B4CD;--selected:#A4D178;--wire-one:#F6EBCB;--wire-zero:#746A80;--wire-on:#F6EBCB;--wire-off:#746A80;--reading-surface:#171020F5}
+.w-dio h2,.w-dio .full-title h2,.w-dio .ring-text h2{font-family:"Barlow Condensed",Impact,sans-serif;font-weight:800;font-size:100px;line-height:.95;text-transform:uppercase;background:none;color:#F6EBCB;filter:none;letter-spacing:.01em}
+.w-dio h2 em{-webkit-text-fill-color:#E4B63D;text-shadow:3px 3px #57233F}
+.w-dio .fig .blk{stroke:#E4B63D;stroke-width:4}
+.w-dio .fig .box rect,.w-dio .fig .chip rect,.w-dio .fig .device rect{fill:#21172D;stroke:#E4B63D;stroke-width:3}
+.w-dio .readout{background:#21172D;border:2px solid #E4B63D;border-left:8px solid #71A84B;box-shadow:7px 7px 0 #57233F;border-radius:0}
+.w-dio .tg{border-radius:0;border:2px solid #E4B63D;background:#21172D;box-shadow:4px 4px 0 #57233F}
+.w-dio .tg[aria-pressed=true]{background:#E4B63D;color:#171020}
+.w-dio .st-in.frozen~*{animation-play-state:paused}
+.w-dio:has(.frozen) .realm-room{filter:saturate(.25)}
+.w-dio .timestop .fig{animation:none}
+.w-dio .ice-table{border-left:4px solid #71A84B;padding-left:18px}
+.w-dio .ice-table tr.on{background:#71A84B33}
+/* Signature et commande tactile: screen pixels, not scaled world units. */
+.realm-signature{position:fixed;top:20px;left:28px;z-index:8;color:var(--realm-accent);display:flex;align-items:center;gap:14px;pointer-events:none}
+.realm-signature b{font:600 12px var(--mono);letter-spacing:.15em}
+.realm-signature span{font:13px var(--sans);color:#CCD1DB;border-left:1px solid #697282;padding-left:14px}
+.realm-controls{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);z-index:12;display:flex;align-items:center;gap:6px;padding:6px 9px;background:#11131A;border:1px solid #6A6C78;box-shadow:0 7px 22px #0006;border-radius:12px;color:#F4F2EA;white-space:nowrap}
+.realm-controls button{min-width:44px;min-height:44px;background:#242630;border:1px solid #727481;border-radius:6px;padding:0 12px;font:600 13px var(--sans)}
+.realm-controls button:hover{border-color:var(--realm-accent)}
+.realm-controls button:active{transform:translateY(1px)}
+.realm-controls button:focus-visible,.skip-journey:focus-visible{outline:3px solid var(--realm-accent);outline-offset:3px}
+.realm-controls button:disabled{opacity:.35;cursor:default}
+#phaseNext{background:var(--realm-accent);color:#101219;font-size:25px;border:0}
+#phaseBack{font-size:25px}
+#phaseLabel{min-width:172px;text-align:center;font:12px var(--mono);padding:0 8px}
+.realm-signature[hidden],.realm-controls[hidden],.realm-curtain[hidden]{display:none}
+.realm-curtain{position:fixed;inset:0;z-index:30;pointer-events:none;display:grid;place-items:center;contain:paint}
+.realm-curtain span{font-size:clamp(50px,12vw,160px)}
+.realm-curtain.marceline{background:#F4E7D1;color:#30222F;box-shadow:inset 0 0 0 12px #C63D50;font-family:"Patrick Hand",cursive}
+.realm-curtain.marceline i{position:absolute;bottom:12%;left:-10%;width:120%;height:35%;border:9px solid #30222F;border-radius:50%;transform:rotate(-12deg)}
+.realm-curtain.tsaritsa{background:linear-gradient(125deg,#17385B,#A8DCEC 48%,#17385B);color:#F1F7FA}
+.realm-curtain.tsaritsa i{position:absolute;inset:15%;border:1px solid #C8AB69;transform:rotate(12deg)}
+.realm-curtain.venom{background:#020305;color:#F3F1E8;border-right:12px solid #63788E}
+.realm-curtain.venom i{width:30%;height:20%;border-radius:5% 80% 5% 90%;background:#F3F1E8;transform:rotate(-10deg)}
+.realm-curtain.dio{background:repeating-linear-gradient(115deg,#171020 0 50px,#25172F 50px 100px);color:#E4B63D;font-family:"Barlow Condensed",Impact,sans-serif;font-weight:800}
+.realm-curtain.dio span{transform:rotate(-8deg);text-shadow:7px 7px #B7457C}
+.skip-journey{display:none;position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;min-height:48px;padding:10px 22px;border:1px solid #AAB9CC;border-radius:8px;background:#101522;color:#F1F7FA;font:600 14px var(--sans)}
+.skip-journey kbd{margin-left:14px;opacity:.7}
+html.busy .skip-journey{display:block}
+html.busy .realm-controls{visibility:hidden}
+html[data-theme=marceline] .aura,.tint.t-marceline{background:#17151F}
+html[data-theme=venom] .aura,.tint.t-venom{background:#050608}
+html[data-theme=dio] .aura,.tint.t-dio{background:#171020}
+html[data-mode=route] #snow{opacity:.25}
+html[data-theme=marceline] .rbtn{border-color:#A9A3BB;background:#251E2C}
+html[data-theme=venom] .rbtn{border-color:#63788E;background:#050608;border-radius:15px 24px 14px 20px}
+html[data-theme=dio] .rbtn{border-color:#E4B63D;background:#21172D;border-radius:4px;box-shadow:4px 4px #57233F}
+html[data-theme=tsaritsa] .rbtn{border-color:#C8AB69;background:#102A43;border-radius:8px}
+#realmSound[aria-pressed=true]{background:#E4B63D;color:#171020}
+.schematic .st-bg,.schematic .orn,.schematic .blk-side,.schematic .realm-signature{visibility:hidden}
+.schematic .aura{background:#10151F!important}
+.schematic .st .fig{transform:none!important}
+.schematic .st .blk,.schematic .st .gate{fill:#1D2836!important;stroke:#DCE8F3!important}
+.schematic .st .blk-src{visibility:visible;fill:#1D2836;stroke:#DCE8F3;stroke-width:3}
+.schematic .st .blk-src+path.blk{visibility:hidden}
+.schematic .st .eq-stage{background:#10151F}
+.schematic .st h2{background:none;color:#F1F7FA;-webkit-text-fill-color:#F1F7FA;filter:none;font-family:var(--sans);font-size:84px;text-transform:none;text-shadow:none}
+.schematic .st h2 em{-webkit-text-fill-color:#A8DCEC;text-shadow:none}
+.spark .sp-core{filter:none}
+.spark .sp-bit{fill:#101219;font:600 26px var(--mono);text-anchor:middle;dominant-baseline:central}
+.spark .sp-token{fill:var(--cream);stroke:var(--selected);stroke-width:3}
+.w-marceline .spark .sp-token{rx:3px}
+.w-venom .spark .sp-token{rx:10px}
+.w-dio .spark .sp-token{rx:0}
+.st .signal-key{font-family:var(--mono);font-size:17px;color:var(--dim);letter-spacing:0;margin-top:14px}
+.realm-controls{bottom:78px}
+@media(max-width:950px){.realm-signature span{display:none}.realm-signature{left:18px;top:29px}.realm-controls{bottom:91px;gap:4px;padding:5px}.realm-controls button{font-size:12px;padding:0 8px}#phaseLabel{min-width:145px;font-size:11px}.tools{gap:5px}.tools .tbtn{min-width:40px}}
+@media(max-width:650px){.realm-signature{display:none}.realm-controls{bottom:96px;flex-wrap:wrap;width:calc(100% - 24px);justify-content:center;white-space:normal}.realm-controls button{min-height:44px}#phaseLabel{min-width:170px}.realm-controls #realmReplay{display:none}.route-where span{max-width:170px}.st .st-in{padding-bottom:300px}.tools .badge{display:none}}
+@media(prefers-reduced-motion:reduce){.realm-room,.realm-art,.st .fig{transform:none!important}.st *{animation:none!important;transition:none!important}.realm-curtain{display:none!important}.map .wire{animation:none!important}}
+html.still .st *,html.still .map .wire{animation:none!important;transition:none!important}
+/* la barra de fases no se muestra: las partes de cada estación aparecen solas (avance automático en realms.js) */
+.realm-controls{display:none!important}
+/* el botón «Omitir transición» no se muestra (Esc sigue completando la transición) */
+.skip-journey,html.busy .skip-journey{display:none!important}

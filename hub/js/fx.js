@@ -9,7 +9,7 @@ const FX = (() => {
     hub: ["#CFE6FF", "#9FD4FF", "#7FE3F0", "#F4E6C2"],
     tsaritsa: ["#CFE6FF", "#9FD4FF", "#E8F4FF", "#BFE3FF"],
     marceline: ["#E0344A", "#FF7A8A", "#8C1C2C", "#F4D9DD"],
-    venom: ["#9A6BFF", "#5B3A99", "#E8E2FF", "#3B2466"],
+    venom: ["#F3F1E8", "#63788E", "#CAD0D6", "#171C23"],
     dio: ["#F2C14E", "#FFE08A", "#C9862B", "#FFF4D0"],
     ending: ["#C9352F", "#E3B341", "#6E2A6B", "#F2E3C0"]
   };
@@ -50,8 +50,10 @@ const FX = (() => {
     ctx.stroke();
     ctx.restore();
   }
-  let last = 0;
+  let last = 0, raf = 0;
   function tick(t) {
+    raf = 0;
+    if (reduced || document.hidden) { ctx.clearRect(0,0,W,H); return; }
     const dt = Math.min(3, (t - last) / 16.67 || 1); last = t;
     ctx.clearRect(0, 0, W, H);
     if (snowOn) {
@@ -82,7 +84,7 @@ const FX = (() => {
       ctx.drawImage(sprite(p.c), p.x - s / 2, p.y - s / 2, s, s);
     }
     ctx.globalAlpha = 1;
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
   }
   function burst(x, y, n = 40, pow = 8, colors) {
     if (reduced) return;
@@ -103,6 +105,9 @@ const FX = (() => {
   }
   resize();
   addEventListener("resize", resize);
-  requestAnimationFrame(tick);
+  const resume = () => { cancelAnimationFrame(raf); raf=0; ctx.clearRect(0,0,W,H); if (!reduced && !document.hidden) raf=requestAnimationFrame(tick); };
+  mq.addEventListener('change',resume);
+  document.addEventListener('visibilitychange',resume);
+  resume();
   return { burst, setTheme, PAL };
 })();

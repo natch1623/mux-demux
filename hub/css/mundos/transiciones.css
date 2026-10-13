@@ -1,0 +1,52 @@
+/* =====================================================================
+   Transiciones internas de Tsaritsa (§2.6), Venom (§3.6) y DIO (§4.6).
+   Las capas son .mundo-capa (fijas, encima del lienzo); la lógica, en js/mundos/transiciones.js.
+   ===================================================================== */
+@property --tz-h{syntax:'<percentage>';inherits:false;initial-value:-30%}
+@property --dio-h{syntax:'<percentage>';inherits:false;initial-value:0%}
+.mundo-capa > div{position:absolute;inset:0}
+
+/* ---------- Tsaritsa ---------- */
+.tz-hielo{background:
+  radial-gradient(120% 90% at 50% 50%,rgba(234,246,255,.92),rgba(168,216,240,.9) 45%,rgba(47,111,168,.96) 85%,#0A1B33),
+  repeating-linear-gradient(60deg,rgba(255,255,255,.08) 0 2px,transparent 2px 46px),
+  repeating-linear-gradient(-60deg,rgba(255,255,255,.07) 0 2px,transparent 2px 52px)}
+.tz-borde{-webkit-mask:radial-gradient(ellipse 72% 72% at 50% 50%,transparent var(--tz-h),#000 calc(var(--tz-h) + 30%));mask:radial-gradient(ellipse 72% 72% at 50% 50%,transparent var(--tz-h),#000 calc(var(--tz-h) + 30%))}
+.tz-esquirla{box-shadow:inset 0 0 0 2px rgba(234,246,255,.6)}
+.tz-grietas path{fill:none;stroke:#05101F;stroke-width:3;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-linejoin:round}
+.tz-ventisca{background:
+  repeating-linear-gradient(176deg,transparent 0 22px,rgba(234,246,255,.55) 22px 24px,transparent 24px 61px),
+  repeating-linear-gradient(183deg,transparent 0 37px,rgba(168,216,240,.45) 37px 40px,transparent 40px 90px),
+  linear-gradient(90deg,transparent,rgba(234,246,255,.35) 40%,rgba(234,246,255,.75) 50%,rgba(234,246,255,.35) 60%,transparent)}
+.tz-facetas{perspective:1400px}
+.tz-faceta.a{background:linear-gradient(135deg,#EAF6FF,#A8D8F0 45%,#2F6FA8)}
+.tz-faceta.b{background:linear-gradient(315deg,#D9B25F,#A8D8F0 30%,#0A1B33)}
+.tz-aurora{background:linear-gradient(180deg,#0A1B33 0%,#0A1B33 62%,rgba(124,63,214,.9) 74%,rgba(43,214,160,.85) 86%,rgba(168,216,240,.5) 95%,transparent)}
+
+/* ---------- Venom ---------- */
+.vn > svg{position:absolute;inset:0;width:100%;height:100%}
+.vn-masa{fill:#050507}
+.vn-brillo{fill:none;stroke:#7A3FFF;stroke-width:.8;opacity:.6;vector-effect:non-scaling-stroke}
+.mundo-instantanea > svg.vn-tent{position:absolute;top:-5%;left:-45%;width:48%;height:110%;overflow:visible}
+.vn-tentaculo{fill:none;stroke:#050507;stroke-width:26;stroke-linecap:round}
+.vn-tentaculo-luz{fill:none;stroke:#2E5BFF;stroke-width:2.5;stroke-linecap:round;opacity:.7}
+.vn-gota{position:absolute!important;inset:auto!important;top:0;background:#050507;border-radius:50% 50% 50% 50%/62% 62% 38% 38%}
+.vn-defs{position:absolute;width:0;height:0}
+
+/* ---------- DIO ---------- */
+.mundo-capa > svg.dio-reloj{inset:20%;width:60%;height:60%;margin:auto;overflow:visible}
+.dio-esfera{fill:#FFD400;stroke:#0B0B0F;stroke-width:3}
+.dio-aro{fill:none;stroke:#E6007E;stroke-width:1.5}
+.dio-marca,.dio-aguja path{stroke:#0B0B0F;stroke-width:2.5;stroke-linecap:round}
+.dio-aguja.larga path{stroke-width:2}
+.dio-aguja{transform-origin:50px 50px}
+.dio-eje{fill:#0B0B0F}
+.dio-vineta{position:absolute!important;inset:auto!important;box-sizing:border-box;border:6px solid #0B0B0F;
+  background:radial-gradient(#0B0B0F 1.2px,transparent 1.5px) 0 0/9px 9px,linear-gradient(135deg,#FFFFFF,#FFD400)}
+.dio-vineta.v1{background:radial-gradient(#0B0B0F 1.2px,transparent 1.5px) 0 0/9px 9px,linear-gradient(135deg,#E6007E,#4B1D7A)}
+.dio-vineta.v3{background:radial-gradient(#0B0B0F 1.2px,transparent 1.5px) 0 0/9px 9px,linear-gradient(135deg,#2BD67B,#FFD400)}
+.dio-vineta span{position:absolute;inset:0;display:grid;place-items:center;font:400 clamp(40px,7vw,110px) "Dela Gothic One",sans-serif;color:#FFD400;-webkit-text-stroke:4px #0B0B0F;paint-order:stroke;transform:rotate(-8deg)}
+.dio-rayos .am{fill:#FFD400}.dio-rayos .mg{fill:#E6007E}
+.dio-hueco .copia{-webkit-mask:radial-gradient(circle at 50% 50%,transparent var(--dio-h),#000 calc(var(--dio-h) + .6%));mask:radial-gradient(circle at 50% 50%,transparent var(--dio-h),#000 calc(var(--dio-h) + .6%))}
+.dio-flash{background:#FFD400;opacity:0}
+.dio-impacto{fill:#FFFFFF;stroke:#0B0B0F;stroke-width:1.6;vector-effect:non-scaling-stroke}

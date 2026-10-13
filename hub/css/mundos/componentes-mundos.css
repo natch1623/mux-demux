@@ -1,0 +1,83 @@
+/* =====================================================================
+   Componentes reinterpretados y 5 toques de Tsaritsa, Venom y DIO.
+   Estados en el <svg.fig>: mw-t1 … mw-t5 (acumulativos), mw-y1 (salida en 1);
+   en cada canal: mw-sel (el elegido) o mw-otro. Lógica: js/mundos/componentes-mundos.js.
+   ===================================================================== */
+.mw-comp{pointer-events:none}
+.schematic .mw-comp{display:none}
+
+/* ======================== TSARITSA: mecanismo de cristal ======================== */
+.tz-aro{fill:rgba(10,27,51,.55);stroke:#A8D8F0;stroke-width:3;stroke-opacity:.5}
+.tz-aro.fino{fill:none;stroke:#D9B25F;stroke-width:1.5;stroke-dasharray:4 10}
+.tz-engrane{fill:rgba(168,216,240,.22);stroke:#EAF6FF;stroke-width:2;transform-box:fill-box;transform-origin:center}
+.mw-t1 .tz-engrane{animation:mw-gira 9s linear infinite}
+.mw-t1 .tz-engrane.rapido{animation-duration:2.2s;fill:rgba(217,178,95,.35);stroke:#D9B25F}
+@keyframes mw-gira{to{transform:rotate(360deg)}}
+.tz-anillo circle{fill:none;stroke:#A8D8F0;stroke-width:3;stroke-dasharray:18 8}
+.tz-anillo{transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+.tz-muesca{fill:#D9B25F}
+.mw-t2 .tz-anillo circle{stroke:#D9B25F}
+.tz-esfera{opacity:.35;transition:opacity .5s}
+.tz-esfera-halo{fill:#D9B25F;opacity:0;transition:opacity .5s}
+.mw-t1 .tz-esfera{opacity:1}
+.mw-t1 .tz-esfera-halo{opacity:.18}
+.tz-rayo{fill:none;stroke:#FFF4CF;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;filter:drop-shadow(0 0 8px #D9B25F)}
+.mw-t3 .tz-rayo:not(.dos),.mw-t5 .tz-rayo.dos{opacity:1;stroke-dashoffset:0}
+.w-tsaritsa .fig .cr .cr-bit{fill:#DDEBF5;transition:fill .3s}
+.w-tsaritsa .fig .cr.one .cr-bit{fill:#D9B25F}
+.w-tsaritsa .fig .cr .cr-body{transition:fill .4s,opacity .4s}
+.w-tsaritsa .mw-t4 .cr.mw-otro{opacity:.75}
+.w-tsaritsa .mw-t4 .cr.mw-otro .cr-body{fill:rgba(234,246,255,.62);stroke:#FFFFFF}
+.w-tsaritsa .mw-t4 .cr.mw-otro .cr-bit{fill:#5D7C96}
+.w-tsaritsa .fig .cr.big .cr-halo{opacity:.15;transition:opacity .4s}
+.mw-t5.mw-y1 .cr.big .cr-halo{opacity:.9;fill:#EAF6FF}
+.mw-t5.mw-y1 .cr.big .cr-body{fill:#F7FCFF}
+.tz-decreto{margin-top:6px;border-collapse:collapse;font-family:"Marcellus","JetBrains Mono",serif;font-size:28px;color:#D9B25F;opacity:0;transition:opacity .5s;background:linear-gradient(180deg,rgba(168,216,240,.12),rgba(10,27,51,.5));border:1px solid rgba(217,178,95,.6)}
+.tz-decreto.visible{opacity:1}
+.tz-decreto td{padding:4px 18px;border-bottom:1px solid rgba(217,178,95,.35)}
+.tz-decreto td:nth-child(2){color:#A8D8F0;font-size:16px}
+.tz-decreto tr.on{background:linear-gradient(90deg,rgba(217,178,95,.15),rgba(255,244,207,.45),rgba(217,178,95,.15));color:#FFF4CF;box-shadow:inset 0 0 18px rgba(255,244,207,.6)}
+
+/* ============================ VENOM: criatura simbionte ============================ */
+.vn-capsula{fill:rgba(15,20,36,.75);stroke:#5B5E6B;stroke-width:3}
+.vn-tentaculo{fill:none;stroke:#1B2140;stroke-width:16;stroke-linecap:round;transition:stroke-width .5s,opacity .5s,stroke .5s}
+.w-venom .fig .cr:not(.big) .cr-body{fill:#050507;transition:fill .3s}
+.w-venom .fig .cr.one:not(.big) .cr-body{fill:#2E5BFF}
+.mw-t1 .blk{animation:vn-ondula 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes vn-ondula{to{transform:scale(1.03,.98)}}
+.vn-ojos path{fill:#EDEDE6;opacity:.15;transition:opacity .4s}
+.mw-t1 .vn-ojos path{opacity:1}
+.w-venom .fig .w.sel{transition:stroke-width .3s}
+.mw-t2 .w.sel{stroke-width:7;animation:vn-tendon .4s ease-in-out 3}
+@keyframes vn-tendon{50%{transform:translateX(2px)}}
+.mw-t3 .vn-tentaculo.elegido{stroke-width:24;stroke:#24357A;filter:drop-shadow(0 0 8px #2E5BFF)}
+.mw-t4 .vn-tentaculo:not(.elegido){opacity:.25;stroke-width:8}
+.w-venom .mw-t4 .cr.mw-otro{opacity:.4}
+.vn-garganta{fill:#050507;stroke:#2E5BFF;stroke-width:0;transition:stroke-width .3s}
+.vn-dientes{fill:#EDEDE6;stroke:#050507;stroke-width:2;transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+.vn-boca.abierta .vn-dientes.abajo{transform:translateY(34px)}
+.vn-boca.abierta .vn-garganta{fill:#2E5BFF;filter:drop-shadow(0 0 14px #2E5BFF)}
+.vn-orbe{fill:#2E5BFF;opacity:0}
+
+/* ============================== DIO: reloj monumental ============================== */
+.dio-esfera{fill:#FFFFFF;stroke:#0B0B0F;stroke-width:8}
+.dio-sector{opacity:.85;stroke:#0B0B0F;stroke-width:4}
+.dio-centro{fill:#0B0B0F}
+.dio-vineta{fill:#FFFFFF;stroke:#0B0B0F;stroke-width:7}
+.dio-engrane{fill:#4B1D7A;stroke:#0B0B0F;stroke-width:4;transform-box:fill-box;transform-origin:center}
+.mw-t1 .dio-engrane{animation:mw-gira 3s linear infinite}
+.mw-t3 .dio-engrane{animation-play-state:paused}
+.dio-aguja{fill:#0B0B0F;stroke:#FFD400;stroke-width:3;transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+.dio-eje{fill:#E6007E;stroke:#0B0B0F;stroke-width:4}
+.w-dio .mw-t3 .mw-otro{filter:grayscale(1) brightness(.85)}
+.w-dio .fig .mw-sel{transform-box:fill-box;transform-origin:center;transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.w-dio .mw-t4 .mw-sel{transform:scale(1.14)}
+.dio-baan{font:400 54px "Dela Gothic One",sans-serif;fill:#FFD400;stroke:#0B0B0F;stroke-width:10;paint-order:stroke;opacity:0;transform-box:fill-box;transform-origin:center;transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1);transform:scale(.4) rotate(-8deg)}
+.mw-t5.mw-y1 .dio-baan{opacity:1;transform:scale(1) rotate(-8deg)}
+.mw-t5:not(.mw-y1) .dio-baan{opacity:0}
+.w-dio .fig:not(.mw-t5) .device.on,.w-dio .fig.mw-t5:not(.mw-y1) .mw-sel{filter:brightness(.6)}
+@media (prefers-reduced-motion:reduce){.mw-comp *,.mw-t1 .blk,.mw-t2 .w.sel{animation:none!important;transition:none!important}}
+
+/* pilares de Tsaritsa legibles sobre la ilustración */
+.st.mundo.w-tsaritsa .fig .cr:not(.big) .cr-body{fill:rgba(10,27,51,.88);stroke:#A8D8F0;stroke-width:3}
+.st.mundo.w-tsaritsa .fig .cr:not(.big) .cr-halo{fill:rgba(168,216,240,.12)}

@@ -1,0 +1,120 @@
+/* Escenarios completos: el decorado vive detrás; la lógica mantiene su plano. */
+.illustrated .scene-space{position:absolute;inset:0;overflow:hidden;perspective:1800px;background:#0c0a13}
+.scene-paint{position:absolute;inset:-2%;background-size:cover;background-position:center;transform:translateZ(-30px) scale(1.035)}
+.scene-shade{position:absolute;inset:0;background:linear-gradient(90deg,#06071033,transparent 18%,#06071022 50%,transparent 87%,#06071044),linear-gradient(0deg,#06071088,transparent 22%,transparent 88%,#06071077)}
+.scene-light{position:absolute;inset:0;background:radial-gradient(ellipse at 78% 8%,#c4e9ff25,transparent 55%);opacity:.7;pointer-events:none}
+.scene-grain{position:absolute;inset:0;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='white' filter='url(%23n)' d='M0 0h160v160H0z'/%3E%3C/svg%3E");pointer-events:none}
+.scene-frame,.scene-accent{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;fill:none;stroke:var(--acc);stroke-width:2}
+.scene-frame{opacity:.75}.scene-frame .frame-rule{stroke-width:1;opacity:.32}
+.scene-fog{position:absolute;inset:65% -10% -14%;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,#adbbd629,transparent 70%);opacity:.5}
+.illustrated .col-text,.illustrated .ring-text,.illustrated .full-title,.illustrated .full-side{isolation:isolate;position:relative}
+.illustrated .ring-text{position:absolute}
+.illustrated .col-text::before,.illustrated .ring-text::before,.illustrated .full-side::before{content:"";position:absolute;inset:-30px -35px;z-index:-1;pointer-events:none;border-radius:24px;background:linear-gradient(90deg,#0a0b16e8,#0a0b16c9 82%,#0a0b1600);box-shadow:-20px 0 32px #0a0b1666}
+.illustrated.side-demux .col-text::before{background:linear-gradient(270deg,#0a0b16e8,#0a0b16d0 85%,#0a0b1600)}
+.illustrated .fig{filter:drop-shadow(0 4px 10px #000b)}
+.illustrated .fig .lbl,.illustrated .fig .t-mini,.illustrated .fig .key-t{paint-order:stroke;stroke:#060811;stroke-width:4px;stroke-linejoin:round}
+.illustrated .fig .key-t{stroke-width:2px}
+.illustrated .lede,.illustrated .chip,.illustrated .parts{ text-shadow:0 2px 3px #0009 }
+.illustrated .chip b{position:relative;padding:4px 9px;border:1px solid currentColor;border-radius:2px}
+.illustrated .chip b::after{content:"";position:absolute;inset:3px;border:1px solid currentColor;opacity:.3;pointer-events:none}
+.illustrated .readout{position:relative;box-shadow:0 8px 20px #0005}
+.illustrated .tg{position:relative;box-shadow:inset 0 1px #ffffff33,0 4px 0 #0009}
+.illustrated .tg::after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;right:5px;top:5px;background:currentColor;opacity:.55;pointer-events:none}
+.illustrated .ice-table{background:#08101ae6;box-shadow:0 8px 28px #0005;outline:1px solid #c4d2e326;outline-offset:8px}
+.illustrated .ice-table tr.on{box-shadow:inset 3px 0 currentColor}
+.illustrated .eq-stage{box-shadow:0 15px 65px #0009,inset 0 0 0 6px #ffffff06;position:relative}
+.illustrated .eq-stage::before,.illustrated .eq-stage::after{content:"";position:absolute;width:40px;height:40px;pointer-events:none;border:2px solid var(--acc)}
+.illustrated .eq-stage::before{top:10px;left:10px;border-right:0;border-bottom:0}.illustrated .eq-stage::after{bottom:10px;right:10px;border-left:0;border-top:0}
+.detail-part{fill:none;stroke:var(--acc);stroke-width:1.8;opacity:.72;pointer-events:none}
+.detail-inlay{stroke-width:1;opacity:.75}.detail-seal{stroke-width:2}.detail-scratch{opacity:.45;stroke-width:1.5}
+.detail-knob{fill:#231724;stroke:#d7c1a5}.detail-notch{stroke:#f7eaca}.detail-wet{stroke:#c7dbe8;opacity:.22;stroke-width:2}.detail-hatch{stroke:#1c101f;stroke-width:2.5}
+/* Marceline: trait noir, papier, autocollants, câbles de répétition. */
+.w-marceline.illustrated{--acc:#EF8D99;--dim:#E6DAD9}
+.w-marceline .scene-light{background:radial-gradient(ellipse at 0% 55%,#f5a16b22,transparent 48%)}
+.w-marceline .scene-grain{opacity:.025}.w-marceline .scene-frame{stroke:#241424;stroke-width:5;opacity:.85}
+.w-marceline .cave-doodles{stroke:#f4d1c1;stroke-width:4;opacity:.65;stroke-linecap:round}
+.w-marceline.illustrated .col-text::before{background:#21182ddd;box-shadow:8px 8px #0e0d1460;border:3px solid #100f17;border-radius:47% 5% 4% 2% / 3% 5% 2% 3%;inset:-22px -24px}
+.w-marceline.illustrated .chip b{background:#C63D50;color:#fff0d5;transform:rotate(-3deg);border:3px solid #1d1420}
+.w-marceline.illustrated h2{color:#FFF2D7;text-shadow:3px 4px #110d19;letter-spacing:-.01em}
+.w-marceline.illustrated h2 em{color:#FFA6B4}
+.w-marceline.illustrated .readout{background:#F4E4BF;color:#352433;border:3px solid #241424;box-shadow:7px 7px #100f17;clip-path:polygon(0 2%,99% 0,100% 97%,1% 100%)}
+.w-marceline.illustrated .ice-table{background:#F4E4BF;outline:3px solid #241424;outline-offset:0;box-shadow:7px 7px #100f17}
+.w-marceline.illustrated .fig .blk{fill:#482635;stroke:#efb1bd;stroke-width:5}
+.w-marceline.illustrated .tg{background:#59404C;border:3px solid #100f17;border-radius:4px 8px 3px 6px;box-shadow:0 5px #100f17,inset 0 2px #ffffff33}
+.w-marceline.illustrated .tg[aria-pressed=true]{background:#C94F69}
+.w-marceline .detail-seal{fill:#e4c8c7;stroke:#221526}
+/* Genshin: ivoire, bleu d'archive, or gravé et constellations Cryo. */
+.w-tsaritsa.illustrated{--acc:#B3E8FF;--selected:#F2D89B;--dim:#E1EAF4}
+.w-tsaritsa .scene-paint{filter:saturate(.88)}
+.w-tsaritsa .scene-shade{background:linear-gradient(90deg,#07132644,transparent 13%,#07132644 48%,transparent 88%,#07132633)}
+.w-tsaritsa .scene-frame{stroke:#D9C492}.w-tsaritsa .constellation{stroke:#dbfaff;opacity:.45}.constellation>path{stroke-width:1}.constellation g path{fill:#e6faff;stroke-width:1}
+.w-tsaritsa.illustrated .col-text::before{background:#111f33e8;box-shadow:0 16px 55px #03102077;inset:-25px -28px;border:1px solid #d4c19577;border-radius:4px}
+.w-tsaritsa.illustrated .chip{color:#E5D1A1}.w-tsaritsa.illustrated .chip b{background:#E6D8B8;color:#26354A;border:0}
+.w-tsaritsa.illustrated h2{font-family:"Cinzel",serif;font-size:91px;line-height:1.06;letter-spacing:-.035em;color:#F1EEE4}
+.w-tsaritsa.illustrated h2 em{font-family:"Cormorant Garamond",serif;font-weight:600;letter-spacing:-.02em}
+.w-tsaritsa.illustrated .readout{background:#ECE5D5;color:#28384B;border:1px solid #c7b684;clip-path:none;border-radius:4px;box-shadow:0 5px 0 #897b5c77,inset 0 0 0 5px #faf4e655}
+.w-tsaritsa.illustrated .readout b{color:#365877}
+.w-tsaritsa.illustrated .ice-table{outline-color:#d4c19588;background:#14283cec;color:#e9e2d3}
+.w-tsaritsa.illustrated .ice-table tr.on{background:#E7D6A533;box-shadow:inset 3px 0 #d4b97d}
+.w-tsaritsa.illustrated .eq-stage{background:#111e32ed;border-color:#ceb886;box-shadow:inset 0 0 0 7px #111e32,inset 0 0 0 8px #ceb88666,0 15px 60px #0008}
+.w-tsaritsa.illustrated .eq-stage h2{font-size:80px}
+.w-tsaritsa.illustrated .fig .blk{fill:url(#m-ice);stroke:#e5e8d8;stroke-width:3}.w-tsaritsa .detail-part{stroke:#E8D39E}
+.w-tsaritsa.illustrated .fig .key-body{fill:#E6E0D3;stroke:#c9b17d}.w-tsaritsa.illustrated .fig .key-t{fill:#25354b;stroke:none}
+/* Venom: encre, matière humide, empreintes et filaments de symbiote. */
+.w-venom .scene-shade{background:linear-gradient(90deg,#0008,transparent 16%,#0003 45%,transparent 86%,#0006)}
+.w-venom .scene-frame{stroke:#CED8DF;stroke-width:3;opacity:.55}
+.w-venom .symbiote-edge{stroke:#080a10;stroke-width:28;stroke-linecap:round}
+.w-venom.illustrated .col-text::before{background:#05080beb;border:1px solid #7a88905c;border-radius:2% 11% 3% 12% / 4% 3% 4% 2%;box-shadow:12px 14px 0 #0006}
+.w-venom.illustrated .chip b{background:#F2F0E7;color:#07080b;border:0;border-radius:8px 3px 9px 4px}
+.w-venom.illustrated .readout{border-color:#bbc6ce;background:linear-gradient(150deg,#28313ce8,#050608);box-shadow:inset 1px 2px 0 #d1dbe444,0 8px 0 #0008}
+.w-venom.illustrated h2{paint-order:stroke; -webkit-text-stroke:1px #fff3; text-shadow:4px 5px #050508}
+.w-venom.illustrated .ice-table{border:1px solid #8c999f66;border-radius:5px}
+.w-venom.illustrated .tg{background:linear-gradient(155deg,#536271,#0A0E14 55%);border-color:#a5b4bf;border-radius:12px 23px 16px 10px}
+.w-venom.illustrated .tg[aria-pressed=true]{background:#E7ECEE;color:#080a10}
+.w-venom .detail-seal{fill:#EEF2EF;stroke:none}
+/* JoJo: contours d'encre, trames, cadres obliques et ombres dures. */
+.w-dio.illustrated{--acc:#ECCC59;--dim:#ECE3D7}
+.w-dio .scene-frame{stroke:#0b0714;stroke-width:8;opacity:1}
+.w-dio .scene-grain{opacity:.07;background-image:radial-gradient(#000 1.2px,transparent 1.4px);background-size:5px 5px}
+.w-dio .scene-light{background:linear-gradient(122deg,transparent 53%,#cad64415 54%,transparent 73%)}
+.manga-marks{fill:#C183C9;stroke:#12091c;stroke-width:5;paint-order:stroke;font-size:105px;font-weight:900;font-family:serif;opacity:.9}
+.speed-ink{stroke:#100915;stroke-width:5;opacity:.65}
+.w-dio.illustrated .col-text::before,.w-dio.illustrated .ring-text::before{background:linear-gradient(130deg,#180f23ed,#20112eea);border:4px solid #0c0812;border-radius:0;box-shadow:9px 9px 0 #D0B44375;inset:-26px -30px}
+.w-dio.illustrated .chip b{background:#E6C74E;color:#160d21;border:2px solid #100818;transform:skewX(-7deg)}
+.w-dio.illustrated h2{text-shadow:4px 4px #110817,6px 6px #AC5190;-webkit-text-stroke:.7px #fff3}
+.w-dio.illustrated h2 em{-webkit-text-fill-color:#F0D044;text-shadow:4px 4px #16091b,7px 7px #a35093}
+.w-dio.illustrated .readout{background:#E9DAA6;color:#26142D;border:3px solid #130b1c;box-shadow:5px 5px #703866,inset 0 0 0 2px #f6eedb;padding-top:12px;padding-bottom:12px}
+.w-dio.illustrated .readout b{color:#57315A}
+.w-dio.illustrated .fig .blk,.w-dio.illustrated .fig .gate{fill:url(#m-manga);stroke:#100a1b;stroke-width:5;stroke-linejoin:miter;filter:drop-shadow(2px 2px 0 #eacf71)}
+.w-dio.illustrated .fig .blk-side{fill:#73416b;stroke:#100a1b;stroke-width:4}
+.w-dio.illustrated .fig .o-inner{fill:url(#p-manga);fill-opacity:.25;stroke:#f6e7a4;stroke-width:1.5}
+.w-dio.illustrated .fig .o-rivet,.w-dio.illustrated .fig .o-gear{stroke:#160c22;fill:#D4B456}
+.w-dio.illustrated .tg{border:3px solid #0a0711;border-radius:0;background:#412244;box-shadow:4px 4px #BD9F3B;color:#F4E8C2}
+.w-dio.illustrated .tg[aria-pressed=true]{background:#D4C844;color:#171020}
+.w-dio .detail-seal{fill:#8CA749;stroke:#0b0b16}
+/* La barre de phases appartient aussi au monde, sans changer les cibles tactiles. */
+html[data-theme=marceline] .realm-controls{background:#392737;border:3px solid #140f19;border-radius:5px 10px 4px 8px;box-shadow:5px 5px #07071188}
+html[data-theme=marceline] .realm-controls button{border:2px solid #120f18;border-radius:4px;background:#f2dfbd;color:#342231}
+html[data-theme=tsaritsa] .realm-controls{background:#16283F;border:1px solid #cab687;border-radius:3px;box-shadow:inset 0 0 0 3px #16283F,inset 0 0 0 4px #cab68744,0 6px 25px #0006}
+html[data-theme=tsaritsa] .realm-controls button{background:#E5DED0;color:#2B3A4D;border:1px solid #D0C29F;border-radius:22px;font-family:var(--sans)}
+html[data-theme=venom] .realm-controls{background:linear-gradient(160deg,#293540,#030507);border:1px solid #c9d2d5;border-radius:21px 8px 26px 12px;box-shadow:inset 0 3px #b9c8da22,0 8px #0006}
+html[data-theme=venom] .realm-controls button{background:#10161D;border-color:#8c9da8;border-radius:13px 9px 17px 7px}
+html[data-theme=dio] .realm-controls{background:#25142F;border:3px solid #090713;border-radius:0;box-shadow:5px 5px #b69c3d}
+html[data-theme=dio] .realm-controls button{background:#EDDDA3;color:#24162C;border:2px solid #0b0812;border-radius:0;box-shadow:2px 2px #834B78}
+html[data-mode=route] .realm-signature{padding:8px 14px 8px 46px;top:12px;left:18px;background:#0b0d17e8;border:1px solid #ffffff22;border-radius:3px;min-height:40px;box-sizing:border-box}
+html[data-mode=route] .realm-signature::before{content:"";position:absolute;left:6px;top:3px;width:34px;height:34px;background-size:contain;background-position:center;background-repeat:no-repeat}
+html[data-theme=marceline] .realm-signature::before{background-image:url('../assets/botones/marceline-05.png')}
+html[data-theme=tsaritsa] .realm-signature::before{background-image:url('../assets/botones/tsaritsa-04.png')}
+html[data-theme=dio] .realm-signature::before{background-image:url('../assets/botones/dio-09.png')}
+html[data-theme=venom] .realm-signature::before{background:linear-gradient(35deg,transparent 43%,#F0F0E5 44% 57%,transparent 58%);clip-path:polygon(0 10%,45% 45%,50% 30%,55% 45%,100% 10%,85% 80%,55% 65%,45% 65%,15% 80%)}
+.realm-curtain.marceline{background:#d9b99c url('../assets/worlds/marceline-scene.webp') center/cover;color:#fff0d3}.realm-curtain.marceline span{background:#21182de8;padding:12px 32px;border:5px solid #100f17;transform:rotate(-3deg)}.realm-curtain.marceline i{display:none}
+.realm-curtain.tsaritsa{background:linear-gradient(#14293abb,#14293a66),url('../assets/worlds/tsaritsa-scene.webp') center/cover}.realm-curtain.tsaritsa span{font-size:200px;text-shadow:0 0 30px #cef3ff}.realm-curtain.tsaritsa i{inset:7%;border-color:#e3d3a3;transform:none;box-shadow:inset 0 0 0 8px #ffffff08}
+.realm-curtain.dio{background:repeating-conic-gradient(from 0deg at 50% 50%,#281a34 0deg 8deg,#10101a 8deg 10deg)}.realm-curtain.dio span{-webkit-text-stroke:3px #13081b;paint-order:stroke;text-shadow:9px 9px #ad5189;letter-spacing:-.035em}
+.schematic .scene-space,.schematic .detail-part{visibility:hidden}.schematic .illustrated .col-text::before,.schematic .illustrated .ring-text::before,.schematic .illustrated .full-side::before{display:none}
+.schematic .illustrated .fig{filter:none}
+@media(hover:hover) and (pointer:fine){.illustrated .tg:hover{border-color:var(--cream)}.realm-controls button:hover{filter:brightness(1.1)}}
+@media(prefers-reduced-motion:no-preference){.st.cur .scene-light{animation:scene-arrive 900ms var(--expo) both}.st.cur .scene-paint{animation:world-reveal 1000ms var(--expo) both}}
+@keyframes scene-arrive{from{opacity:0}to{opacity:.7}}
+@keyframes world-reveal{from{transform:translateZ(-30px) scale(1.055);opacity:.6}to{transform:translateZ(-30px) scale(1.035);opacity:1}}
+html.still .scene-paint,html.still .scene-light,.schematic .scene-paint{animation:none!important}
+@media(max-width:950px){html[data-mode=route] .realm-signature{left:12px;top:16px}.illustrated .scene-grain{display:none}}

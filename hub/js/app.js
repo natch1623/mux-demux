@@ -22,6 +22,7 @@ const WORLD = $("#world");
 WORLD.append(HUB.el);
 const STATIONS = buildStations(WORLD);
 const MURAL = buildMural(WORLD);
+REALMS.init(STATIONS);
 
 /* ---------------- capa de cables y mapa (coordenadas del mundo) ---------------- */
 const MAP = (() => {
@@ -44,37 +45,87 @@ const MAP = (() => {
     mk("path", { class: "b-glint", d: `M${xIn} ${-inH}L${xOut} ${-outH}` }, g);
     mk("path", { class: "b-fct", d: `M${xIn} 0H${xOut}M${xIn} ${-inH * .5}L${xOut} ${-outH * .5}M${xIn} ${inH * .5}L${xOut} ${outH * .5}` }, g);
     const topY = x => -inH + (x - xIn) / (xOut - xIn) * (inH - outH);
+    /* llaves S1 S0 en la fila del rótulo técnico, sobre el lado angosto del bloque (allí el borde
+       superior baja): con la cámara en la parada quedan dentro del margen del 4 % y por debajo de
+       las herramientas (a 1280 × 720, a 77 px del borde superior) */
+    const KT = -425, KB = KT + 90;
     const keys = keyX.map((x, j) => {
       const kg = mk("g", { class: "b-sel" }, g);
-      mk("path", { class: "b-sline", d: `M${x} -432V${topY(x)}` }, kg);
-      mk("rect", { class: "b-key", x: x - 95, y: -522, width: 190, height: 90, rx: 45 }, kg);
+      mk("path", { class: "b-sline", d: `M${x} ${KB}V${topY(x)}` }, kg);
+      // puente: la línea y la llave se encienden una sola vez al fijar el bit
+      const fl = mk("g", { class: "b-flash" }, kg);
+      mk("path", { d: `M${x} ${KB}V${topY(x)}` }, fl);
+      mk("rect", { x: x - 105, y: KT - 10, width: 210, height: 110, rx: 55 }, fl);
+      mk("rect", { class: "b-key", x: x - 95, y: KT, width: 190, height: 90, rx: 45 }, kg);
       const n = j ? "S₀" : "S₁";
-      return { g: kg, t: mk("text", { class: "b-keyt", x, y: -459 }, kg, `${n} ·`), n };
+      return { g: kg, fl, t: mk("text", { class: "b-keyt", x, y: KT + 63 }, kg, `${n} ·`), n };
     });
     const pairs = [];
     ins.forEach(yi => outs.forEach(yo => pairs.push([yi, yo])));
     const routes = pairs.map(([yi, yo]) => mk("path", { class: "b-route", d: `M${xIn} ${yi}L${xOut} ${yo}` }, g));
-    ins.forEach((y, i) => {
-      mk("circle", { class: "b-pin", cx: xIn, cy: y, r: 15 }, g);
+    const pinsIn = ins.map((y, i) => {
       if (ins.length > 1) mk("text", { class: "b-pint", x: xIn + (xOut > xIn ? 30 : -30), y: y + 14, "text-anchor": xOut > xIn ? "start" : "end" }, g, `I${SUB[i]}`);
+      return mk("circle", { class: "b-pin", cx: xIn, cy: y, r: 15 }, g);
     });
-    outs.forEach((y, i) => {
-      mk("circle", { class: "b-pin", cx: xOut, cy: y, r: 15 }, g);
+    const pinsOut = outs.map((y, i) => {
       if (outs.length > 1) mk("text", { class: "b-pint", x: xOut + (xOut > xIn ? -30 : 30), y: y + 14, "text-anchor": xOut > xIn ? "end" : "start" }, g, `Y${SUB[i]}`);
+      return mk("circle", { class: "b-pin", cx: xOut, cy: y, r: 15 }, g);
     });
     const lbl = mk("text", { class: "b-label", x: (xIn + xOut) / 2, y: Math.max(inH, outH) + 110 }, g, name + " ");
     mk("tspan", { class: "b-sub" }, lbl, ratio);
-    return {
-      routes,
-      set(i) {
-        const bits = i.toString(2).padStart(2, "0");
-        keys.forEach((k, j) => { k.t.textContent = `${k.n} ${bits[j]}`; k.g.classList.toggle("one", bits[j] === "1"); });
+    /* puente: rótulo técnico arriba a la izquierda de la parada de la cámara
+       (abajo al centro queda «Omitir transición»): nombre y combinación elegida.
+       El nombre comparte línea base con el texto de las llaves */
+    const hx = (xIn + xOut) / 2 - 878, hud = mk("g", { class: "b-hud" }, g);
+    mk("path", { class: "b-hudbar", d: `M${hx} ${KT + 13}V${KT + 149}` }, hud);
+    mk("text", { class: "b-hudt", x: hx + 34, y: KT + 63 }, hud, `${name} ${ratio.replace(/ /g, "")}`);
+    const hs = mk("text", { class: "b-huds", x: hx + 34, y: KT + 135 }, hud, "S₁S₀ = ");
+    const hv = mk("tspan", { class: "v" }, hs, "··"), hd = mk("tspan", { class: "dst" }, hs, "");
+    const bitsOf = i => i.toString(2).padStart(2, "0");
+    const b = {
+      routes, chosen: null,
+      // fija el bit de una llave (j) o de las dos para la entrada/salida i; con destello: un solo parpadeo
+      set(i, j, flash = false) {
+        const bits = bitsOf(i);
+        (j == null ? keys : [keys[j]]).forEach((k, x) => {
+          const n = j ?? x;
+          if (k.g.classList.contains("fija")) return;
+          k.t.textContent = `${k.n} ${bits[n]}`;
+          k.g.classList.add("fija");
+          k.g.classList.toggle("one", bits[n] === "1");
+          if (flash && !reduced && !MOTION.skip) k.fl.animate([{ opacity: 0 }, { opacity: 1, offset: .22 }, { opacity: 0 }], { duration: 420, easing: "ease-out" });
+        });
+        hv.textContent = keys.map((k, n) => k.g.classList.contains("fija") ? bits[n] : "·").join("");
         g.classList.add("armed");
       },
-      reset() { g.classList.remove("armed"); routes.forEach(r => r.classList.remove("on")); keys.forEach(k => { k.t.textContent = `${k.n} ·`; k.g.classList.remove("one"); }); }
+      // la señal llega al pin de entrada del bloque (y aparece el rótulo, que se retira al salir)
+      arrive(i) { (ins.length > 1 ? pinsIn[i] : pinsIn[0]).classList.add("viva"); g.classList.add("parada"); },
+      depart() { g.classList.remove("parada"); },
+      // ruta elegida: la interna se ensancha, las otras se apagan; se enciende el pin de salida
+      choose(i) {
+        b.chosen = i;
+        routes.forEach((r, k) => { r.classList.toggle("on", k === i); r.classList.toggle("off", k !== i); });
+        (outs.length > 1 ? pinsOut[i] : pinsOut[0]).classList.add("viva");
+        hd.textContent = ` → ${outs.length > 1 ? "Y" : "I"}${SUB[i]}`;
+      },
+      reset() {
+        b.chosen = null;
+        g.classList.remove("armed", "parada");
+        routes.forEach(r => r.classList.remove("on", "off"));
+        [...pinsIn, ...pinsOut].forEach(p => p.classList.remove("viva"));
+        keys.forEach(k => { k.t.textContent = `${k.n} ·`; k.g.classList.remove("one", "fija"); });
+        hv.textContent = "··"; hd.textContent = "";
+      }
     };
+    return b;
   }
   const wire = (d, color) => { mk("path", { class: "duct", d }, gW); return mk("path", { class: "wire", style: `--c:${color}`, d }, gW); };
+  /* guía del puente a lo largo de una fila de estaciones (solo se ve durante el vuelo), con un nodo
+     en cada hueco entre estaciones: nunca cae en pantalla con la cámara en una estación, pero al
+     volver por la fila deja ver que la cámara avanza */
+  const guide = d => mk("path", { class: "pt-guia", d }, gW);
+  const gN = mk("g", { class: "pt-nodos" }, gW);
+  const nodes = (xs, y) => xs.map(x => mk("circle", { class: "pt-nodo", cx: x, cy: y, r: 11 }, gN));
 
   /* ---- MUX (izquierda): cuatro cables salen de los orbes, entran al MUX; una salida al escenario ---- */
   const muxInD = i => { const by = HUB.inWorld[i][1]; return `M${-FW / 2} ${by}C-1900 ${by} -2300 ${MB_IN[i]} ${MB.x0} ${MB_IN[i]}`; };
@@ -82,14 +133,24 @@ const MAP = (() => {
   const stageRight = MUX_STAGE[0] + FW / 2;
   const muxOutD = `M${MB.x1} 0H${stageRight}`;
   const muxOut = wire(muxOutD, "#CFE6FF");
-  const mux = block(gM, { xIn: MB.x0, xOut: MB.x1, inH: MB.inH, outH: MB.outH, ins: MB_IN, outs: [0], name: "MUX", ratio: "4 : 1", keyX: [-3580, -3300] });
+  const mux = block(gM, { xIn: MB.x0, xOut: MB.x1, inH: MB.inH, outH: MB.outH, ins: MB_IN, outs: [0], name: "MUX", ratio: "4 : 1", keyX: [-3710, -3430] });
+  // el cable de salida sigue por la fila del escenario (MUX: del borde derecho de la estación 0 al izquierdo de la última)
+  const muxGuide = guide("");
+  const lastX = (side, i) => stationPos(side, i, ROUTES[side][i].length - 1)[0];
+  const gaps = (side, i, n = ROUTES[side][i].length - 1) => Array.from({ length: n }, (_, k) => stationPos(side, i, k)[0] + (side === "mux" ? -1 : 1) * (FW / 2 + 160));
+  // el escenario del MUX es una sola fila: sus nodos se muestran hasta la última estación del integrante
+  const muxNodes = nodes(gaps("mux", 0, maxK), 0);
 
   /* ---- DEMUX (derecha): un cable entra, cuatro ramas a cuatro destinos ---- */
   const cableD = `M${FW / 2} 0H${DB.x0}`;
   const cable = wire(cableD, "#CFE6FF");
   const branchD = i => `M${DB.x1} ${DB_OUT[i]}C4400 ${DB_OUT[i]} 4300 ${ROW_Y[i]} ${stationPos("demux", i, 0)[0] - FW / 2} ${ROW_Y[i]}`;
   const branches = MEMBERS.map((m, i) => wire(branchD(i), m.c));
-  const demux = block(gB, { xIn: DB.x0, xOut: DB.x1, inH: DB.inH, outH: DB.outH, ins: [0], outs: DB_OUT, name: "DEMUX", ratio: "1 : 4", keyX: [3300, 3580] });
+  // cada rama sigue por su fila (DEMUX: del borde izquierdo de la estación 0 al derecho de la última)
+  const demuxGuides = MEMBERS.map((m, i) => guide(`M${stationPos("demux", i, 0)[0] - FW / 2} ${ROW_Y[i]}H${lastX("demux", i) + FW / 2}`));
+  MEMBERS.forEach((m, i) => nodes(gaps("demux", i), ROW_Y[i]));
+  gW.append(gN);                                                     // los nodos, encima de los cables
+  const demux = block(gB, { xIn: DB.x0, xOut: DB.x1, inH: DB.inH, outH: DB.outH, ins: [0], outs: DB_OUT, name: "DEMUX", ratio: "1 : 4", keyX: [3170, 3450] });
 
   /* ---- revelación de las conclusiones ---- */
   const big = (x, y, size, txt, cls = "", anchor) => mk("text", { class: "map-t " + cls, x, y, "font-size": size, "text-anchor": anchor }, gR, txt);
@@ -115,10 +176,15 @@ const MAP = (() => {
   MEMBERS.forEach((m, i) => big(stationPos("demux", i, 0)[0] - FW / 2 - 240, ROW_Y[i] + 80, 420, `Y${SUB[i]} · ${m.name}`, "district-name", "end").style.setProperty("--c", m.c));
   big(9600, -2860, 480, "DEMUX · uno → muchos", "it");
 
-  /* ---- pulso de la señal (capa propia por encima del HUB: la señal nace en el orbe) ---- */
-  const top = mk("svg", { class: "map trace", viewBox: `${X0} ${Y0} ${MW} ${MH}`, style: `left:${X0}px;top:${Y0}px;width:${MW}px;height:${MH}px`, "aria-hidden": "true" });
+  /* ---- la señal (capa propia por encima del HUB y de las estaciones: nace en el orbe) ----
+     Pulso de 40 unidades (PUENTE.PULSO) sobre el camino completo y, detrás de él, la estela:
+     el brillo cian de la ruta activa, un grupo por tramo para que cada tramo tenga su grosor
+     (6 o 14). Por cuadro solo cambian el desfase del pulso y el del tramo en curso. */
+  const top = mk("svg", { class: "map trace", viewBox: `${X0} ${Y0} ${MW} ${MH}`, style: `left:${X0}px;top:${Y0}px;width:${MW}px;height:${MH}px;visibility:hidden`, "aria-hidden": "true" });
   WORLD.append(top);
-  const pG = mk("path", { class: "wpulse-glow", pathLength: 1 }, top), pC = mk("path", { class: "wpulse", pathLength: 1 }, top);
+  const gE = mk("g", { class: "pt-estela" }, top), gP = mk("g", { class: "pt-pulso", style: "opacity:0" }, top);
+  const pulse = PUENTE.PULSO.map(p => Object.assign({ el: mk("path", { class: p.cls, "stroke-width": p.w, pathLength: 1 }, gP) }, p));
+  const pC = pulse[1].el;                                            // también mide el camino
   /* recorrido completo de la señal: orbe → cable → bloque → cable → centro del destino.
      La cámara lo sigue sin alejarse. k: alarga el camino hasta la estación k
      (para volver al HUB desde cualquier estación). */
@@ -128,28 +194,65 @@ const MAP = (() => {
       ? [`M${HUB.inWorld[i][0]} ${HUB.inWorld[i][1]}H${-FW / 2}`, muxInD(i), `M${MB.x0} ${MB_IN[i]}L${MB.x1} 0`, `M${MB.x1} 0H${ex}`]
       : [`M${HUB.demuxWorld[0]} ${HUB.demuxWorld[1]}H${DB.x0}`, `M${DB.x0} 0L${DB.x1} ${DB_OUT[i]}`, branchD(i), `M${ex - FW / 2} ${ROW_Y[i]}H${ex}`];
     if (k) segs.push(`M${ex} ${stationPos(side, i, 0)[1]}H${stationPos(side, i, k)[0]}`);
+    if (side === "mux") {
+      muxGuide.setAttribute("d", `M${stageRight} 0H${lastX("mux", i) - FW / 2}`);
+      muxNodes.forEach((n, k) => n.classList.toggle("pt-fuera", k >= ROUTES.mux[i].length - 1));
+    }
     const blk = side === "mux" ? 2 : 1;
     const lens = segs.map(d => { pC.setAttribute("d", d); return pC.getTotalLength(); });
     // un solo camino continuo: cada tramo empieza donde terminó el anterior
     const d = segs.map((x, k) => k ? x.replace(/^M[^A-Za-z]*/, "") : x).join("");
-    pG.setAttribute("d", d); pC.setAttribute("d", d); pG.style.stroke = c;
     const L = lens.reduce((a, b) => a + b, 0);
+    pulse.forEach(p => { p.el.setAttribute("d", d); p.el.style.strokeDasharray = `${(p.b - p.a) / L} 2`; });
     const blockAt = lens.slice(0, blk).reduce((a, b) => a + b, 0), blockEnd = blockAt + lens[blk];
     const blockCenter = side === "mux" ? [(MB.x0 + MB.x1) / 2, 0] : [(DB.x0 + DB.x1) / 2, 0];
-    const edge = lens.slice(0, 4).reduce((a, b) => a + b, 0) - FW / 2;   // borde de la primera diapositiva
-    const tail = 560 / L;
     const g = side === "mux" ? gM : gB, b = side === "mux" ? mux : demux;
+    // tramos que se ensanchan con la ruta elegida: cable de entrada + ruta interna (MUX), ruta interna + rama (DEMUX)
+    const wide = j => j === 1 || j === 2;
+    /* la rama del DEMUX termina justo en el borde de la estación 0, en línea con la guía:
+       con extremos rectos el brillo ancho no asoma en pantalla al llegar */
+    const flat = j => side === "demux" && j === 2;
+    let acc = 0;
+    gE.replaceChildren();
+    const parts = segs.map((sd, j) => {
+      const tg = mk("g", { class: "pt-tramo" + (wide(j) && b.chosen === i ? " ancho" : "") + (flat(j) ? " recto" : ""), style: "visibility:hidden" }, gE);
+      PUENTE.ESTELA.forEach(cls => mk("path", { class: cls, d: sd, pathLength: 1 }, tg));
+      const t = { g: tg, j, a: acc, b: acc + lens[j], len: lens[j], v: "" };
+      acc += lens[j];
+      return t;
+    });
+    top.style.visibility = "";
     return {
       blockAt, blockEnd, blockCenter, length: L,
       point: s => pC.getPointAtLength(s),
-      // cabeza del pulso en s; se desvanece al entrar a la diapositiva
-      head(s) {
-        const o = reduced ? 0 : clamp((edge - s) / 260, 0, 1);
-        [pG, pC].forEach(p => { p.style.strokeDasharray = `${tail} 2`; p.style.strokeDashoffset = tail - s / L; p.style.opacity = o; });
+      /* cabeza del pulso en s. Ida: la estela enciende el cable del orbe a la cabeza.
+         Regreso (back): la señal sale de la estación y enciende lo que deja atrás */
+      head(s, back = false) {
+        // nace en el orbe; al volver, aparece en la estación mientras se retira la capa del mundo
+        gP.style.opacity = reduced ? 0 : Math.min(clamp(s / 80, 0, 1), back ? clamp((L - s) / 160, 0, 1) : 1).toFixed(3);
+        pulse.forEach(p => { p.el.style.strokeDashoffset = (-(back ? s + p.a : s - p.b) / L).toFixed(7); });
+        parts.forEach(t => {
+          const lo = back ? Math.max(t.a, s) : t.a, hi = back ? t.b : Math.min(t.b, s), on = hi - lo > .5;
+          const v = on ? `${((hi - lo) / t.len).toFixed(5)} 2|${(-(lo - t.a) / t.len).toFixed(5)}` : "";
+          if (v === t.v) return;
+          t.v = v;
+          t.g.style.visibility = on ? "" : "hidden";
+          if (on) { const [da, off] = v.split("|"); t.g.style.strokeDasharray = da; t.g.style.strokeDashoffset = off; }
+        });
       },
-      // al llegar al bloque: primero S1 S0 toman su valor, luego se enciende la ruta interna
-      select() { g.style.setProperty("--route", c); b.set(i); },
-      route() { b.routes.forEach((r, k) => r.classList.toggle("on", k === i)); },
+      // la señal llega al pin de entrada del bloque · sale de él
+      arrive() { b.arrive(i); },
+      depart() { b.depart(); },
+      // S1 (j = 0) y S0 (j = 1) toman su valor con un destello; sin j: los dos, sin destello
+      select(j) { g.style.setProperty("--route", c); b.set(i, j, j != null); },
+      // la ruta elegida se ensancha a 14 y las otras tres se apagan al 15 %
+      route() {
+        b.choose(i);
+        const pick = (list, on) => list.forEach((w, n) => { w.classList.toggle("pt-elegida", on && n === i); w.classList.toggle("pt-apagada", n !== i); });
+        if (side === "mux") pick(muxIns, true);
+        else { pick(branches, true); pick(demuxGuides, false); }
+        parts.forEach(t => t.g.classList.toggle("ancho", wide(t.j)));
+      },
       // los cables del recorrido quedan encendidos
       light() {
         if (side === "mux") {
@@ -160,14 +263,16 @@ const MAP = (() => {
           branches.forEach((x, k) => x.classList.toggle("on", k === i));
         }
       },
-      done() { [pG, pC].forEach(p => { p.style.opacity = 0; }); }
+      // al llegar, la capa de la señal se retira (está encima de las estaciones)
+      done() { gP.style.opacity = 0; top.style.visibility = "hidden"; }
     };
   }
 
   return {
     trace,
     reset() {
-      [...muxIns, muxOut, cable, ...branches].forEach(w => w.classList.remove("on"));
+      [...muxIns, muxOut, cable, ...branches].forEach(w => w.classList.remove("on", "pt-elegida", "pt-apagada"));
+      demuxGuides.forEach(w => w.classList.remove("pt-apagada"));
       mux.reset(); demux.reset();
     },
     reveal(on) { svg.classList.toggle("revealed", on); },
@@ -206,26 +311,53 @@ function toScreen(p) {
    Es un contador para que una coreografía de varios tramos no la suelte entre tramo y tramo. */
 let movers = 0;
 const moving = on => WORLD.classList.toggle("moving", (movers = Math.max(0, movers + (on ? 1 : -1))) > 0);
-/* la cámara recorre el cable de la señal sin cambiar el zoom.
+/* la cámara recorre el cable de la señal sin cambiar el zoom (pantalla puente, especificación §0).
    Ida (HUB → destino), en tres tiempos:
-   1. sale del centro del HUB, se engancha a la señal y la sigue por el cable hasta el bloque,
-      donde se detiene centrada en él;
-   2. en el bloque: S1 S0 toman su valor, se enciende la ruta interna y la señal lo cruza;
-   3. la cámara sale tras la señal por el cable de salida hasta la diapositiva.
+   1. el pulso sale del orbe y recorre el cable hasta el bloque en 1,4 s con cubic-bezier(.6,0,.2,1);
+      la cámara sale del centro del HUB, se engancha a él y se detiene centrada en el bloque;
+   2. en el bloque: 0,3 s de pausa; S1 y S0 parpadean una vez cada una y fijan su valor;
+      la ruta elegida se ensancha a 14, las otras tres se apagan al 15 % y la señal cruza;
+   3. la cámara sale tras la señal por el cable de salida hasta el centro de la estación 0.
    Vuelta (back): el mismo cable al revés. Con hold > 0 también se detiene en el bloque;
    sin hold, va de corrido.
    hold: tiempo extra de la parada en el bloque (para animaciones que lo necesitan).
    onSignal(s): largo recorrido por la señal; onProgress(p): avance total 0..1;
    onBlock(on, ms): la señal entra (con la duración de la parada) o sale del bloque. */
 const sineInOut = t => -(Math.cos(Math.PI * t) - 1) / 2;
+/* curva cubic-bezier de CSS como función 0..1 (Newton y, si no converge, bisección) */
+function cubicBezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t, dX = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const e = X(t) - x, d = dX(t);
+      if (Math.abs(e) < 1e-6) return Y(t);
+      if (Math.abs(d) < 1e-6) break;
+      t -= e / d;
+    }
+    let a = 0, b = 1;
+    t = x;
+    for (let i = 0; i < 40 && b - a > 1e-7; i++) { if (X(t) < x) a = t; else b = t; t = (a + b) / 2; }
+    return Y(t);
+  };
+}
+const pulseCurve = cubicBezier(.6, 0, .2, 1);           // el pulso por el cable (especificación §0)
 async function follow(tr, to, { onT, onSignal, onBlock, onProgress, back = false, hold = 0 } = {}) {
   const catchUp = 700;                                   // tramo en que la cámara se engancha o se suelta
+  // parada en el bloque (ms): pausa · S1 · S0 · ruta · la señal cruza · salida
+  const STOP = { pause: 300, s1: 380, s0: 360, route: 160, cross: 420, out: 60 };
+  const STOP_MS = Object.values(STOP).reduce((a, b) => a + b, 0);
   const bc = [...tr.blockCenter, FW], { blockAt, blockEnd, length } = tr;
   const ease01 = d => sineInOut(clamp(d / catchUp, 0, 1));
-  const signal = s => { if (!back) tr.head(s); onSignal?.(s); onProgress?.(back ? 1 - s / length : s / length); };
+  const pause = ms => wait(reduced ? 0 : ms);
+  const signal = s => { tr.head(s, back); onSignal?.(s); onProgress?.(back ? 1 - s / length : s / length); };
   /* un tramo: la señal va de s0 a s1; la cámara se suelta de A al salir y se engancha a B al llegar
      (A o B en null: va pegada a la señal) */
-  const leg = (s0, s1, A, B, ms, onTT) => tween(ms, t => {
+  const leg = (s0, s1, A, B, ms, onTT, curve = sineInOut) => tween(ms, t => {
     const s = s0 + (s1 - s0) * t, p = tr.point(s);
     let c = [p.x, p.y, FW];
     if (A) { const k = ease01(Math.abs(s - s0)); c = [A[0] + (c[0] - A[0]) * k, A[1] + (c[1] - A[1]) * k, FW]; }
@@ -233,25 +365,29 @@ async function follow(tr, to, { onT, onSignal, onBlock, onProgress, back = false
     applyCam(c);
     signal(s);
     onTT?.(t);
-  }, sineInOut);
+  }, curve);
   moving(true);
   try {
     const start = cam;
+    if (back) { tr.select(); tr.route(); }               // la selección sigue fija mientras se vuelve
     if (back && !hold) { await leg(length, 0, start, to, clamp(length / 3, 2000, 3400)); return; }
     if (!back) {
       // 1. del orbe al bloque
-      await leg(0, blockAt, start, bc, clamp(blockAt / 2, 1300, 2000));
+      await leg(0, blockAt, start, bc, 1400, null, pulseCurve);
       // 2. en el bloque
       applyCam(bc);
-      onBlock?.(true, (reduced ? 0 : 1250) + hold);
-      tr.select();
-      await wait(reduced ? 0 : 450);
-      tr.route();
-      await tween(650, t => signal(blockAt + (blockEnd - blockAt) * t), ease.inOut);
-      await wait(reduced ? 0 : 150 + hold);
-      // 3. del bloque a la diapositiva
+      onBlock?.(true, (reduced ? 0 : STOP_MS) + hold);
+      tr.arrive();
+      await pause(STOP.pause);
+      tr.select(0); await pause(STOP.s1);                // S1 parpadea y fija su bit
+      tr.select(1); await pause(STOP.s0);                // S0, un parpadeo después (menos de 3 por segundo)
+      tr.route(); await pause(STOP.route);               // la ruta elegida a 14, las otras al 15 %
+      await tween(STOP.cross, t => signal(blockAt + (blockEnd - blockAt) * t), ease.inOut);
+      await pause(STOP.out + hold);
+      // 3. del bloque a la estación 0: la cabeza del pulso llega a su centro
       onBlock?.(false);
-      await leg(blockEnd, length, bc, null, clamp((length - blockEnd) / 2.2, 1300, 2400), onT);
+      tr.depart();
+      await leg(blockEnd, length, bc, null, clamp((length - blockEnd) / 2.4, 1000, 1400), onT, pulseCurve);
     } else {
       // 1. de la diapositiva al bloque
       await leg(length, blockEnd, start, bc, clamp((length - blockEnd) / 2.6, 1300, 2400));
@@ -265,7 +401,7 @@ async function follow(tr, to, { onT, onSignal, onBlock, onProgress, back = false
     }
   } finally {
     if (!back) { tr.select(); tr.route(); }
-    tr.done();
+    tr.depart(); tr.done();
     applyCam(to); moving(false);
   }
 }
@@ -288,22 +424,31 @@ applyCam(cam);
 // el foco nunca debe desplazar el lienzo (todo se mueve con la cámara)
 $("#viewport").addEventListener("scroll", e => { e.target.scrollTop = 0; e.target.scrollLeft = 0; });
 
-/* ---------------- tinte del fondo: el cielo cambia de tono poco a poco durante el viaje ---------------- */
+/* ---------------- cielo del puente: del HUB al gris #0D0F14 según lo lejos que esté la cámara ----------------
+   El gris va encima de todo el cielo (aura, tinte, nieve y viñeta) y crece a medida que la cámara
+   sale del HUB (lleno a una pantalla de distancia). En el regreso, el tinte pone el cielo del HUB
+   debajo del gris (el cielo del mundo aún está puesto) y el gris se retira al acercarse.
+   La portada del HUB no cambia: con la cámara en el HUB el gris está en cero. */
 const TINT = (() => {
-  const el = $("#tint");
-  return {
-    to(theme) { el.className = "tint t-" + theme; el.style.opacity = 0; },
-    set: p => { el.style.opacity = sineInOut(clamp(p, 0, 1)).toFixed(3); },
-    // al llegar, el cielo ya tiene el tono del destino: el tinte se retira sin que se note
-    done() { el.style.opacity = 0; el.className = "tint"; }
+  const el = $("#tint"), grey = html('<div class="tint-puente" aria-hidden="true"></div>');
+  $("#sky").append(grey);
+  const away = () => sineInOut(clamp((Math.hypot(cam[0] - VIEW.hub[0], cam[1] - VIEW.hub[1]) / FW - .1) / .75, 0, 1));
+  const T = {
+    // theme: el destino ("hub" en el regreso)
+    to(theme) { el.className = "tint t-hub"; el.style.opacity = theme === "hub" ? 1 : 0; T.set(); },
+    // onProgress del vuelo: se mide con la cámara ya movida en ese cuadro
+    set() { grey.style.opacity = away().toFixed(3); },
+    // al llegar: la capa del mundo o el velo ya cubren la pantalla (en el HUB el gris ya está en cero)
+    done() { el.style.opacity = 0; el.className = "tint"; grey.style.opacity = 0; }
   };
+  return T;
 })();
 
 /* Marceline: los murciélagos siguen a la señal y, en el bloque, dan una vuelta completa a su alrededor */
 function batHooks(tr, on) {
   if (!on) return {};
   const orbit = () => { const s = camScale(), [x, y] = toScreen({ x: tr.blockCenter[0], y: tr.blockCenter[1] - 40 }); return [x, y, 560 * s, 470 * s]; };
-  return { hold: 1000, onSignal: BATS.frame, onBlock: (inside, ms) => BATS.ring(inside ? orbit : null, ms) };
+  return { hold: 160, onSignal: BATS.frame, onBlock: (inside, ms) => BATS.ring(inside ? orbit : null, ms) };
 }
 
 /* ---------------- velos por temática ---------------- */
@@ -311,7 +456,7 @@ const VEIL = (() => {
   const v = $("#veil");
   const SHARDS = [[50, 0, 100, 0, 100, 40], [100, 40, 100, 100, 60, 100], [60, 100, 0, 100, 0, 70], [0, 70, 0, 0, 50, 0], [100, 0, 100, 40, 100, 0], [0, 0, 50, 0, 0, 0]];
   async function cover(theme) {
-    if (reduced) return;
+    if (reduced || MOTION.skip) return;
     if (theme === "marceline") return BATS.cover();
     if (theme === "venom") return VENOM.cover();
     v.className = "on t-" + theme;
@@ -322,7 +467,7 @@ const VEIL = (() => {
       { duration: 360, easing: "cubic-bezier(.7,0,.3,1)", fill: "forwards" }).finished;
   }
   async function uncover(theme) {
-    if (reduced) { v.className = ""; return; }
+    if (reduced || MOTION.skip) { v.className = ""; v.innerHTML = ""; v.getAnimations().forEach(a=>a.cancel()); BATS.stop(); VENOM.stop(); return; }
     if (theme === "marceline") return BATS.scatter();
     if (theme === "venom") return VENOM.uncover();
     if (theme === "tsaritsa") {
@@ -354,7 +499,7 @@ const VEIL = (() => {
 /* ---------------- estado ---------------- */
 const SAVE = REHEARSAL ? "muxdemux-ensayo-v2" : "muxdemux-progreso-v2";
 const saved = store.get(SAVE, { mux: [], demux: [] });
-const S = { mode: "hub", side: null, m: null, k: 0, concl: 0, e: 0, busy: false,
+const S = { mode: "hub", side: null, m: null, k: 0, a: 0, concl: 0, e: 0, busy: false,
   done: { mux: new Set(saved.mux), demux: new Set(saved.demux) } };
 const persist = () => store.set(SAVE, { mux: [...S.done.mux], demux: [...S.done.demux] });
 const sealed = () => false;      // todo desbloqueado: DIO se puede ver sin terminar las otras tres rutas
@@ -368,13 +513,14 @@ const secretArmed = () => isSecondDio() && atLast() && S.done[S.side].has(3);
 
 /* solo la estación activa es navegable y visible para tecnologías de asistencia */
 function setActive() {
-  const cur = S.mode === "route" ? route()[S.k].el : S.mode === "hub" ? HUB.el : S.mode === "ending" ? MURAL.el : null;
+  const cur = S.mode === "route" ? route()[S.k].el : S.mode === "anexo" ? ANEXO[S.a].el : S.mode === "hub" ? HUB.el : S.mode === "ending" ? MURAL.el : null;
   [HUB.el, MURAL.el, ...STATIONS.map(d => d.el)].forEach(el => {
     const on = el === cur;
     el.inert = !on;
     el.classList.toggle("cur", on);                  // solo la estación visible anima sus fondos
     el.setAttribute("aria-hidden", on ? "false" : "true");
   });
+  REALMS.select(S.mode === "route" ? route()[S.k] : S.mode === "anexo" ? ANEXO[S.a] : null);
 }
 function focusStation() {
   const def = route()[S.k];
@@ -399,6 +545,12 @@ function paintUi() {
     $("#bNext").setAttribute("aria-label", !atLast() ? "Siguiente" : fin ? (S.done[S.side].has(3) ? "Volver al HUB" : "Terminar la ruta") : "Terminar la sección y volver al HUB");
     if (fin && S.done[S.side].has(3)) $("#rwWho").textContent = `${m.name} · ruta terminada ✓`;
     $$(".secret").forEach(b => b.classList.toggle("armed", secretArmed()));
+  } else if (S.mode === "anexo") {
+    $("#rwSide").textContent = "DIO · Anexo";
+    $("#rwWho").textContent = ANEXO[S.a].title;
+    $("#rwDots").innerHTML = ANEXO.map((_, i) => `<i class="${i === S.a ? "cur" : i < S.a ? "past" : ""}"></i>`).join("");
+    ui.style.setProperty("--c", MEMBERS[3].c);
+    $("#bNext").setAttribute("aria-label", S.a === ANEXO.length - 1 ? "Terminar y volver al HUB" : "Siguiente");
   } else if (S.mode === "concl") {
     $("#rwSide").textContent = "Conclusiones";
     $("#rwWho").textContent = ["El circuito completo", "Las zonas del DEMUX", "Síntesis"][S.concl];
@@ -421,6 +573,7 @@ const CONCL_NOTES = [
 function paintNotes() {
   let meta = "HUB", text = "Portada. A la izquierda, cuatro entradas del MUX: cada integrante toca la suya; la señal sale por el borde izquierdo, entra al MUX y sale por su única salida al escenario. A la derecha, un solo botón del DEMUX: cada integrante sabe en qué zona tocarlo (arriba Ana, derecha Ameth, abajo Jonathan, izquierda Carlos) y la señal viaja al DEMUX, que la manda a su destino. Las cuatro rutas están abiertas: se pueden ver en cualquier orden, incluida la de Carlos (DIO). El cronómetro y el progreso se guardan en este navegador hasta pulsar «Nueva sesión» (arriba a la derecha, dos toques).";
   if (S.mode === "route") { const d = route()[S.k]; meta = `${S.side.toUpperCase()} · ${MEMBERS[S.m].name} · ${S.k + 1}/${route().length} · ${d.title}`; text = d.notes; }
+  if (S.mode === "anexo") { const d = ANEXO[S.a]; meta = `Anexo de DIO · ${S.a + 1}/${ANEXO.length} · ${d.title}`; text = d.notes; }
   if (S.mode === "concl") { meta = "Conclusiones"; text = CONCL_NOTES[S.concl]; }
   if (S.mode === "ending") { meta = `Ending · ${S.e + 1}/${MURAL.views.length}`; text = MURAL.notes[S.e]; }
   $("#nMeta").textContent = meta;
@@ -432,10 +585,12 @@ const say = t => { $("#live").textContent = t; };
 // una acción a la vez: lo que se pulse durante un vuelo se descarta (no se acumula)
 async function lock(fn) {
   if (S.busy) return false;
+  MOTION.reset();
   S.busy = true;
   document.documentElement.classList.add("busy");
   try { await fn(); } finally {
     S.busy = false;
+    MOTION.reset();
     movers = 0; WORLD.classList.remove("moving");     // nunca queda pausado si algo falla a mitad de camino
     document.documentElement.classList.remove("busy");
   }
@@ -454,6 +609,8 @@ function openRoute({ side, m, force, x, y }) {
     if (x != null) FX.burst(x, y, 30, 7, FX.PAL[theme]);
     say(`${side === "mux" ? "MUX" : "DEMUX"}: ${mem.name}, ${mem.topic}`);
     const target = VIEW.station(route()[0]);
+    // mundo rediseñado (js/mundos/): al llegar, su propia secuencia de entrada reemplaza al velo
+    const mundo = MUNDOS.conEntrada(theme);
     let covered = null;
     // el velo entra al final del último tramo (la bandada de Marceline necesita un poco más para cubrir)
     const coverAt = t => { if (!covered && t > (theme === "marceline" ? .7 : .82)) covered = VEIL.cover(theme); };
@@ -464,21 +621,32 @@ function openRoute({ side, m, force, x, y }) {
     HUB.arm(side, m);
     const tr = MAP.trace(side, m);
     tr.light();
-    // Marceline: una bandada de murciélagos acompaña a la señal por el cable
-    const bats = theme === "marceline";
+    // pantalla puente: el vuelo es común a los cuatro mundos (cable, bloque y selección)
+    PUENTE.empezar({ side, m, theme, tr });
+    // Marceline (versión anterior): una bandada de murciélagos acompaña a la señal por el cable
+    const bats = theme === "marceline" && !mundo;
     if (bats) BATS.follow(len => toScreen(tr.point(clamp(len, 0, tr.length))));
     // Venom: el simbionte se arrastra por el cable junto a la señal
-    const goo = theme === "venom";
+    const goo = theme === "venom" && !mundo;
     if (goo) VENOM.follow(len => toScreen(tr.point(clamp(len, 0, tr.length))), camScale);
     // el fondo pasa poco a poco al tono del destino, al ritmo de la señal
     TINT.to(theme);
-    await follow(tr, target, { onT: coverAt, onProgress: TINT.set, ...batHooks(tr, bats), ...(goo ? { onSignal: VENOM.frame } : {}) });
+    await follow(tr, target, { onT: mundo ? null : coverAt, onProgress: TINT.set, ...batHooks(tr, bats), ...(goo ? { onSignal: VENOM.frame } : {}) });
     await covered;
     FX.setTheme(theme, true);
     document.documentElement.dataset.theme = theme;
     TINT.done();
     paintUi();
-    await VEIL.uncover(theme);
+    if (mundo) {
+      // la entrada del mundo cubre la pantalla antes de su primera espera; recién entonces
+      // termina el puente (las estaciones vuelven a verse, debajo de la entrada)
+      const entrada = MUNDOS.entrar(theme, { sec: route()[0].el, def: route()[0], side, m, tr });
+      PUENTE.terminar({ side, m, theme });
+      await entrada;
+    } else {
+      PUENTE.terminar({ side, m, theme });
+      await VEIL.uncover(theme);
+    }
     focusStation();
   });
 }
@@ -487,6 +655,7 @@ function step(dir) {
   if (S.busy) return;
   if (S.mode === "concl") return conclStep(dir);
   if (S.mode === "ending") return muralStep(dir);
+  if (S.mode === "anexo") return anexoStep(dir);
   if (S.mode !== "route") return;
   const n = S.k + dir;
   if (n < 0) return backToHub(false);
@@ -496,9 +665,11 @@ function step(dir) {
   }
   lock(async () => {
     leaveStation();
-    S.k = n;
-    paintUi(); setActive();
-    await pan(VIEW.station(route()[n]), 850);
+    await REALMS.transition(MEMBERS[S.m].theme, () => {
+      S.k = n;
+      paintUi(); setActive();
+      applyCam(VIEW.station(route()[n]));
+    }, dir);
     focusStation();
   });
 }
@@ -512,12 +683,66 @@ function finishInPlace() {
   say("Ruta terminada. El sol de la esquina despertó.");
 }
 
+/* ---------------- anexo de DIO (conclusiones y referencias) ----------------
+   Se abre con el botón secreto de la última diapositiva de DIO (MUX o DEMUX);
+   se recorre con las flechas y, al terminar o retroceder desde la primera, vuelve al HUB. */
+const anexoView = a => [ANEXO[a].x, ANEXO[a].y, FW];
+function focusAnexo() {
+  const el = ANEXO[S.a].el, h = el.querySelector("h2");
+  if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+  el.dispatchEvent(new Event("enter"));
+}
+function openAnexo() {
+  if (S.mode !== "route" || S.busy) return;
+  lock(async () => {
+    leaveStation();
+    // directo: corte con un fundido breve (sin la transición larga del mundo)
+    const c = MUNDOS.instantanea();
+    Object.assign(S, { mode: "anexo", a: 0 });
+    FX.setTheme("dio", true); document.documentElement.dataset.theme = "dio";
+    paintUi(); setActive(); applyCam(anexoView(0));
+    try { await MUNDOS.anim(c, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease-out" }); } finally { c.remove(); }
+    focusAnexo();
+    say("Anexo de DIO: " + ANEXO[0].title);
+  });
+}
+function anexoStep(dir) {
+  const n = S.a + dir;
+  if (n < 0 || n >= ANEXO.length) return anexoToHub();
+  lock(async () => {
+    ANEXO[S.a].el.dispatchEvent(new Event("leave"));
+    await MUNDOS.transicion(MEMBERS[3].theme, () => { S.a = n; paintUi(); setActive(); applyCam(anexoView(n)); }, dir);
+    focusAnexo();
+  });
+}
+function anexoToHub() {
+  lock(async () => {
+    const side = S.side, m = S.m;
+    ANEXO[S.a].el.dispatchEvent(new Event("leave"));
+    await MUNDOS.transicion(MEMBERS[3].theme, () => {
+      S.mode = "hub";
+      FX.setTheme("hub"); document.documentElement.dataset.theme = "hub";
+      HUB.resetMux(); MAP.reset(); stageShow(-1);
+      S.side = null; S.m = null;
+      paintHub(); paintUi(); setActive(); applyCam(VIEW.hub);
+    }, 1);
+    if (side) HUB.focusOrb(side, m ?? 3);
+    say("HUB");
+  });
+}
+$$(".secreto-anexo").forEach(b => tap(b, () => openAnexo()));
+
 function backToHub(completed = false) {
   if (S.mode === "hub") return;
+  if (S.mode === "anexo") return anexoToHub();
   lock(async () => {
     const was = S.mode, side = S.side, m = S.m, k = S.k;
     leaveStation();
     if (was === "route" && completed) { S.done[side].add(m); persist(); }
+    // mundo rediseñado: su secuencia de salida corre sobre la estación que se deja
+    // y termina en el fondo del puente con el cable gris
+    const mundo = was === "route" && MUNDOS.conEntrada(MEMBERS[m].theme);
+    if (mundo) await MUNDOS.salir(MEMBERS[m].theme, { sec: ROUTES[side][m][k].el, def: ROUTES[side][m][k], side, m, k });
     if (was === "concl" || was === "ending") { MAP.reveal(false); MAP.phrase(false); HUB.showZones(false); WORLD.classList.remove("pile"); MURAL.stop(); }
     S.mode = "hub";
     paintUi(); setActive();
@@ -526,14 +751,17 @@ function backToHub(completed = false) {
     // desde las conclusiones, vuela
     if (was === "route") {
       FX.setTheme("hub");
-      const tr = MAP.trace(side, m, { k }), bats = MEMBERS[m].theme === "marceline", goo = MEMBERS[m].theme === "venom";
+      const tr = MAP.trace(side, m, { k }), bats = MEMBERS[m].theme === "marceline" && !mundo, goo = MEMBERS[m].theme === "venom" && !mundo;
       const sample = len => toScreen(tr.point(clamp(len, 0, tr.length)));
+      PUENTE.empezar({ side, m, theme: MEMBERS[m].theme, tr, regreso: true, k, sec: ROUTES[side][m][k].el });
+      MUNDOS.soltar();
       if (bats) BATS.follow(sample, { back: true });
       if (goo) VENOM.follow(sample, camScale, { back: true });
       TINT.to("hub");
       await follow(tr, VIEW.hub, { back: true, onProgress: TINT.set, ...batHooks(tr, bats), ...(goo ? { onSignal: VENOM.frame } : {}), hold: bats ? 1900 : 0 });
       if (bats) BATS.scatter(Math.sign(tr.point(0).x - tr.point(40).x) || -1);
       if (goo) VENOM.retract();                                  // al llegar, el simbionte se recoge en su orbe
+      PUENTE.terminar({ side, m, theme: MEMBERS[m].theme, regreso: true });
     }
     FX.setTheme("hub");
     document.documentElement.dataset.theme = "hub";
@@ -586,23 +814,24 @@ function conclStep(dir) {
 /* ---------------- ending: mural horizontal ---------------- */
 function startEnding() {
   lock(async () => {
-    await VEIL.cover("dio");
-    MAP.reveal(false); MAP.phrase(false); WORLD.classList.remove("pile");
     S.mode = "ending"; S.e = 0;
-    FX.setTheme("ending");
-    document.documentElement.dataset.theme = "ending";
-    applyCam(VIEW.mural(0));
     paintUi(); setActive();
-    await VEIL.uncover("dio");
-    MURAL.enter(0);
     say(MURAL.titles[0]);
+    // cuadro congelado en sepia + «CONTINUARÁ... →»; debajo del papel se pasa al mural
+    await MURAL.freeze(() => {
+      MAP.reveal(false); MAP.phrase(false); HUB.showZones(false); WORLD.classList.remove("pile");
+      FX.setTheme("ending");
+      document.documentElement.dataset.theme = "ending";
+      applyCam(VIEW.mural(0));
+    });
+    MURAL.enter(0);
   });
 }
 function muralStep(dir) {
   const n = S.e + dir;
   if (n < 0 || n >= MURAL.views.length) return;
   lock(async () => {
-    MURAL.leave(S.e);
+    MURAL.leave(S.e, n);
     S.e = n;
     paintUi();
     await pan(VIEW.mural(n), reduced ? 0 : MURAL.travel);
@@ -625,7 +854,13 @@ HUB.onPick = openRoute;
 $("#bHub").addEventListener("click", () => backToHub(false));
 $("#bPrev").addEventListener("click", () => step(-1));
 $("#bNext").addEventListener("click", () => step(1));
-const toggleNotes = f => $("#notes").classList.toggle("open", f ?? !$("#notes").classList.contains("open"));
+const toggleNotes = f => {
+  const panel = $("#notes"), open = f ?? !panel.classList.contains("open");
+  if (!open && panel.contains(document.activeElement)) $("#tNotes").focus();
+  panel.inert = !open; panel.setAttribute("aria-hidden", String(!open));
+  panel.classList.toggle("open", open); $("#tNotes").setAttribute("aria-expanded", String(open));
+  if (open) $("#nClose").focus({preventScroll:true});
+};
 $("#tNotes").addEventListener("click", () => toggleNotes());
 $("#nClose").addEventListener("click", () => toggleNotes(false));
 const toggleFull = () => document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.().catch(() => {});
@@ -637,7 +872,11 @@ addEventListener("keydown", e => {
   if (e.target.closest?.("[role=button],button,tr") && (k === " " || k === "Enter")) return;
   if (k === "ArrowRight" || k === "PageDown" || k === " ") { if (e.target.closest?.(".orb.demux")) return; e.preventDefault(); step(1); return; }
   if (k === "ArrowLeft" || k === "PageUp") { if (e.target.closest?.(".orb.demux")) return; e.preventDefault(); step(-1); return; }
-  if (k === "Escape" || k === "Home") { if (S.mode === "route") backToHub(false); return; }
+  if (k === "Escape" || k === "Home") {
+    if (S.busy) { MOTION.finish(); REALMS.finish(); document.getAnimations().forEach(a=>{if(Number.isFinite(a.effect?.getComputedTiming().endTime)){try{a.finish();}catch{}}}); return; }
+    if ($("#notes").classList.contains("open")) { toggleNotes(false); return; }
+    if (S.mode === "route" || S.mode === "anexo") backToHub(false); return;
+  }
   if (S.mode === "hub") {
     // 1–4: entradas del MUX · 5–8: zonas del DEMUX (respetan el bloqueo de DIO)
     const code = e.code.match(/^(Digit|Numpad)([1-8])$/);
@@ -727,3 +966,4 @@ paintHub();
 paintUi();
 setActive();
 requestAnimationFrame(() => HUB.el.classList.add("on"));
+queueMicrotask(() => { if(S.mode === "route") { focusStation(); REALMS.renderPhase(); } });

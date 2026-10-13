@@ -1,0 +1,87 @@
+/* =====================================================================
+   Marceline · secuencias (S₁S₀ = 00): entrada, salida y las cuatro transiciones.
+   Capas fijas (.mundo-capa) que dibuja js/mundos/marceline-secuencias.js.
+   --mc-s: escala de la cámara (px por unidad de diseño). Los --mc-* de la paleta
+   vienen de marceline-escena.css; aquí van con su respaldo.
+   ===================================================================== */
+.mc-sec{--mc-s:1}
+.mc-sec .mc-lienzo{position:absolute;inset:0;width:100%;height:100%}
+
+/* el título real espera a que la copia escrita con marcador termine */
+.st.mc-sec-titulo .z-titulo h2{visibility:hidden}
+
+/* ---------- la cuerda de bajo (unidades de diseño del puente) ---------- */
+.mc-cuerda path,.mc-nota circle{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mc-cuerda .mc-entorchado{stroke:#231C30;stroke-dasharray:1.4 3.2;stroke-linecap:butt}
+.mc-cuerda .mc-brillo{stroke:#F4F7FA}
+.mc-cuerda .mc-punta{stroke:var(--mc-piel,#8FA3B8);stroke-width:4}
+.mc-cuerda .mc-traste{fill:var(--mc-crayon,#D9CDB8);stroke:#7E7566;stroke-width:1.4}
+.mc-cuerda .mc-traste-sombra{fill:#05030A;opacity:.6}
+.mc-cuerda .mc-cejuela{fill:#EDE3CC;stroke:#0C0716;stroke-width:2.2;stroke-linejoin:round}
+.mc-cuerda .mc-clavija{fill:var(--mc-papel,#2A2140);stroke:var(--mc-crayon,#D9CDB8);stroke-width:3.4}
+.mc-cuerda .mc-clavija-eje{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-width:2.6}
+/* la nota: dos ondas de crayón que salen de la cejuela */
+.mc-nota circle{stroke:var(--mc-crayon,#D9CDB8);stroke-dasharray:18 7 5 8}
+
+/* ---------- murciélagos: caja de 240 × 120 con el centro del cuerpo en (120, 60) ---------- */
+.mc-bandada{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.mc-murcielago{position:absolute;left:0;top:0;width:240px;height:120px;margin:-60px 0 0 -120px;overflow:visible;transform-origin:120px 60px;will-change:transform}
+.mc-murcielago path,.mc-murcielago ellipse{stroke-linecap:round;stroke-linejoin:round}
+.mc-murcielago .mc-bat-cuerpo{fill:#130B22}
+.mc-murcielago .mc-bat-borde{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-width:2.4}
+.mc-murcielago .mc-bat-pliegue{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-width:1.3;opacity:.45}
+.mc-murcielago .mc-bat-oreja{fill:none;stroke:var(--mc-vino,#B3203F);stroke-width:2.2}
+.mc-murcielago .mc-bat-mejilla{fill:var(--mc-vino,#B3203F);opacity:.55}
+.mc-murcielago .mc-bat-ojo{fill:var(--mc-amarillo,#F2C14E)}
+.mc-murcielago .mc-bat-pupila{fill:var(--mc-noche,#1B1330)}
+.mc-murcielago .mc-bat-colmillo{fill:var(--mc-texto,#F4EFE6)}
+.mc-murcielago .mc-bat-boca{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-width:1.1}
+.mc-murcielago .mc-bat-pata{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-width:2}
+/* aleteo: cada ala gira sobre su hombro y se acorta al bajar (≈ 2,5 aletazos por segundo) */
+.mc-murcielago .mc-ala{transform-box:view-box;animation:mc-aleteo-i var(--aleteo,.2s) cubic-bezier(.45,0,.55,1) infinite alternate}
+.mc-murcielago .mc-ala.i{transform-origin:33px 40px}
+.mc-murcielago .mc-ala.d{transform-origin:47px 40px;animation-name:mc-aleteo-d}
+@keyframes mc-aleteo-i{from{transform:rotate(26deg) scaleY(1)}to{transform:rotate(-30deg) scaleY(.5)}}
+@keyframes mc-aleteo-d{from{transform:rotate(-26deg) scaleY(1)}to{transform:rotate(30deg) scaleY(.5)}}
+/* al posarse, pliega las alas como una capa (la silueta del posado de la escena) */
+.mc-murcielago.mc-plegado .mc-ala{animation:none;transition:transform .2s cubic-bezier(.3,.7,.3,1)}
+.mc-murcielago.mc-plegado .mc-ala.i{transform:rotate(-80deg) scale(.34,.78)}
+.mc-murcielago.mc-plegado .mc-ala.d{transform:rotate(80deg) scale(.34,.78)}
+
+/* ---------- Página de cuaderno ---------- */
+.mc-hoja-vieja{position:absolute;inset:0}
+.mc-sombra-nueva{position:absolute;inset:0}
+/* franjas pegadas al pliegue (el alto lo pone el JS): solo lo que el degradado ocupa */
+.mc-sombra-nueva i,.mc-pliegue{position:absolute;left:0;top:0;transform-origin:0 0}
+.mc-sombra-nueva i{width:calc(var(--mc-s)*240px);background:linear-gradient(90deg,rgba(7,4,14,.62),rgba(7,4,14,.24) calc(var(--mc-s)*70px),rgba(7,4,14,0))}
+/* sin filter: un contexto 3D con filtro se vuelve a rasterizar en cada cuadro */
+.mc-vuelta{position:absolute;inset:0;perspective:calc(var(--mc-s)*2400px)}
+/* la sombra de la hoja levantada: la misma silueta, plana y desplazada */
+.mc-reverso-sombra{position:absolute;transform-origin:0 0;background:rgba(6,3,12,.42)}
+/* el reverso: papel del cuaderno, renglones de crayón y el margen en rojo vino */
+.mc-reverso{position:absolute;transform-origin:0 0;overflow:hidden;background:#30274A url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8 .55' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .85 0 0 0 0 .8 0 0 0 0 .72 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/240px 240px}
+.mc-renglones{position:absolute;inset:0;background:
+  linear-gradient(90deg,transparent calc(var(--mc-s)*150px),rgba(179,32,63,.55) calc(var(--mc-s)*150px),rgba(179,32,63,.55) calc(var(--mc-s)*154px),transparent calc(var(--mc-s)*154px)),
+  repeating-linear-gradient(180deg,transparent 0 calc(var(--mc-s)*62px),rgba(217,205,184,.14) calc(var(--mc-s)*62px) calc(var(--mc-s)*65px))}
+.mc-pliegue{width:calc(var(--mc-s)*900px);background:linear-gradient(90deg,rgba(7,4,14,.6),rgba(7,4,14,.16) calc(var(--mc-s)*110px),rgba(255,246,230,.08) calc(var(--mc-s)*430px),rgba(255,246,230,0))}
+.mc-reverso-garabatos{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mc-reverso-garabatos path,.mc-reverso-garabatos ellipse{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:5}
+.mc-rg-crayon{stroke:var(--mc-crayon,#D9CDB8);opacity:.42;stroke-dasharray:30 5 9 6}
+.mc-rg-tinta{stroke:var(--mc-crayon,#D9CDB8);fill:rgba(217,205,184,.3)!important;opacity:.5}
+.mc-rg-vino{stroke:var(--mc-vino,#B3203F);opacity:.7}
+
+/* ---------- Murciélago borrador: los cantos de la franja ---------- */
+.mc-estela path{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-opacity:.5;stroke-width:calc(var(--mc-s)*4px);stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:calc(var(--mc-s)*34px) calc(var(--mc-s)*9px) calc(var(--mc-s)*8px) calc(var(--mc-s)*12px)}
+
+/* ---------- Acorde rojo: cuerdas y filos de la banda ---------- */
+.mc-acorde path{stroke-linecap:round;stroke-linejoin:round}
+.mc-acorde .mc-acorde-cuerda{fill:none;stroke:var(--mc-crayon,#D9CDB8);stroke-opacity:.42;stroke-width:calc(var(--mc-s)*3px)}
+.mc-acorde .mc-acorde-filo{fill:none;stroke:#F0B3BF;stroke-opacity:.5;stroke-width:calc(var(--mc-s)*4px);
+  stroke-dasharray:calc(var(--mc-s)*48px) calc(var(--mc-s)*8px) calc(var(--mc-s)*12px) calc(var(--mc-s)*10px)}
+
+/* ---------- Garabato: espiral de crayón con su sombra en rojo vino ---------- */
+.mc-espiral path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mc-esp-linea path{stroke:var(--mc-crayon,#D9CDB8);stroke-width:calc(var(--mc-s)*12px);stroke-dasharray:calc(var(--mc-s)*70px) calc(var(--mc-s)*5px) calc(var(--mc-s)*24px) calc(var(--mc-s)*4px)}
+.mc-esp-sombra{transform:translate(calc(var(--mc-s)*4px),calc(var(--mc-s)*5px))}
+.mc-esp-sombra path{stroke:var(--mc-vino,#B3203F);stroke-width:calc(var(--mc-s)*18px);stroke-opacity:.85}

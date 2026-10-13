@@ -5,7 +5,16 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const wait = ms => new Promise(r => setTimeout(r, ms));
+const MOTION = {
+  skip: false, pending: new Set(),
+  finish() { this.skip = true; [...this.pending].forEach(f => f()); },
+  reset() { this.skip = false; }
+};
+const wait = ms => new Promise(resolve => {
+  if (MOTION.skip || ms <= 0) { resolve(); return; }
+  const done = () => { clearTimeout(timer); MOTION.pending.delete(done); resolve(); };
+  const timer = setTimeout(done, ms); MOTION.pending.add(done);
+});
 const NS = "http://www.w3.org/2000/svg";
 const SUB = ["₀", "₁", "₂", "₃"];
 const STILL = new URLSearchParams(location.search).has("still");   // revisión: sin animaciones de entrada
@@ -45,14 +54,19 @@ const ease = {
 /* animación simple basada en requestAnimationFrame */
 function tween(ms, fn, curve = ease.inOut) {
   return new Promise(res => {
-    if (ms <= 0 || reduced) { fn(1); res(); return; }
+    if (ms <= 0 || reduced || MOTION.skip) { fn(1); res(); return; }
     const t0 = performance.now();
+    let raf = 0, done = false;
+    const finish = () => { if (done) return; done = true; cancelAnimationFrame(raf); MOTION.pending.delete(finish); fn(1); res(); };
+    MOTION.pending.add(finish);
     const step = now => {
+      if (done) return;
+      if (reduced || MOTION.skip) { finish(); return; }
       const p = clamp((now - t0) / ms, 0, 1);
       fn(curve(p));
-      if (p < 1) requestAnimationFrame(step); else res();
+      if (p < 1) raf = requestAnimationFrame(step); else { done = true; MOTION.pending.delete(finish); res(); }
     };
-    requestAnimationFrame(step);
+    raf = requestAnimationFrame(step);
   });
 }
 
@@ -115,7 +129,7 @@ const FW = 1920, FH = 1080;
 const MEMBERS = [
   { name: "Ana", theme: "marceline", topic: "Fundamentos", c: "#E0344A" },
   { name: "Ameth", theme: "tsaritsa", topic: "Funcionamiento lógico", c: "#9FD4FF" },
-  { name: "Jonathan", theme: "venom", topic: "Diseño y expansión", c: "#9A6BFF" },
+  { name: "Jonathan", theme: "venom", topic: "Diseño y expansión", c: "#DCE4EC" },
   { name: "Carlos", theme: "dio", topic: "Aplicaciones", c: "#F2C14E" }
 ];
 const ROW_Y = [-1980, -660, 660, 1980];                 // filas de los cuatro destinos del DEMUX

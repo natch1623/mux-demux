@@ -6,17 +6,25 @@
 <title>MUX / DEMUX</title>
 <meta name="description" content="Multiplexores y demultiplexores: presentación interactiva sobre un lienzo navegable.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='26' fill='%230A1530'/><g stroke='%23BFE3FF' stroke-width='6' stroke-linecap='round'><path d='M50 16V84M21 33L79 67M21 67L79 33'/></g></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- tipografías de cada mundo: Cinzel (DIO, grabado en metal), Bebas Neue (Marceline, cartel de concierto), Fraunces blanda (Venom, orgánica) -->
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,600..900,0..100,0..1&display=swap" rel="stylesheet">
+<!-- Tipografías locales: licencias conservadas en assets/fonts. -->
 <meta name="theme-color" content="#050A18">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/worlds.css">
-<link rel="stylesheet" href="css/materials.css">
-<link rel="stylesheet" href="css/cierre.css">
+<link rel="stylesheet" href="css/fonts.css?v=20261013t">
+<link rel="stylesheet" href="css/base.css?v=20261013t">
+<link rel="stylesheet" href="css/worlds.css?v=20261013t">
+<link rel="stylesheet" href="css/materials.css?v=20261013t">
+<link rel="stylesheet" href="css/cierre.css?v=20261013t">
+<link rel="stylesheet" href="css/realms.css?v=20261013t">
+<link rel="stylesheet" href="css/ambience.css?v=20261013t">
+<!-- mundos (docs/ESPECIFICACION-MUNDOS.md): retícula común, pantalla puente y un archivo por mundo -->
+<link rel="stylesheet" href="css/mundos/reticula.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/puente.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/marceline-escena.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/marceline-secuencias.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/marceline-estaciones.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/transiciones.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/secuencias-mundos.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/escenas-mundos.css?v=20261013t">
+<link rel="stylesheet" href="css/mundos/componentes-mundos.css?v=20261013t">
 </head>
 <body>
 
@@ -35,6 +43,9 @@
 <!-- fondo de pantalla: auras y nieve (no se mueven con la cámara) -->
 <div id="sky" aria-hidden="true"><div class="aura"></div><div class="tint" id="tint"></div><canvas id="snow"></canvas><div class="vignette"></div></div>
 
+<!-- ending dibujado a mano: el mural a tinta (detrás del lienzo) y la flecha del cuadro congelado (encima) -->
+<canvas id="muralInk" aria-hidden="true"></canvas>
+
 <!-- el lienzo: todo vive en coordenadas del mundo y la cámara lo recorre -->
 <div id="viewport">
   <div id="world"></div>
@@ -48,6 +59,7 @@
 <canvas id="bats" aria-hidden="true"></canvas>
 <!-- simbionte de Venom (se arrastra por el cable) -->
 <canvas id="venom" aria-hidden="true"></canvas>
+<canvas id="tbcInk" aria-hidden="true"></canvas>
 
 <!-- controles (aparecen dentro de las rutas) -->
 <nav class="route-ui" id="routeUi" aria-label="Navegación de la sección">
@@ -68,7 +80,7 @@
   <button class="tbtn" id="tFull" aria-label="Pantalla completa (F)" title="Pantalla completa · F"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
 </div>
 
-<aside class="notes" id="notes" aria-label="Notas del expositor">
+<aside class="notes" id="notes" aria-label="Notas del expositor" aria-hidden="true" inert>
   <div class="notes-top"><p class="notes-meta" id="nMeta"></p><button class="tbtn" id="nClose" aria-label="Cerrar notas">✕</button></div>
   <p class="notes-text" id="nText"></p>
 </aside>
@@ -76,16 +88,27 @@
 <p class="toast" id="toast" role="status"></p>
 <p class="sr-only" id="live" aria-live="polite"></p>
 
-<script src="js/util.js"></script>
-<script src="js/fx.js"></script>
-<script src="js/bats.js"></script>
-<script src="js/venom.js"></script>
-<script src="js/dress.js"></script>
-<script src="js/sim.js"></script>
-<script src="js/hub.js"></script>
-<script src="js/content.js"></script>
-<script src="js/worlds.js"></script>
-<script src="js/ending.js"></script>
-<script src="js/app.js"></script>
+<script src="js/util.js?v=20261013t"></script>
+<script src="js/mundos/nucleo.js?v=20261013t"></script>
+<script src="js/mundos/puente.js?v=20261013t"></script>
+<script src="js/ambience.js?v=20261013t"></script>
+<script src="js/realms.js?v=20261013t"></script>
+<script src="js/fx.js?v=20261013t"></script>
+<script src="js/bats.js?v=20261013t"></script>
+<script src="js/venom.js?v=20261013t"></script>
+<script src="js/dress.js?v=20261013t"></script>
+<script src="js/sim.js?v=20261013t"></script>
+<script src="js/hub.js?v=20261013t"></script>
+<script src="js/content.js?v=20261013t"></script>
+<script src="js/worlds.js?v=20261013t"></script>
+<script src="js/mundos/marceline-escena.js?v=20261013t"></script>
+<script src="js/mundos/marceline-secuencias.js?v=20261013t"></script>
+<script src="js/mundos/marceline-estaciones.js?v=20261013t"></script>
+<script src="js/mundos/transiciones.js?v=20261013t"></script>
+<script src="js/mundos/secuencias-mundos.js?v=20261013t"></script>
+<script src="js/mundos/escenas-mundos.js?v=20261013t"></script>
+<script src="js/mundos/componentes-mundos.js?v=20261013t"></script>
+<script src="js/ending.js?v=20261013t"></script>
+<script src="js/app.js?v=20261013t"></script>
 </body>
 </html>

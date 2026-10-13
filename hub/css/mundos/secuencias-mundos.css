@@ -1,0 +1,82 @@
+/* =====================================================================
+   Entradas y salidas de Tsaritsa (§2.4, §2.9), Venom (§3.4, §3.9) y DIO (§4.4, §4.9).
+   Lógica en js/mundos/secuencias-mundos.js. Las capas son .mundo-capa fijas.
+   ===================================================================== */
+@property --se-r{syntax:'<percentage>';inherits:false;initial-value:0%}
+.se > div,.se > i{position:absolute;inset:0}
+.se > canvas.se-nieve{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- Tsaritsa ---------- */
+.se-tz-cristal{fill:#A8D8F0;stroke:#EAF6FF;stroke-width:1.5;transform-box:fill-box;transform-origin:50% 100%}
+.se-tz-escarcha{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='5' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .92 0 0 0 0 .96 0 0 0 0 1 0 0 0 1.6 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E") 0 0/300px 300px,
+  radial-gradient(circle at 50% 50%,rgba(234,246,255,.85),rgba(168,216,240,.8) 40%,rgba(47,111,168,.9) 80%,#0A1B33);
+  -webkit-mask:radial-gradient(circle at 50% 50%,#000 var(--se-r),transparent calc(var(--se-r) + 10%));mask:radial-gradient(circle at 50% 50%,#000 var(--se-r),transparent calc(var(--se-r) + 10%))}
+.se-tz-escarcha.llena{-webkit-mask:none;mask:none;opacity:.92}
+.se-tz-blanco{background:#EAF6FF}
+.se-tz-esquirla{background:linear-gradient(140deg,#EAF6FF,#A8D8F0 45%,#2F6FA8);box-shadow:inset 0 0 0 3px rgba(255,255,255,.7)}
+.se > svg.se-tz-grieta{position:absolute;inset:0;width:100%;height:100%}
+.se-tz-grieta path{fill:none;stroke:#05101F;stroke-width:4;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:1}
+.se-tz-marco svg{position:absolute;inset:0;width:100%;height:100%}
+.se-tz-marco rect{fill:none;stroke:#D9B25F;stroke-width:3;vector-effect:non-scaling-stroke;stroke-dasharray:1}
+.se-tz-marco rect.fino{stroke:#A8D8F0;stroke-width:1.5}
+.se-tz-orn{position:absolute!important;inset:auto!important;width:46px;height:46px;background:linear-gradient(135deg,#EAF6FF,#A8D8F0 50%,#2F6FA8);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);box-shadow:inset 0 0 0 3px #D9B25F}
+.se-tz-orn.tl{left:6px;top:14px}.se-tz-orn.tr{right:6px;top:14px}.se-tz-orn.bl{left:6px;bottom:6px}.se-tz-orn.br{right:6px;bottom:6px}
+.se-tz-brillo{color:transparent;background:linear-gradient(100deg,transparent 38%,rgba(255,236,170,.95) 48%,#D9B25F 52%,transparent 62%) 130% 0/260% 100% no-repeat;-webkit-background-clip:text;background-clip:text}
+.se-tz-gota{position:absolute!important;inset:auto!important;width:9px;height:16px;background:#A8D8F0;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;box-shadow:0 0 6px rgba(234,246,255,.6)}
+.se-tz-niebla{background:radial-gradient(120% 80% at 50% 70%,rgba(168,216,240,.6),rgba(10,27,51,.95) 70%),#0A1B33}
+
+/* ---------- Venom ---------- */
+.se-vn-nodo{fill:#050507;stroke:#2E5BFF;stroke-width:3}
+.se-vn-nodo-brillo{fill:#7A3FFF;opacity:.6}
+.se-vn-gota{fill:#050507;stroke:#2E5BFF;stroke-width:2}
+.se-vn-tent{fill:none;stroke:#050507;stroke-width:14;stroke-linecap:round;stroke-dasharray:1}
+.se-vn-mancha{fill:#050507}
+.se-vn-mancha-borde{fill:none;stroke:#7A3FFF;stroke-width:1.2;opacity:.6}
+.se-vn-negro{background:radial-gradient(60% 60% at 50% 50%,rgba(46,91,255,.06),transparent 70%),#050507!important}
+.se > svg.se-vn-ojos{position:absolute;left:50%;top:44%;width:min(440px,46vw);height:auto;translate:-50% -50%;transform-origin:center}
+.se-vn-ojos path{fill:#EDEDE6}
+.se > svg.se-vn-cortina{position:absolute;inset:0;width:100%;height:130%}
+.se-vn-cortina path{fill:#050507}
+
+/* ---------- DIO ---------- */
+.se-dio-rojo{fill:none;stroke:#FF2A3D;stroke-width:8;stroke-linecap:round;stroke-dasharray:1}
+.se-dio-invertido{filter:invert(1) hue-rotate(180deg)}
+.se-dio-reloj{transform-origin:0 0}
+.se-dio-esfera{fill:#FFD400;stroke:#0B0B0F;stroke-width:12}
+.se-dio-aro{fill:none;stroke:#E6007E;stroke-width:6}
+.se-dio-marca{stroke:#0B0B0F;stroke-width:12;stroke-linecap:round}
+.se-dio-aguja{fill:#0B0B0F;transform-origin:0 0}
+.se-dio-eje{fill:#E6007E;stroke:#0B0B0F;stroke-width:4}
+.se-dio-blanco{background:#FFFFFF;opacity:0}
+.se-dio-fresco{-webkit-mask:radial-gradient(75% 70% at 50% 50%,transparent 46%,#000 78%);mask:radial-gradient(75% 70% at 50% 50%,transparent 46%,#000 78%)}
+.se-dio-fresco svg{position:absolute;inset:0;width:100%;height:100%}
+.se-dio-fresco .am{fill:#FFD400}.se-dio-fresco .mg{fill:#E6007E}
+.se-dio-fresco .banda{position:absolute;left:0;right:0;height:11%;background:
+  repeating-linear-gradient(90deg,#0B0B0F 0 6px,transparent 6px 46px),
+  linear-gradient(90deg,#2BD67B 0 25%,#FFD400 25% 50%,#4B1D7A 50% 75%,#FF7A1A 75%);border-block:6px solid #0B0B0F}
+.se-dio-fresco .arriba{top:0}.se-dio-fresco .abajo{bottom:0}
+.se-dio-gogo{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-right:3vw;opacity:.3;pointer-events:none}
+.se-dio-gogo span{font:400 min(13vh,120px)/1 "Dela Gothic One",sans-serif;color:#4B1D7A;-webkit-text-stroke:3px #FFD400;paint-order:stroke}
+.se-dio-gogo.tiembla{animation:se-tiembla .16s steps(2) infinite}
+@keyframes se-tiembla{0%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}}
+.se > svg.se-dio-pose{position:absolute;left:1vw;bottom:2vh;height:44vh;width:auto}
+.se-dio-pose .relleno{fill:#4B1D7A}
+.se-dio-pose .trazo{fill:none;stroke:#0B0B0F;stroke-width:9;stroke-linejoin:round;stroke-dasharray:1}
+@media (prefers-reduced-motion:reduce){.se-dio-gogo.tiembla{animation:none}}
+
+/* ---------- estallido de hielo (portado de la presentación de normas, 15 → 16) ---------- */
+.se-tz-escarcha.hoja{opacity:1;background-color:#0A1B33}
+.se-frag{will-change:transform,opacity}
+.se > svg.se-grietas{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.se-grietas path{fill:none;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1}
+.se-grietas .core{stroke:#F2FBFF;stroke-width:2.5}
+.se-grietas .glow{stroke:#A8D8F0;stroke-width:10;stroke-opacity:.45}
+.se-fx{will-change:transform,opacity;pointer-events:none}
+.se-fx .fx-rim{fill:none;stroke:#EAF6FF;stroke-width:1.8;stroke-linejoin:miter}
+.se-fx .fx-rim-glow{fill:none;stroke:#A8D8F0;stroke-width:7;stroke-opacity:.4;stroke-linejoin:round}
+.se-fx .fx-facet{fill:rgba(236,246,255,.08)}
+.se-fx .fx-ice{fill:rgba(168,216,240,.35)}
+.se-fx .fx-bloom{fill:#EAF6FF;opacity:.55;filter:blur(30px)}
+.se-fx .fx-pane{fill:rgba(168,216,240,.22)}
+.se-fx .fx-glint{fill:#FFFFFF;filter:drop-shadow(0 0 5px #A8D8F0) drop-shadow(0 0 14px #A8D8F0)}

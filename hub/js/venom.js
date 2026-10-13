@@ -76,7 +76,7 @@ const VENOM = (() => {
         pts.push([cx + Math.cos(a) * d - Math.sin(a) * sw, cy + Math.sin(a) * d + Math.cos(a) * sw, u]);
       }
       for (const pass of [0, 1]) {
-        ctx.strokeStyle = pass ? "#050208" : "rgba(154,107,255,.45)";
+        ctx.strokeStyle = pass ? "#050608" : "rgba(164,179,195,.45)";
         for (let j = 1; j < pts.length; j++) {
           const w = k.w * (1 - pts[j][2] * .85);
           ctx.lineWidth = pass ? w : w + 6;
@@ -93,8 +93,8 @@ const VENOM = (() => {
     }
     ctx.closePath();
     ctx.lineJoin = "round";
-    ctx.lineWidth = 12; ctx.strokeStyle = "rgba(154,107,255,.5)"; ctx.stroke();
-    ctx.fillStyle = "#050208"; ctx.fill();
+    ctx.lineWidth = 12; ctx.strokeStyle = "rgba(164,179,195,.5)"; ctx.stroke();
+    ctx.fillStyle = "#050608"; ctx.fill();
     // brillo húmedo en el borde
     ctx.strokeStyle = "rgba(225,210,255,.25)"; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.arc(cx, cy, R * .93, -2.4, -1.2); ctx.stroke();
@@ -157,7 +157,7 @@ const VENOM = (() => {
       }
       // dos pasadas (halo morado y luego carne negra) para que no se vean las uniones entre tramos
       for (const pass of [0, 1]) {
-        ctx.strokeStyle = pass ? "#07040D" : "rgba(154,107,255,.4)";
+        ctx.strokeStyle = pass ? "#080C11" : "rgba(164,179,195,.4)";
         for (let j = 1; j < pts.length; j++) {
           const [x0, y0] = pts[j - 1], [x, y, k] = pts[j], w = k0.w * s * (1 - k * .75);
           ctx.lineWidth = pass ? Math.max(1.4, w) : Math.max(2, w + 3 * s);
@@ -167,7 +167,7 @@ const VENOM = (() => {
       const [px, py] = pts[pts.length - 1];
       // punta que se agarra del cable
       if (k0.grab && ext > .85) {
-        ctx.fillStyle = "#07040D";
+        ctx.fillStyle = "#080C11";
         ctx.beginPath(); ctx.arc(px, py, 7 * s, 0, Math.PI * 2); ctx.fill();
       }
     }
@@ -175,8 +175,8 @@ const VENOM = (() => {
     // cuerpo: halo morado, masa negra
     body();
     ctx.lineJoin = "round";
-    ctx.lineWidth = 9 * s; ctx.strokeStyle = "rgba(154,107,255,.45)"; ctx.stroke();
-    ctx.fillStyle = "#050208"; ctx.fill();
+    ctx.lineWidth = 9 * s; ctx.strokeStyle = "rgba(164,179,195,.45)"; ctx.stroke();
+    ctx.fillStyle = "#050608"; ctx.fill();
 
     // hebras que envuelven el cable
     ctx.lineWidth = Math.max(1, 2.4 * s);

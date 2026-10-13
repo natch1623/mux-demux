@@ -1,0 +1,320 @@
+/* =====================================================================
+   Marceline · estaciones (S₁S₀ = 00). Especificación §1.5–1.8; contrato: docs/MUNDOS-CONTRATO.md.
+   Las cuatro estaciones de Ana: amplificador de 4 entradas (MUX), amplificador repartidor
+   (DEMUX), abanicos N:1 / 1:N, setlist, notas al margen y cajas con la abertura de 4 px.
+   Prefijo propio mce- (la escena usa mc-). Paleta: variables --mc-* de la escena.
+   Unidades: las de la estación (1920 × 1080); el SVG del componente mide 1304 × 605.
+   ===================================================================== */
+.st.mundo.w-marceline{--mce-hoja:#F4EFE6;--mce-tinta-hoja:#1B1330;--mce-lapiz:#4A3D63;--mce-gris:#6E6787;--mce-oscuro:#15101F;--mce-caja:#241B39}
+
+/* ---------- lienzo del componente ---------- */
+.st.mundo.w-marceline .z-comp > .mce-lienzo{position:absolute;inset:0;flex:none}
+.mce-lienzo > svg,.mce-lienzo > .mce-capa-fig,.mce-capa-fig > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.st.mundo.w-marceline .mce-fig{transform:none;filter:none}
+.mce-fig text{text-anchor:middle}
+/* Textos del componente. «.fig text» (worlds.css, especificidad 0,1,1) impone mono crema: toda regla de texto
+   va bajo :is(.mce-fig,.mce-boceto) (0,2,0) para que mande la tipografía del mundo (§1.3). El tamaño de los
+   rótulos lo fija rotulo() en unidades de estación: nada técnico por debajo de 30 (20 px a 1280 × 720). */
+:is(.mce-fig,.mce-boceto) .mce-sub{font-size:.75em}
+:is(.mce-fig,.mce-boceto) .mce-rot{font-family:var(--mc-cuerpo);fill:var(--mc-crayon)}
+:is(.mce-fig,.mce-boceto) .mce-dato{font-family:var(--mc-datos);font-weight:700}
+:is(.mce-fig,.mce-boceto) .mce-logo{font-family:var(--mc-titulo);fill:var(--mc-amarillo);text-anchor:start!important}
+.mce-eco{fill:none!important;stroke-width:1.6px!important;opacity:.5;transform:translate(2px,-1.6px)}
+/* botones SVG: el área táctil es .mce-hit; lo demás no intercepta */
+.mce-btn{cursor:pointer;outline:none}
+.mce-btn *{pointer-events:none}
+.mce-btn .mce-hit,.mce-esq-btn .mce-hit{fill:transparent;pointer-events:all}
+.mce-foco{fill:none;stroke:var(--mc-amarillo);stroke-width:3;stroke-dasharray:9 7;stroke-linecap:round;opacity:0}
+.st.mundo .mce-fig .mce-btn:focus-visible{outline:none}
+.mce-btn:focus-visible .mce-foco{opacity:1}
+
+/* ---------- amplificador ---------- */
+.mce-piso{fill:var(--mc-tinta);opacity:.6}
+.mce-amp-pata{fill:#120C22;stroke:var(--mc-crayon);stroke-width:3}
+.mce-amp-asa{fill:none;stroke:#4B3B72;stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
+.mce-amp-asa.mce-eco{stroke:var(--mc-crayon);opacity:.7}
+.mce-amp-cuerpo{fill:var(--mc-papel);stroke:var(--mc-crayon);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.mce-amp-franja{fill:#3A2D5C;stroke:var(--mc-tinta);stroke-width:2}
+.mce-amp-frente{fill:#1D1630;transition:fill .6s ease}
+.mce-on .mce-amp-frente{fill:#271E42}
+.mce-amp-rejilla{opacity:.9}
+.mce-trama-l{stroke:var(--mc-crayon);stroke-width:1.3;opacity:.11}
+.mce-esquinero{fill:none;stroke:var(--mc-crayon);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.mce-led-luz{fill:#4A1626;transition:fill .3s}
+.mce-led-halo{fill:#FF6B84;opacity:0;transition:opacity .45s}
+.mce-led-aro{fill:none;stroke:var(--mc-crayon);stroke-width:2.2}
+.mce-on .mce-led-luz{fill:#FF7790}
+.mce-on .mce-led-halo{opacity:.32}
+.mce-jack-fondo{fill:#110B1E}
+.mce-jack-aro{fill:none;stroke:var(--mc-crayon);stroke-width:3.5;transition:stroke .35s}
+.mce-jack-aro2{fill:none;stroke:var(--mc-piel);stroke-width:2.5}
+.mce-jack-hueco{fill:#05030A}
+.mce-jack-halo{fill:var(--mc-amarillo);opacity:0;transition:opacity .45s}
+.mce-on .mce-jack-halo{opacity:.15}
+.mce-on .mce-jack-aro{stroke:var(--mc-amarillo)}
+.mce-jack.elegido .mce-jack-halo{opacity:.42}
+:is(.mce-fig,.mce-boceto) .mce-jack-t{fill:var(--mc-crayon)}
+.mce-plug-funda{fill:#1A1326;stroke:var(--mc-crayon);stroke-width:2.5}
+.mce-plug-metal{fill:var(--mc-piel);stroke:var(--mc-tinta);stroke-width:2}
+.mce-plug-raya{stroke:var(--mc-tinta);stroke-width:2}
+
+/* vúmetro: ventana de papel que se ilumina al encender; la aguja sube con Y = 1 */
+.mce-vu-ventana{fill:#8E849D;stroke:var(--mc-crayon);stroke-width:3.5;transition:fill .5s}
+.mce-on .mce-vu-ventana{fill:var(--mc-texto)}
+.mce-vu-escala,.mce-vu-marcas{fill:none;stroke:var(--mce-tinta-hoja);stroke-width:3;stroke-linecap:round}
+.mce-vu-rojo{fill:none;stroke:var(--mc-vino);stroke-width:8;stroke-linecap:round}
+:is(.mce-fig,.mce-boceto) .mce-vu-t{font-size:30px;fill:var(--mce-tinta-hoja);text-anchor:start!important}
+.mce-aguja{transition:transform .75s cubic-bezier(.3,1.45,.5,1)}
+.mce-aguja-l{stroke:var(--mc-vino);stroke-width:5;stroke-linecap:round}
+.mce-aguja-eje{fill:var(--mce-tinta-hoja)}
+.st.cur .mce-vu.alto .mce-aguja-t{animation:mce-temblor .9s ease-in-out infinite alternate}
+@keyframes mce-temblor{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+
+/* perilla: 0° a 270°; antes del toque 2 descansa en la marca roja */
+.mce-perilla-marcas{fill:none;stroke:var(--mc-crayon);stroke-width:3.5;stroke-linecap:round}
+.mce-perilla-arco{fill:none;stroke:var(--mc-crayon);stroke-width:3;stroke-linecap:round;stroke-dasharray:1 10;opacity:.6}
+:is(.mce-fig,.mce-boceto) .mce-canal{font-size:30px;fill:var(--mc-crayon);transition:fill .3s}
+:is(.mce-fig,.mce-boceto) .mce-canal.activo{fill:var(--mc-amarillo)}
+.mce-perilla-off{fill:#E5566E}
+.mce-perilla-dientes{stroke:var(--mc-crayon);stroke-width:3;opacity:.55}
+.mce-perilla-cuerpo{fill:var(--mce-oscuro);stroke:var(--mc-crayon);stroke-width:4}
+.mce-perilla-tapa{fill:#2E2448;stroke:var(--mc-tinta);stroke-width:2}
+.mce-indicador{transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
+.mce-indicador-l{stroke:var(--mc-crayon);stroke-width:7;stroke-linecap:round;transition:stroke .3s}
+.mce-gira .mce-indicador-l{stroke:var(--mc-amarillo)}
+.mce-indicador-p{fill:var(--mc-noche)}
+
+/* ruta elegida dentro del amplificador (puntos de crayón) y el pulso de la señal */
+.mce-traza{fill:none;stroke:var(--mc-amarillo);stroke-width:5.5;stroke-linecap:round;stroke-dasharray:1 11;opacity:0;transition:opacity .4s}
+.mce-llego .mce-traza{opacity:.95}
+.mce-llego.mce-cero .mce-traza{stroke:var(--mc-piel)}
+.mce-pulso{fill:none;stroke:#FFF4CC;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.mce-pulso-halo{fill:none;stroke:var(--mc-amarillo);stroke-width:26;stroke-linecap:round;stroke-linejoin:round;opacity:.33}
+.mce-pulso.frio{stroke:#D3DAE3}
+.mce-pulso-halo.frio{stroke:var(--mc-piel)}
+.mce-c-pulso,.mce-c-notas .mce-tachon{pointer-events:none}
+/* cables de las palancas S₁/S₀ a la perilla */
+.mce-cable-s{fill:none;stroke:var(--mc-piel);stroke-width:5;stroke-linecap:round;transition:stroke .3s}
+.mce-cable-s.v1{stroke:var(--mc-amarillo)}
+
+/* ---------- cables de colores ---------- */
+.mce-cable :is(.mce-cable-halo,.mce-cable-tinta,.mce-cable-color,.mce-cable-brillo){fill:none;stroke-linecap:round;stroke-linejoin:round;
+  transition:d .62s cubic-bezier(.3,1.32,.5,1),stroke .45s,opacity .4s}
+.mce-cable-halo{stroke:var(--c);stroke-width:28;opacity:0}
+.mce-cable-tinta{stroke:var(--mc-tinta);stroke-width:15}
+.mce-cable-color{stroke:color-mix(in srgb,var(--c) 58%,#2A2140);stroke-width:9}
+.mce-cable.tenso .mce-cable-color{stroke:var(--c)}
+.mce-cable-brillo{stroke:#fff;stroke-width:2;opacity:.18;transform:translate(-1px,-2.5px)}
+.mce-cable.tenso .mce-cable-brillo{opacity:.4}
+.mce-ondas,.mce-chispas{opacity:0;transition:opacity .35s}
+.mce-cable.tenso :is(.mce-ondas,.mce-chispas){opacity:1}
+.mce-onda{fill:none;stroke:color-mix(in srgb,var(--c) 45%,#FFF8E6);stroke-width:3;stroke-linecap:round}
+.mce-onda.b{opacity:.22}
+.st.cur .mce-cable.tenso .mce-onda.a{animation:mce-vibra .48s ease-in-out infinite alternate}
+.st.cur .mce-cable.tenso .mce-onda.b{animation:mce-vibra .48s ease-in-out infinite alternate-reverse}
+@keyframes mce-vibra{from{opacity:1}to{opacity:.18}}
+.mce-chispa path{fill:var(--mc-amarillo);stroke:var(--mc-tinta);stroke-width:1.6;stroke-linejoin:round}
+.st.cur .mce-cable.tenso .mce-chispa{animation:mce-chispa 1.5s ease-in-out infinite;animation-delay:calc(var(--i) * -.5s)}
+@keyframes mce-chispa{0%,100%{transform:scale(.5) rotate(0deg);opacity:.5}50%{transform:scale(1.1) rotate(30deg);opacity:1}}
+/* entrada elegida: halo de su color; callada (toque 4): floja y gris */
+:is(.mce-entrada,.mce-salida).elegida .mce-cable-halo{opacity:.26}
+:is(.mce-entrada,.mce-salida).callada .mce-cable-color{stroke:var(--mce-gris)}
+:is(.mce-entrada,.mce-salida).callada :is(.mce-ondas,.mce-chispas){opacity:0}
+.mce-callando :is(.mce-entrada,.mce-salida) .mce-cable *{transition-delay:calc(var(--k) * 90ms)}
+.mce-quieto,.mce-quieto *{transition:none!important}
+
+/* etiqueta de cinta, insignia del bit */
+.mce-cinta-papel{fill:#E9DFC9;stroke:var(--mc-tinta);stroke-width:1.6;stroke-linejoin:round;transition:fill .4s}
+.mce-cinta-arruga{stroke:#B9AC93;stroke-width:1.5;stroke-linecap:round}
+:is(.mce-fig,.mce-boceto) .mce-cinta-t{fill:var(--mce-tinta-hoja)}   /* 15:1 sobre la cinta; 8:1 callada */
+.callada .mce-cinta-papel{fill:#B3AABD}
+.mce-insignia-fondo{fill:var(--mce-oscuro);stroke:var(--mc-crayon);stroke-width:3;transition:fill .25s}
+:is(.mce-fig,.mce-boceto) .mce-insignia-t{font-size:32px;fill:var(--mc-texto)}
+.mce-insignia.v1 .mce-insignia-fondo{fill:var(--mc-amarillo);stroke:var(--mc-tinta)}
+:is(.mce-fig,.mce-boceto) .mce-insignia.v1 .mce-insignia-t{fill:var(--mce-tinta-hoja)}
+:is(.mce-fig,.mce-boceto) :is(.mce-y-t,.mce-ysal-t){fill:var(--mc-texto)}
+/* el valor de Y aparece cuando la señal llega */
+.mce-y-ins,.mce-salida .mce-insignia{opacity:0;transition:opacity .3s}
+.mce-llego :is(.mce-y-ins,.mce-salida .mce-insignia){opacity:1}
+
+/* parlantes */
+.mce-parl-caja{fill:var(--mc-papel);stroke:var(--mc-crayon);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s}
+.mce-parl-rejilla{opacity:.9}
+.mce-cono-fondo{fill:var(--mce-oscuro)}
+.mce-cono-borde{fill:none;stroke:var(--mc-crayon);stroke-width:4;transition:stroke .4s}
+.mce-cono-susp{fill:none;stroke:var(--mc-piel);stroke-width:3}
+.mce-cono-rayos{stroke:var(--mc-piel);stroke-width:2;stroke-linecap:round;opacity:.55}
+.mce-cono-tapa{fill:#3A2D5C;stroke:var(--mc-crayon);stroke-width:3;transition:fill .3s}
+.mce-parlante.suena .mce-cono-tapa{fill:var(--mc-amarillo)}
+.mce-ondas-parl{opacity:0;transition:opacity .3s}
+.mce-parlante.suena .mce-ondas-parl{opacity:1}
+.mce-onda-parl path{fill:none;stroke:var(--mc-amarillo);stroke-width:5;stroke-linecap:round}
+.st.cur .mce-parlante.suena .mce-onda-parl{animation:mce-onda 1.8s ease-out infinite;animation-delay:calc(var(--k) * -.6s)}
+@keyframes mce-onda{0%{transform:scale(.84);opacity:0}25%{opacity:1}100%{transform:scale(1.1);opacity:0}}
+.st.cur .mce-parlante.suena .mce-cono{animation:mce-bombeo .62s ease-in-out infinite alternate}
+@keyframes mce-bombeo{from{transform:scale(1)}to{transform:scale(1.045)}}
+.mce-salida.callada :is(.mce-parl-caja,.mce-cono-borde){stroke:var(--mce-gris)}
+
+/* notas al margen: Rock Salt, inclinadas; vibran al tocarlas */
+.mce-nota{cursor:pointer;pointer-events:bounding-box}
+:is(.mce-fig,.mce-boceto) .mce-nota-t{font-family:var(--mc-margen);fill:var(--mc-amarillo);text-anchor:start!important}
+:is(.mce-fig,.mce-boceto) .mce-nota-fija .mce-nota-t{fill:var(--mc-crayon)}
+.mce-nota-v{transform-box:fill-box;transform-origin:center}
+.mce-tachon{fill:none;stroke:#EE5B74;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- abanico N:1 / 1:N ---------- */
+.mce-cuerda :is(.mce-cuerda-tinta,.mce-cuerda-color){fill:none;stroke-linecap:round}
+.mce-cuerda-tinta{stroke:var(--mc-tinta);stroke-width:calc(var(--w) * 1px + 6px)}
+.mce-cuerda-color{stroke:var(--c);stroke-width:calc(var(--w) * 1px)}
+.mce-clavija{fill:var(--mce-oscuro);stroke:var(--mc-crayon);stroke-width:3}
+.mce-puntos{fill:var(--mc-crayon)}
+:is(.mce-fig,.mce-boceto) :is(.mce-cuerda-t,.mce-sel-t){fill:var(--mc-crayon)}
+.mce-blk-fondo{fill:var(--mc-papel)}
+.mce-blk{fill:none;stroke:var(--mc-crayon);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+:is(.mce-fig,.mce-boceto) .mce-blk-t{font-family:var(--mc-titulo);fill:var(--mc-amarillo)}
+.mce-sel-l{fill:none;stroke:var(--mc-piel);stroke-width:4;stroke-linecap:round}
+.mce-sel-pin{fill:var(--mc-piel)}
+
+/* «La idea» en mux-0-1 / demux-0-1: mientras la figura espera su fase, el abanico es un boceto a lápiz */
+.mce-boceto{opacity:0;pointer-events:none;transition:opacity .45s ease}
+.mce-capa-fig.phase-hidden ~ .mce-boceto{opacity:1}
+.mce-capa-fig.phase-hidden ~ .mce-boceto .mce-nota{pointer-events:bounding-box}
+.mce-boceto .mce-abanico{opacity:.34}
+.mce-boceto .mce-abanico :is(.mce-cuerda-tinta,.mce-eco,.mce-blk-fondo,text){display:none}
+.mce-boceto .mce-abanico :is(.mce-cuerda-color,.mce-blk,.mce-sel-l,.mce-clavija){fill:none;stroke:var(--mc-crayon);stroke-width:3;stroke-dasharray:16 6 3 6;stroke-linecap:round}
+.mce-boceto .mce-abanico :is(.mce-sel-pin,.mce-puntos){fill:var(--mc-crayon)}
+html.schematic .mce-boceto{display:none}
+
+/* ---------- esquema técnico («Ver esquema») ---------- */
+.mce-esquema{display:none}
+html.schematic .mce-esquema{display:block}
+html.schematic .st.mundo .mce-fig{visibility:hidden}
+.mce-esq-w{fill:none;stroke:#8A97A8;stroke-width:4;stroke-linecap:round}
+.mce-esq-w.v1{stroke:#F2C14E}
+.mce-esq-blk{fill:#1D2836;stroke:#DCE8F3;stroke-width:4;stroke-linejoin:round}
+.mce-esq-blk-t{font:600 34px "JetBrains Mono",ui-monospace,monospace;fill:#F1F7FA;text-anchor:middle}
+.mce-esq-t{font:500 30px "JetBrains Mono",ui-monospace,monospace;fill:#F1F7FA}
+.mce-esq-ruta{fill:none;stroke:#DCE8F3;stroke-width:3;stroke-dasharray:8 8;opacity:.3}
+.mce-esq-ruta.on{stroke:#F2C14E;stroke-width:5;stroke-dasharray:none;opacity:1}
+.mce-esq-pin{fill:#DCE8F3}
+.mce-esq-btn{cursor:pointer;outline:none}
+.mce-esq-btn:focus-visible text{text-decoration:underline;fill:#F2C14E}
+
+/* =====================================================================
+   Explicación lateral: lede, setlist, lectura y fórmula
+   ===================================================================== */
+.st.mundo.w-marceline .z-expl{gap:26px;padding-top:6px}
+.st.mundo.w-marceline .z-expl .lede{margin:0;font-family:var(--mc-cuerpo);font-size:34px;line-height:1.24;color:var(--mc-texto);max-width:none;text-shadow:0 2px 0 var(--mc-tinta)}
+.st.mundo.w-marceline .z-expl .lede b{font-weight:400;color:var(--mc-amarillo)}
+.st.mundo.w-marceline .z-expl .lede sup{font-size:.7em}
+
+/* setlist: hoja de papel con cinta en las esquinas */
+.st.mundo.w-marceline .mce-setlist{position:relative;margin:6px 10px 0 4px;padding:0;list-style:none;transform:rotate(-1.4deg);filter:drop-shadow(6px 8px 0 var(--mc-tinta))}
+.mce-hoja{position:relative;padding:20px 26px 18px 30px;color:var(--mce-tinta-hoja);background:linear-gradient(172deg,#F8F3EA,#EEE6D6 70%,#F3ECDF);
+  clip-path:polygon(0 1.5%,22% .4%,48% 1.6%,71% 0,100% 1.2%,99.4% 30%,100% 62%,99.2% 100%,64% 98.8%,36% 100%,0 98.6%,.8% 64%,0 33%)}
+.mce-hoja .mce-marco{color:var(--mce-tinta-hoja)}
+.mce-sl-tit{display:flex;align-items:baseline;gap:14px;margin:0 0 6px;font:400 34px/1.1 var(--mc-titulo);letter-spacing:.03em;text-transform:uppercase;color:#A51D3A}
+.mce-sl-tit span{font:700 30px/1 var(--mc-datos);letter-spacing:0;text-transform:none;color:var(--mce-tinta-hoja)}
+.mce-hoja table{width:100%;border-collapse:collapse}
+.mce-hoja th{padding:2px 6px 8px;text-align:left;font:400 32px/1.1 var(--mc-cuerpo);color:var(--mce-lapiz);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3.5C30 2 60 4.6 99 2.6' fill='none' stroke='%231B1330' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 100%/100% 6px no-repeat}
+.mce-hoja th sub,.mce-hoja th sup{font-size:.7em}
+.mce-hoja td{padding:4px 6px 3px;font:400 36px/1.12 var(--mc-titulo);color:var(--mce-tinta-hoja);white-space:nowrap}
+.mce-hoja td sub{font-size:.7em}
+.mce-hoja td small{margin-left:4px;font:400 30px var(--mc-cuerpo);color:var(--mce-lapiz)}
+.mce-flecha{display:block;width:48px;height:20px;overflow:visible}
+.mce-flecha path{fill:none;stroke:var(--mce-tinta-hoja);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+/* fila activa: subrayado con marcador amarillo que se dibuja de izquierda a derecha */
+.mce-hoja tbody tr{cursor:pointer;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cpath d='M12 34C70 29 140 33 210 29S330 31 388 26' fill='none' stroke='%23F2C14E' stroke-width='36' stroke-linecap='round' stroke-opacity='.95'/%3E%3Cpath d='M18 49C120 44 250 47 382 41' fill='none' stroke='%23D9952A' stroke-width='4' stroke-linecap='round' stroke-opacity='.6'/%3E%3C/svg%3E") 0 50%/0% 100% no-repeat;
+  transition:background-size .55s cubic-bezier(.6,.05,.3,1)}
+.mce-hoja tbody tr.mce-marcada{background-size:100% 100%}
+.st.mundo.w-marceline .mce-hoja tr:focus-visible{outline:4px dashed #A51D3A;outline-offset:1px}
+.mce-cinta{position:absolute;z-index:1;width:94px;height:30px;background:rgba(214,203,182,.88);pointer-events:none;
+  clip-path:polygon(0 14%,5% 0,10% 12%,16% 2%,84% 0,90% 12%,95% 1%,100% 14%,97% 50%,100% 88%,94% 100%,88% 88%,82% 100%,16% 100%,10% 88%,4% 100%,2% 52%)}
+.mce-cinta.a{left:-30px;top:-6px;transform:rotate(-37deg)}
+.mce-cinta.b{right:-30px;top:-6px;transform:rotate(35deg)}
+.mce-cinta.c{left:-28px;bottom:-4px;transform:rotate(33deg)}
+.mce-cinta.d{right:-30px;bottom:-4px;transform:rotate(-39deg)}
+
+/* lectura (Courier Prime) y fórmula: cajas oscuras pintadas dentro del borde de crayón abierto (§1.8),
+   un poco torcidas y con la sombra dura corrida como el resto del papel */
+.st.mundo.w-marceline .z-expl .readout.mce-lectura,.st.mundo.w-marceline .z-expl .formula.mce-formula{position:relative;margin:0 6px 0 0;padding:16px 24px 14px;border:0;border-radius:0;
+  background:none;box-shadow:none;clip-path:none;filter:none;text-shadow:none;transform:rotate(-.6deg);
+  font:400 32px/1.34 var(--mc-datos);color:var(--mc-texto)}
+.st.mundo.w-marceline .z-expl .formula.mce-formula{transform:rotate(.5deg)}
+.st.mundo.w-marceline .z-expl :is(.mce-lectura,.mce-formula) b{font-weight:700;color:var(--mc-amarillo)}
+.st.mundo.w-marceline .z-expl :is(.mce-lectura,.mce-formula) :is(sub,sup){font-size:.7em}
+.st.mundo.w-marceline .z-expl .mce-lectura .mce-demas{font-size:30px;color:#CFC5DE}
+:is(.mce-lectura,.mce-formula) .mce-marco{color:var(--mc-crayon);--mce-relleno:var(--mce-caja)}
+.mce-marco{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.mce-marco-l{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.mce-marco .mce-eco{stroke-width:1.4px!important;opacity:.42}
+/* caja con relleno: el marco (relleno, sombra y trazo) va debajo del contenido de la caja */
+.mce-con-fondo{isolation:isolate}
+.mce-marco-fondo{z-index:-1}
+.mce-marco-f{fill:var(--mce-relleno,var(--mc-papel));stroke:none;transition:fill .2s}
+.mce-marco-s{fill:var(--mc-tinta);stroke:none}
+
+/* =====================================================================
+   Selección: palancas S₁/S₀ (siguen siendo .tg) y selector n (sigue siendo .seg)
+   Arriba en la franja de selección: a 1280 × 720 la barra de fases empieza en y ≈ 870.
+   ===================================================================== */
+.st.mundo.w-marceline .z-sel{align-items:flex-start;padding-top:4px}
+.st.mundo.w-marceline .z-sel .mce-palancas{display:flex;gap:40px;justify-content:center;margin:0}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca{position:relative;box-sizing:border-box;width:236px;height:80px;min-height:0;padding:0 14px 0 18px;margin:0;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;border:0;border-radius:0;background:none;box-shadow:none;
+  color:var(--mc-texto);font:700 32px/1 var(--mc-datos);transition:transform .12s ease}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca[aria-pressed=true]{background:none;color:var(--mc-texto)}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca:active{transform:translateY(2px)}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca:focus-visible{outline:4px solid var(--mc-amarillo);outline-offset:6px}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca::after{display:none}
+.mce-palanca .mce-marco{color:var(--mc-crayon)}
+.mce-pl-nom sub{font-size:.62em}
+.mce-pl-placa{position:relative;height:56px;border-radius:12px 9px 13px 8px;background:var(--mce-oscuro);box-shadow:inset 0 0 0 2px #3A2D5C}
+.mce-pl-placa::before{content:"";position:absolute;left:50%;bottom:9px;width:24px;height:12px;margin-left:-12px;border-radius:5px 5px 2px 2px;background:#5E6F82;border:2px solid var(--mc-tinta)}
+.mce-pl-m{display:none}
+.mce-pl-eje{position:absolute;left:50%;bottom:16px;width:0;height:0}
+.mce-pl-brazo{position:absolute;left:-6px;bottom:0;width:12px;height:34px;border-radius:6px;box-sizing:border-box;border:2px solid var(--mc-tinta);
+  background:linear-gradient(90deg,#C9D3DE,#8FA3B8 55%,#5E6F82);transform-origin:50% 100%;transform:rotate(-34deg);transition:transform .17s cubic-bezier(.4,1.9,.55,1)}
+.mce-pl-brazo::after{content:"";position:absolute;left:50%;top:-11px;width:20px;height:20px;margin-left:-10px;border-radius:50%;box-sizing:border-box;
+  background:#E5566E;border:2px solid var(--mc-tinta);transition:background-color .17s}
+.tg.mce-palanca[aria-pressed=true] .mce-pl-brazo{transform:rotate(34deg)}
+.tg.mce-palanca[aria-pressed=true] .mce-pl-brazo::after{background:var(--mc-amarillo)}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca b{display:grid;place-items:center;min-width:50px;width:50px;height:50px;border-radius:50%;box-sizing:border-box;
+  background:var(--mce-oscuro);border:3px solid var(--mc-crayon);font:700 32px/1 var(--mc-datos);color:var(--mc-texto)}
+.st.mundo.w-marceline .z-sel .tg.mce-palanca[aria-pressed=true] b{background:var(--mc-amarillo);border-color:var(--mc-tinta);color:var(--mce-tinta-hoja)}
+.mce-clac{position:absolute;right:-6px;top:-38px;font:400 28px/1 var(--mc-margen);color:var(--mc-amarillo);transform:rotate(-8deg);opacity:0;pointer-events:none;text-shadow:2px 2px 0 var(--mc-tinta)}
+.mce-clac-on .mce-clac{animation:mce-clac .5s ease-out}
+.mce-clac-on .mce-pl-placa{animation:mce-sacudon .2s ease-out}
+@keyframes mce-clac{0%{opacity:0;transform:translateY(8px) rotate(-8deg) scale(.7)}30%{opacity:1;transform:translateY(-4px) rotate(-8deg) scale(1.06)}100%{opacity:0;transform:translateY(-12px) rotate(-8deg)}}
+@keyframes mce-sacudon{0%{transform:none}35%{transform:translateX(-2px) rotate(-1.2deg)}70%{transform:translateX(1.5px) rotate(.6deg)}100%{transform:none}}
+
+/* selector n = 1…4: pestañas de papel pintadas dentro de su trazo; la elegida, amarilla, con trazo de
+   marcador más grueso y apenas inclinada (relleno y trazo giran juntos: no se descuadran) */
+.st.mundo.w-marceline .mce-ctrl-n .seg{display:flex;gap:18px;border:0;border-radius:0;overflow:visible;background:none}
+.st.mundo.w-marceline .mce-ctrl-n .seg button{position:relative;min-height:72px;min-width:150px;padding:0 20px;border:0;border-radius:0;background:none;
+  box-shadow:none;color:var(--mc-texto);font:700 32px/1 var(--mc-datos);transition:transform .16s cubic-bezier(.3,1.5,.5,1),color .2s}
+.st.mundo.w-marceline .mce-ctrl-n .seg button[aria-checked=true]{background:none;color:var(--mce-tinta-hoja);transform:rotate(-1.5deg)}
+.st.mundo.w-marceline .mce-ctrl-n .seg button:focus-visible{outline:4px solid var(--mc-amarillo);outline-offset:6px}
+.mce-ctrl-n .seg button .mce-marco{color:var(--mc-crayon)}
+.mce-ctrl-n .seg button[aria-checked=true] .mce-marco{color:var(--mc-tinta);--mce-relleno:var(--mc-amarillo)}
+.mce-ctrl-n .seg button[aria-checked=true] .mce-marco-l:not(.mce-eco){stroke-width:5}
+
+/* =====================================================================
+   «Ver esquema»: sin decorado, legible
+   ===================================================================== */
+html.schematic .st.mundo.w-marceline .mce-setlist{transform:none;filter:none}
+html.schematic .st.mundo.w-marceline .mce-hoja{clip-path:none;background:#1D2836;color:#F1F7FA}
+html.schematic .st.mundo.w-marceline .mce-hoja :is(td,th,td small,.mce-sl-tit,.mce-sl-tit span){font-family:"JetBrains Mono",ui-monospace,monospace;color:#F1F7FA;text-transform:none}
+html.schematic .st.mundo.w-marceline .mce-hoja td{font-size:32px}
+html.schematic .st.mundo.w-marceline .mce-hoja th{background:none;border-bottom:2px solid #DCE8F3}
+html.schematic .st.mundo.w-marceline .mce-hoja tbody tr{background:none}
+html.schematic .st.mundo.w-marceline .mce-hoja tbody tr.mce-marcada{background:#F2C14E33}
+html.schematic .st.mundo.w-marceline .mce-flecha path{stroke:#DCE8F3}
+html.schematic .st.mundo.w-marceline :is(.mce-cinta,.mce-clac){display:none}
+html.schematic .st.mundo.w-marceline .mce-marco{color:#DCE8F3}
+html.schematic .st.mundo.w-marceline .z-expl :is(.mce-lectura,.mce-formula){background:#10151F;box-shadow:none;transform:none;font-family:"JetBrains Mono",ui-monospace,monospace}
+html.schematic .st.mundo.w-marceline :is(.mce-marco-f,.mce-marco-s,.mce-marco .mce-eco){display:none}
+html.schematic .st.mundo.w-marceline .z-expl .lede{font-family:var(--sans);text-shadow:none}
+html.schematic .st.mundo.w-marceline .z-sel .tg.mce-palanca,html.schematic .st.mundo.w-marceline .mce-ctrl-n .seg button{background:#1D2836;box-shadow:none;font-family:"JetBrains Mono",ui-monospace,monospace}
+html.schematic .st.mundo.w-marceline .mce-ctrl-n .seg button[aria-checked=true]{background:#F2C14E;color:#10151F;transform:none}

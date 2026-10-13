@@ -1,0 +1,21 @@
+@font-face{font-family:"Patrick Hand";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/patrick-hand.ttf") format("truetype")}
+@font-face{font-family:"Anton";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/anton.ttf") format("truetype")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:800;font-display:swap;src:url("../assets/fonts/barlow-condensed.ttf") format("truetype")}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:600;font-display:swap;src:url("../assets/fonts/cormorant.ttf") format("truetype")}
+@font-face{font-family:"Quicksand";font-style:normal;font-weight:500;font-display:swap;src:url("../assets/fonts/quicksand.ttf") format("truetype")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url("../assets/fonts/jetbrains-mono.ttf") format("truetype")}
+@font-face{font-family:"Cinzel";font-style:normal;font-weight:700;font-display:swap;src:url("../assets/fonts/cinzel.ttf") format("truetype")}
+/* Mundos (especificación 13-10-2026). Permanent Marker y Rock Salt: Apache 2.0; el resto, OFL. Dela Gothic One y Rubik Wet Paint van recortadas (latín, signos, subíndices, kana). */
+@font-face{font-family:"Permanent Marker";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/permanent-marker.ttf") format("truetype")}
+@font-face{font-family:"Rock Salt";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/rock-salt.ttf") format("truetype")}
+@font-face{font-family:"Courier Prime";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/courier-prime.ttf") format("truetype")}
+@font-face{font-family:"Courier Prime";font-style:normal;font-weight:700;font-display:swap;src:url("../assets/fonts/courier-prime-bold.ttf") format("truetype")}
+@font-face{font-family:"Marcellus";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/marcellus.ttf") format("truetype")}
+@font-face{font-family:"Rubik Wet Paint";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/rubik-wet-paint.ttf") format("truetype")}
+@font-face{font-family:"Bebas Neue";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/bebas-neue.ttf") format("truetype")}
+@font-face{font-family:"Share Tech Mono";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/share-tech-mono.ttf") format("truetype")}
+@font-face{font-family:"Dela Gothic One";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/dela-gothic-one.ttf") format("truetype")}
+@font-face{font-family:"Barlow Semi Condensed";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/barlow-semi-condensed.ttf") format("truetype")}
+@font-face{font-family:"Barlow Semi Condensed";font-style:normal;font-weight:600;font-display:swap;src:url("../assets/fonts/barlow-semi-condensed-semibold.ttf") format("truetype")}
+@font-face{font-family:"Space Mono";font-style:normal;font-weight:400;font-display:swap;src:url("../assets/fonts/space-mono.ttf") format("truetype")}
+@font-face{font-family:"Space Mono";font-style:normal;font-weight:700;font-display:swap;src:url("../assets/fonts/space-mono-bold.ttf") format("truetype")}

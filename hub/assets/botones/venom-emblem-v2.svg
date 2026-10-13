@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+ <defs>
+  <radialGradient id="back"><stop stop-color="#344859"/><stop offset=".55" stop-color="#101b27"/><stop offset="1" stop-color="#020407"/></radialGradient>
+  <linearGradient id="rim" x2=".8" y2="1"><stop stop-color="#edf5fa"/><stop offset=".22" stop-color="#697e91"/><stop offset=".49" stop-color="#d3e0e9"/><stop offset=".7" stop-color="#263644"/><stop offset="1" stop-color="#a8bdce"/></linearGradient>
+  <linearGradient id="skin" x2=".9" y2="1"><stop stop-color="#374958"/><stop offset=".28" stop-color="#0e1821"/><stop offset=".52" stop-color="#010307"/><stop offset=".85" stop-color="#1c2b37"/><stop offset="1" stop-color="#020408"/></linearGradient>
+  <linearGradient id="eye" x2=".5" y2="1"><stop stop-color="#fffef3"/><stop offset="1" stop-color="#c3d3df"/></linearGradient>
+  <clipPath id="disc"><circle cx="256" cy="256" r="230"/></clipPath>
+ </defs>
+ <circle cx="256" cy="256" r="235" fill="#010306" stroke="#060b11" stroke-width="9"/>
+ <circle cx="256" cy="256" r="226" fill="url(#back)" stroke="url(#rim)" stroke-width="12"/>
+ <g clip-path="url(#disc)">
+  <g fill="none" stroke="#03080d" stroke-width="25" stroke-linecap="round">
+   <path d="M75 452Q12 334 92 257T64 83M433 437Q499 306 416 246T441 74M124 472Q164 403 76 364M388 478Q348 403 438 337"/>
+  </g>
+  <g fill="none" stroke="#7392a6" stroke-width="4" opacity=".7">
+   <path d="M74 436Q26 338 99 261M438 404Q470 310 411 259M130 464Q150 415 88 376"/>
+  </g>
+  <path d="M256 61C153 54 94 128 103 248C108 357 162 425 256 467C350 425 404 357 409 248C418 128 359 54 256 61Z" fill="url(#skin)" stroke="#020408" stroke-width="12"/>
+  <path d="M128 164Q154 91 227 85M278 87Q356 99 381 167M122 277Q127 343 163 372M389 277Q384 343 349 372" fill="none" stroke="#839aaa" stroke-width="5" stroke-linecap="round"/>
+  <path d="M153 124Q185 104 217 108M295 108Q330 111 352 130M197 427L234 449M315 427L278 449" fill="none" stroke="#415d71" stroke-width="8"/>
+  <path d="M121 151L150 180L181 180L219 214L246 248L223 275L185 265L169 249L142 243L132 216Z" fill="url(#eye)" stroke="#00050b" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M391 151L362 180L331 180L293 214L266 248L289 275L327 265L343 249L370 243L380 216Z" fill="url(#eye)" stroke="#00050b" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M141 294Q256 363 371 294Q354 394 256 414Q158 394 141 294Z" fill="#030306" stroke="#526878" stroke-width="5"/>
+  <path d="M149 304L165 341L175 318L193 359L204 332L224 372L236 341L256 380L274 341L289 372L309 332L320 359L339 318L348 341L363 304Q256 366 149 304Z" fill="#f4f2dd" stroke="#080b10" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M169 366L182 348L199 385L212 365L232 401L245 377L263 407L277 377L298 395L310 364L330 381L341 349L348 363Q319 406 257 414Q201 402 169 366Z" fill="#d3dce0" stroke="#080b10" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M251 392Q281 372 305 401Q330 431 371 401Q357 448 316 435Q285 425 281 409Q266 400 251 409Z" fill="#a62a45" stroke="#120c15" stroke-width="5"/>
+  <path d="M277 399Q309 398 309 418Q332 441 354 421" fill="none" stroke="#e16d7b" stroke-width="4"/>
+ </g>
+ <circle cx="256" cy="256" r="233" fill="none" stroke="#c2d2dd" stroke-width="2" opacity=".7"/>
+</svg>

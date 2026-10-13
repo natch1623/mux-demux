@@ -1,0 +1,68 @@
+/* =====================================================================
+   Retícula fija de los mundos (docs/ESPECIFICACION-MUNDOS.md §0).
+   Unidades de la estación: 1920 × 1080 (la cámara la escala a la pantalla).
+   Márgenes del 4 %: 77 px a los lados, 43 px arriba y abajo.
+   Filas: título 12 % (130) · componente 56 % (605) · selección (110) · franja libre
+   para la barra de fases y la navegación, que viven en la pantalla.
+   Columnas: componente (1304) · explicación lateral 22 % (422).
+   Entradas a la izquierda, selección abajo al centro, salida a la derecha.
+   ===================================================================== */
+.st.reticula > .st-in{position:absolute;inset:0;box-sizing:border-box;display:grid;gap:0 40px;padding:43px 77px;
+  grid-template-columns:minmax(0,1fr) 422px;
+  grid-template-rows:130px 605px 110px minmax(0,1fr);
+  grid-template-areas:"titulo titulo" "comp expl" "sel expl" ". .";
+  align-items:stretch;justify-items:stretch}
+.st.reticula > .st-in::before,.st.reticula > .st-in::after{display:none}
+
+/* título: rótulo pequeño + título a la izquierda, chip del mundo a la derecha */
+.st.reticula .z-titulo{grid-area:titulo;display:flex;align-items:flex-end;justify-content:space-between;gap:40px;min-width:0;padding-bottom:8px}
+.st.reticula .z-tit{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
+.st.reticula .z-titulo .chip{margin:0 0 8px;font-size:24px}
+.st.reticula .z-titulo h2{font-size:84px;line-height:1;margin:0;white-space:nowrap;overflow:visible}
+
+/* componente principal */
+.st.reticula .z-comp{grid-area:comp;position:relative;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+.st.reticula .z-comp > .fig,.st.reticula .z-comp > svg{width:100%;height:100%;max-width:none;max-height:none;flex:none}
+
+/* selección abajo al centro */
+.st.reticula .z-sel{grid-area:sel;display:flex;align-items:center;justify-content:center;gap:22px;min-width:0}
+.st.reticula .z-sel .ctrl{margin:0;justify-content:center}
+
+/* explicación lateral */
+.st.reticula .z-expl{grid-area:expl;align-self:start;min-width:0;max-height:100%;overflow:visible;display:flex;flex-direction:column;gap:22px;padding-top:4px}
+.st.reticula .z-expl > *{margin:0;max-width:none}
+.st.reticula .z-expl .lede{font-size:30px;line-height:1.38}
+.st.reticula .z-expl .parts{gap:10px}
+.st.reticula .z-expl .parts div{grid-template-columns:1fr;gap:2px;padding-bottom:8px}
+.st.reticula .z-expl .parts dt{font-size:20px}
+.st.reticula .z-expl .parts dd{font-size:28px}
+.st.reticula .z-expl .readout{font-size:27px;line-height:1.4}
+
+/* indicador de mundo «S₁S₀ = XX» (cada mundo lo viste a su manera) */
+.mundo-chip{flex:none;display:inline-flex;align-items:baseline;gap:10px;margin:0 0 6px;padding:8px 20px;border:2px solid currentColor;border-radius:999px;
+  font-family:var(--mono);font-size:26px;line-height:1.2;letter-spacing:.04em;color:var(--cream);white-space:nowrap}
+.mundo-chip i{font-style:normal;opacity:.75}
+.mundo-chip b{font-weight:700}
+
+/* capas fijas de los mundos: encima del lienzo, debajo de la navegación y las herramientas */
+.mundo-capa{position:fixed;inset:0;z-index:16;pointer-events:none;overflow:hidden;contain:paint}
+.mundo-capa > svg,.mundo-capa > canvas{position:absolute;inset:0;width:100%;height:100%}
+.mundo-instantanea .copia{visibility:visible!important}
+.mundo-puente{background:#0D0F14}
+
+/* el chip del mundo reemplaza a la firma de la esquina */
+html.en-mundo .realm-signature{display:none}
+
+@media (prefers-reduced-motion:reduce){.mundo-capa *{animation:none!important}}
+
+/* composiciones especiales dentro de la retícula */
+.st.reticula.z-ancha > .st-in{grid-template-areas:"titulo titulo" "comp comp" "sel sel" ". ."}
+.st.reticula.z-ancha .z-expl:empty{display:none}
+.st.reticula .z-comp > .eq-stage{width:100%;max-height:100%;margin:0;box-sizing:border-box;overflow:visible}
+.st.reticula .z-comp > .tree-box{width:100%;height:100%;flex:none;min-height:0;display:flex;align-items:center}
+.st.reticula .z-comp > .tree-box .fig{width:100%;height:100%}
+.st.reticula .z-comp > .ring-fig{position:static!important;inset:auto!important;width:100%!important;height:100%!important;top:auto!important}
+.st.reticula .z-comp > .concl-cards,.st.reticula .z-comp > .refs,.st.reticula .z-comp > .sim-shot{width:100%;max-height:100%;margin:0;overflow:visible}
+.st.reticula .z-expl.ring-text{position:relative;top:auto;left:auto;right:auto;width:auto;transform:none}
+.st.reticula .z-comp > .sim-shot{height:100%;justify-content:center;align-items:center}
+.st.reticula .z-comp > .sim-shot img{width:auto;max-width:100%;max-height:540px;object-fit:contain}

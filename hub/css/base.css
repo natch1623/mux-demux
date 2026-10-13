@@ -319,6 +319,11 @@ html.still .hub .hub-title,html.still .hub .orb{animation:none!important;opacity
 
 /* Ilustraciones raster: el arte aporta su propio borde y relieve. */
 .o-illustration{pointer-events:none}
-.orb:is(.t-marceline,.t-tsaritsa,.t-dio) :is(.o-body,.o-shine,.o-bezel),
-.big-orb:is([data-art="marceline"],[data-art="tsaritsa"],[data-art="dio"]) .o-bezel{opacity:0}
-.orb:is(.t-marceline,.t-tsaritsa,.t-dio):focus-visible .o-bezel{opacity:1;stroke:var(--gold);stroke-width:4}
+.orb:is(.t-marceline,.t-tsaritsa,.t-venom,.t-dio) :is(.o-body,.o-shine,.o-bezel),
+.big-orb:is([data-art="marceline"],[data-art="tsaritsa"],[data-art="venom"],[data-art="dio"]) .o-bezel{opacity:0}
+.orb:is(.t-marceline,.t-tsaritsa,.t-venom,.t-dio):focus-visible .o-bezel{opacity:1;stroke:var(--gold);stroke-width:4}
+
+/* Portal DEMUX: arte inmóvil y anillo de foco independiente. */
+.orb.demux .o-body,.orb.demux .o-bezel{opacity:0}
+.orb.demux:focus-visible .o-bezel{opacity:1;stroke:var(--gold);stroke-width:5}
+.orb.t-venom .o-glow{fill:#8DA8BC}

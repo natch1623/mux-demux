@@ -24,7 +24,7 @@ const AMETH = {
             <h2>El MUX <em>4:1</em></h2>
             <p class="lede">Dos líneas de selección, ${S1} y ${S0}, eligen cuál de las cuatro entradas llega a la salida.</p>
             <p class="readout" data-r></p>
-            <p class="hint">Toca las entradas D y las llaves S</p>
+            <p class="hint">Toca D y S · D₀…D₃ = I₀…I₃</p>
           </div>
           <svg class="fig" viewBox="0 0 1000 640" aria-label="MUX 4:1 interactivo"></svg>`;
         muxSymbol($(".fig", el), L_MUX);
@@ -148,15 +148,14 @@ const AMETH = {
 
 /* la ecuación se arma por etapas cada vez que la cámara llega a la estación */
 function buildInStages(el) {
-  onStation(el, () => {
-    const box = $(".eq-stage", el);
-    box.classList.remove("build"); void box.offsetWidth; box.classList.add("build");
-  });
+  // REALMS controls each term and the table through explicit touch phases.
+  el.dataset.staged = "true";
 }
 
 /* ---------- registro de rutas ----------
    Ana · Jonathan · Carlos vienen de content.js; Ameth está arriba. */
 const ROUTES = { mux: [], demux: [] };
+const anexoPos = k => [k * 2240, -9000];
 for (const side of ["mux", "demux"]) ROUTES[side] = [ANA[side], AMETH[side], JON[side], CAR[side]];
 
 /* crea en el mundo todas las estaciones */
@@ -167,12 +166,24 @@ function buildStations(world) {
       const [x, y] = stationPos(side, m, k);
       const el = html(`<section class="st w-${MEMBERS[m].theme} side-${side} lay-${def.layout || "split"}" data-id="${side}-${m}-${k}" data-m="${m}" style="left:${x - FW / 2}px;top:${y - FH / 2}px">
         <div class="st-bg" aria-hidden="true"></div><div class="st-in"></div></section>`);
-      def.build($(".st-in", el));
+      // un mundo rediseñado puede traer su propio constructor para la estación
+      if (!MUNDOS.construir(def, $(".st-in", el), side, m, k)) def.build($(".st-in", el));
       DRESS.station(el, MEMBERS[m].theme, side, k);
       world.append(el);
       Object.assign(def, { el, x, y, side, m, k });
       all.push(def);
     }));
   }
+  // anexo de DIO: lejos del circuito y del mural, se llega por corte (no por el cable)
+  ANEXO.forEach((def, k) => {
+    const [x, y] = anexoPos(k), m = 3;
+    const el = html(`<section class="st w-${MEMBERS[m].theme} side-anexo lay-${def.layout || "split"}" data-id="anexo-${m}-${k}" data-m="${m}" style="left:${x - FW / 2}px;top:${y - FH / 2}px">
+      <div class="st-bg" aria-hidden="true"></div><div class="st-in"></div></section>`);
+    def.build($(".st-in", el));
+    DRESS.station(el, MEMBERS[m].theme, "anexo", k);
+    world.append(el);
+    Object.assign(def, { el, x, y, side: "anexo", m, k });
+    all.push(def);
+  });
   return all;
 }

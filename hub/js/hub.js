@@ -34,7 +34,7 @@ const HUB = (() => {
 
   /* ---------- geometría ---------- */
   const IN_X = 200, IN_Y = [210, 430, 650, 870], IN_R = 70;
-  const DX = 1630, DY = 540, DR = 150;
+  const DX = 1630, DY = 540, DR = 150, DEMUX_SCALE = .8;
 
   /* ---------- fondo: palacio helado hecho de rutas de señal ---------- */
   grad("h-horizon", [[0, "#9FD4FF", .28], [.5, "#3D6FD0", .08], [1, "#3D6FD0", 0]], { cx: "50%", cy: "50%", r: "50%" });
@@ -68,7 +68,7 @@ const HUB = (() => {
     const leftPins = [400, 476, 566, 642], tops = [600, 720, 840, 1020, 1140, 1260];
     const paths = [];
     IN_Y.forEach((y, i) => paths.push([`M${IN_X + IN_R + 30} ${y}C${IN_X + 200} ${y} ${CH.x0 - 120} ${leftPins[i]} ${CH.x0 - 26} ${leftPins[i]}`, MEMBERS[i].c]));
-    paths.push([`M${DX - DR - 34} ${DY}C${DX - DR - 60} ${DY} ${CH.x1 + 70} ${CY} ${CH.x1 + 26} ${CY}`, "#CFE6FF"]);
+    paths.push([`M${DX - (DR + 34) * DEMUX_SCALE} ${DY}C${DX - (DR + 60) * DEMUX_SCALE} ${DY} ${CH.x1 + 70} ${CY} ${CH.x1 + 26} ${CY}`, "#CFE6FF"]);
     tops.forEach((x, k) => {
       const lane = 18 + (k % 3) * 22;
       paths.push([`M${x + (k < 3 ? -160 : 160)} 0V${lane + 40}Q${x + (k < 3 ? -160 : 160)} ${lane + 80} ${x} ${lane + 110}V${CH.y0 - 26}`, "#9FD4FF"]);
@@ -132,9 +132,8 @@ const HUB = (() => {
         x:-82, y:-82, width:164, height:164, preserveAspectRatio:"xMidYMid meet" }, g);
     },
     venom(g) {
-      ["M-52 18C-30 14-22-4-8-6S10 6 4 18", "M44-34C30-24 26-6 12 0S-4 12-12 26", "M-20-52C-14-34 4-30 6-16", "M30 44C22 30 8 30 -2 36",
-       "M-58-10C-44-12-36-24-26-36"].forEach(d => mk("path", { class: "em-vein", d }, g));
-      mk("circle", { class: "em-fill-v", r: 7 }, g);
+      mk("image", { class:"o-illustration", href:"assets/botones/venom-emblem-v2.svg",
+        x:-82, y:-82, width:164, height:164, preserveAspectRatio:"xMidYMid meet" }, g);
     },
     dio(g) {
       mk("image", { class:"o-illustration", href:"assets/botones/dio-09.png",
@@ -163,7 +162,7 @@ const HUB = (() => {
     if (!reduced) idle.animate(idleKF, { duration: 4200, delay: 900 + i * 650, iterations: Infinity, easing: "cubic-bezier(.45,0,.3,1)" });
     return core;
   });
-  const outD = `M${DX + DR + 10} ${DY}H1920`;
+  const outD = `M${DX + (DR + 10) * DEMUX_SCALE} ${DY}H1920`;
   mk("path", { class: "duct", d: outD }, gWires);
   const outCore = mk("path", { class: "hub-out", d: outD }, gWires);
   const outIdle = mk("path", { class: "idle", style: "--c:#CFE6FF", d: outD, pathLength: 1 }, gWires);
@@ -186,30 +185,15 @@ const HUB = (() => {
   });
 
   /* ---------- orbe DEMUX: una sola pieza, cuatro zonas invisibles ---------- */
-  const dm = mk("g", { class: "orb demux", transform: `translate(${DX} ${DY})`, "aria-label": "Botón del DEMUX" }, ui);
+  const dm = mk("g", { class: "orb demux", transform: `translate(${DX} ${DY}) scale(${DEMUX_SCALE})`, "aria-label": "Botón del DEMUX" }, ui);
   mk("circle", { class: "o-glow", r: DR * 1.7, fill: "url(#o-demux-glow)" }, dm);
   const dsc = mk("g", { class: "o-scale" }, dm);
   mk("path", { class: "o-ticks d", d: ticks(DR + 20, DR + 30, 72, 6) }, dsc);
   mk("circle", { class: "o-body", r: DR, fill: "url(#o-demux)" }, dsc);
-  // capas que giran a distinto ritmo: ninguna marca delata una zona
-  const smoke = mk("g", { class: "spin s-smoke" }, dsc);
-  for (let k = 0; k < 9; k++) {
-    const a = k * 2 * Math.PI / 9 + (k % 2) * .2, r = DR - 18 - (k % 3) * 6;
-    mk("ellipse", { cx: Math.cos(a) * r, cy: Math.sin(a) * r, rx: 34 + (k % 3) * 8, ry: 18, transform: `rotate(${a * 180 / Math.PI + 90} ${Math.cos(a) * r} ${Math.sin(a) * r})`, fill: "url(#o-smoke)" }, smoke);
-  }
-  const vein = mk("g", { class: "spin s-vein" }, dsc);
-  for (let k = 0; k < 3; k++) {
-    const a = k * 2 * Math.PI / 3;
-    const p = t => [Math.cos(a + t * 2.4) * (30 + t * 92), Math.sin(a + t * 2.4) * (30 + t * 92)];
-    let d = "";
-    for (let t = 0; t <= 1.001; t += .05) { const [x, y] = p(t); d += (t ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
-    mk("path", { d, fill: "none", stroke: "#E0344A", "stroke-width": 3, "stroke-linecap": "round", opacity: .75 }, vein);
-  }
-  const clock = mk("g", { class: "spin s-clock" }, dsc);
-  mk("path", { d: ticks(DR - 10, DR - 2, 60, 5), stroke: "#F2C14E", "stroke-width": 2.5, opacity: .85 }, clock);
-  const core = mk("g", { class: "spin s-core" }, dsc);
-  mk("path", { d: flakePath(0, 0, 58), fill: "none", stroke: "#F4FAFF", "stroke-width": 4, "stroke-linecap": "round", filter: "url(#glow)" }, core);
-  mk("circle", { class: "o-shine", r: DR, fill: "url(#o-shine)" }, dsc);
+  // Una sola ilustración; halos, foco y sectores siguen siendo SVG interactivo.
+  mk("image", { class: "o-illustration demux-illustration", href: "assets/botones/demux-portal-v2.webp",
+    x: -(DR + 8), y: -(DR + 8), width: (DR + 8) * 2, height: (DR + 8) * 2,
+    preserveAspectRatio: "xMidYMid meet" }, dsc);
   mk("circle", { class: "o-bezel", r: DR + 8 }, dsc);
   // revelación de las conclusiones: los cuatro sectores con su código S1 S0
   const reveal = mk("g", { class: "zones", "aria-hidden": "true" }, dm);
@@ -341,6 +325,6 @@ const HUB = (() => {
     inWorld: IN_Y.map(y => [IN_X - FW / 2, y - FH / 2]),
     inR: IN_R,
     demuxWorld: [DX - FW / 2, DY - FH / 2],
-    demuxR: DR
+    demuxR: DR * DEMUX_SCALE
   };
 })();

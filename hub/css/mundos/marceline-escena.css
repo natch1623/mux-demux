@@ -1,0 +1,214 @@
+/* =====================================================================
+   Marceline · escena (S₁S₀ = 00). Especificación §1; contrato: docs/MUNDOS-CONTRATO.md.
+   Paleta y tipografías compartidas con css/mundos/marceline-estaciones.css.
+   ===================================================================== */
+html[data-theme=marceline],.st.mundo.w-marceline,.mundo-capa.marceline{
+  --mc-noche:#1B1330;     /* fondo principal (noche) */
+  --mc-papel:#2A2140;     /* fondo secundario (papel) */
+  --mc-morado:#7B4FD6;    /* morado de acento (no para texto pequeño sobre la noche) */
+  --mc-vino:#B3203F;      /* rojo vino: acento vampírico (no para texto sobre la noche) */
+  --mc-piel:#8FA3B8;      /* gris azulado (piel) */
+  --mc-amarillo:#F2C14E;  /* amarillo bajo: detalles, subrayado de marcador */
+  --mc-texto:#F4EFE6;     /* texto principal */
+  --mc-crayon:#D9CDB8;    /* trazo de crayón */
+  --mc-titulo:"Permanent Marker","Patrick Hand",cursive;
+  --mc-cuerpo:"Patrick Hand",cursive;
+  --mc-margen:"Rock Salt","Patrick Hand",cursive;
+  --mc-datos:"Courier Prime","JetBrains Mono",ui-monospace,monospace;
+}
+/* tinta para sombras duras y bordes de los recortes (más oscura que la noche) */
+html[data-theme=marceline],.st.mundo.w-marceline{--mc-tinta:#0C0716}
+/* el cielo fijo detrás del lienzo toma el tono de la roca de la cueva (franjas a 4:3) */
+html[data-theme=marceline].en-mundo .aura{background:#100A1F}
+
+/* =====================================================================
+   Fondo en tres capas (§1.4b), dentro de .st-bg (que mide lo mismo que la estación).
+   El fondo sobresale 130 arriba y abajo y recorta sus capas, que sobresalen
+   un poco más para que el parallax nunca deje ver un borde.
+   ===================================================================== */
+.mc-fondo{position:absolute;inset:-130px 0;overflow:hidden;contain:layout paint;isolation:isolate;pointer-events:none;
+  background:radial-gradient(30% 34% at var(--mc-luz,70% 10%),#2B1F4D,rgba(43,31,77,0)),
+    radial-gradient(70% 40% at 50% 104%,#130C25,rgba(19,12,37,0)),var(--mc-noche)}
+.mc-capa{position:absolute;inset:-60px -90px;pointer-events:none}
+.mc-capa > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* solo la estación actual compone sus capas (el parallax mueve transform, nada más) */
+.st.mc-movil .mc-capa{will-change:transform}
+
+/* capa lejana: la cueva, con trazo grueso (contornos debajo, rellenos encima: queda el borde de la unión) */
+.mc-roca-lejos path{fill:#211839}
+.mc-roca-repaso path{fill:none;stroke:#2F2357;stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
+.mc-roca-borde path{fill:none;stroke:#4C3A88;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+.mc-roca path{fill:var(--mc-papel)}
+.mc-veta path{fill:none;stroke:#1C1432;stroke-width:5;stroke-linecap:round}
+.mc-filo path{fill:none;stroke:var(--mc-crayon);stroke-width:3.5;stroke-linecap:round;opacity:.26}
+
+/* capa media: la ventana con la luna */
+.mc-astro{fill:var(--mc-amarillo);opacity:.6}
+.mc-luna{fill:#5F5690}
+.mc-luna-luz{fill:#7066A2;opacity:.7}
+.mc-crater{fill:#4E4579;stroke:#3F3768;stroke-width:1.5}
+.mc-luna-borde{fill:none;stroke:var(--mc-crayon);stroke-width:3.4;stroke-linecap:round;opacity:.58}
+.mc-luna-borde.mc-repaso{stroke-width:1.8;opacity:.3}
+.mc-nube{fill:#2E2453}
+.mc-nube-borde{fill:none;stroke:var(--mc-crayon);stroke-width:2.6;stroke-linecap:round;opacity:.45}
+.mc-nube-raya{fill:none;stroke:var(--mc-crayon);stroke-width:2;stroke-linecap:round;opacity:.2}
+.mc-reflejo path{fill:none;stroke:var(--mc-crayon);stroke-width:3;stroke-linecap:round;opacity:.16}
+.mc-grieta{fill:none;stroke:var(--mc-crayon);stroke-width:1.8;stroke-linejoin:round;opacity:.35}
+.mc-marco{fill:#170F2A}
+.mc-repisa{fill:#22173B}
+.mc-marco-borde{fill:none;stroke:var(--mc-crayon);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.5}
+.mc-marco-borde.mc-repaso{stroke-width:1.6;opacity:.24}
+.mc-veta-madera path{fill:none;stroke:var(--mc-crayon);stroke-width:1.6;stroke-linecap:round;opacity:.12}
+
+/* capa cercana: garabatos sueltos */
+.mc-garabato path{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.mc-g-amarillo{stroke:var(--mc-amarillo);opacity:.62}
+.mc-g-amarillo .mc-relleno{fill:var(--mc-amarillo);fill-opacity:.14}
+.mc-g-amarillo .mc-relleno-lleno{fill:var(--mc-amarillo);stroke:none}
+.mc-g-morado{stroke:var(--mc-morado);opacity:.95}
+.mc-g-morado .mc-relleno-lleno{fill:var(--mc-morado);stroke:none}
+.mc-g-crayon{stroke:var(--mc-crayon);opacity:.42}
+.mc-g-crayon .mc-relleno-lleno{fill:var(--mc-crayon);stroke:none}
+.mc-g-hueso{opacity:.5}
+.mc-g-vino{opacity:.9}
+.mc-garabato .mc-hueso{fill:var(--mc-crayon);stroke:none}
+.mc-g-vino .mc-hueso{fill:var(--mc-vino)}
+.mc-garabato .mc-hueco{fill:var(--mc-noche);stroke:none}
+.mc-garabato .mc-diente{stroke:var(--mc-noche);stroke-width:2.2}
+
+/* la zona del componente y la de la explicación quedan más oscuras y quietas */
+.mc-sombra{position:absolute;inset:0;background:
+  radial-gradient(37% 31% at 38% 45.1%,rgba(11,7,21,.55),rgba(11,7,21,0)),
+  radial-gradient(16% 36% at 85% 49.3%,rgba(11,7,21,.6),rgba(11,7,21,0))}
+/* papel arrugado: relieve de ruido iluminado, multiplicado al 18 % */
+.mc-papel{position:absolute;inset:0;opacity:.18;mix-blend-mode:multiply;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='.007 .011' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeDiffuseLighting lighting-color='%23fff' surfaceScale='5'%3E%3CfeDistantLight azimuth='235' elevation='36'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E") 0 0/420px 420px}
+/* ruido de fondo: el siseo del amplificador apagado (alto con data-toque="0") */
+.mc-ruido{position:absolute;inset:-48px;opacity:.07;transition:opacity .7s ease;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .32' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .85 0 0 0 0 .8 0 0 0 0 .72 7 0 0 0 -4.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/200px 200px}
+.st[data-toque="0"] .mc-ruido{opacity:.38}
+/* el siseo se mueve sin saltos (§0: ningún parpadeo mayor a 3 por segundo): deriva continua
+   y lenta (≈ 15 unidades/s, dentro de los 48 que sobresale) y una respiración de opacidad */
+.st.cur[data-toque="0"] .mc-ruido{animation:mc-estatica 13s ease-in-out infinite,mc-siseo 3.8s ease-in-out infinite alternate}
+@keyframes mc-estatica{0%,100%{transform:translate(0,0)}22%{transform:translate(-34px,18px)}47%{transform:translate(22px,32px)}73%{transform:translate(36px,-24px)}}
+@keyframes mc-siseo{from{opacity:.3}to{opacity:.38}}
+
+/* ojo de murciélago que se asoma en una esquina (lo anima la escena cada 20 s) */
+.mc-ojo{position:absolute;width:76px;height:32px;opacity:0;pointer-events:none}
+.mc-ojo svg{display:block;width:100%;height:100%;overflow:visible}
+.mc-ojo-halo{fill:var(--mc-amarillo);opacity:.07}
+.mc-ojo-ojo{fill:var(--mc-amarillo)}
+.mc-ojo-pupilas path{fill:var(--mc-noche)}
+.mc-ojo-par,.mc-ojo-pupilas{transform-box:fill-box;transform-origin:center}
+
+/* =====================================================================
+   Murciélago posado sobre la letra inicial del título
+   ===================================================================== */
+.st.mundo.w-marceline .z-titulo{position:relative}
+.mc-posado{position:absolute;left:0;top:0;z-index:2;width:84px;height:86px;pointer-events:none;transform:translate(-50%,-95%) rotate(-3deg);transform-origin:50% 97%}
+.mc-posado svg{display:block;width:100%;height:100%;overflow:visible}
+.mc-bat-cuerpo{fill:#130B22}
+.mc-bat-borde{fill:none;stroke:var(--mc-crayon);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mc-bat-pliegue{fill:none;stroke:var(--mc-crayon);stroke-width:1.3;stroke-linecap:round;opacity:.45}
+.mc-bat-oreja{fill:var(--mc-vino);opacity:.9}
+.mc-bat-garra{fill:none;stroke:var(--mc-crayon);stroke-width:2;stroke-linecap:round}
+.mc-bat-brillo{fill:var(--mc-texto)}
+.mc-bat-mejilla{fill:var(--mc-vino);opacity:.55}
+.mc-bat-ojo{fill:var(--mc-amarillo)}
+.mc-bat-pupila{fill:var(--mc-noche)}
+.mc-bat-colmillo{fill:var(--mc-texto)}
+.mc-bat-boca{fill:none;stroke:var(--mc-crayon);stroke-width:1.1;stroke-linecap:round}
+.mc-bat-pata{fill:none;stroke:var(--mc-crayon);stroke-width:2;stroke-linecap:round}
+.mc-bat{transform-origin:43px 85px}
+.mc-bat-ojos{transform-box:fill-box;transform-origin:center}
+.st.cur .mc-bat{animation:mc-balanceo 7s ease-in-out infinite}
+.st.cur .mc-bat-ojos{animation:mc-parpadeo 5.3s ease-in-out infinite}
+@keyframes mc-balanceo{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg)}}
+@keyframes mc-parpadeo{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.12)}}
+
+/* gota de «sangre» (rojo vino), por encima del contenido */
+.mc-gotas{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:visible}
+.mc-gota{position:absolute;width:32px;height:46px;overflow:visible;opacity:0}
+.mc-gota-cuerpo{fill:var(--mc-vino);stroke:#6E1027;stroke-width:1.5}
+.mc-gota-brillo{fill:none;stroke:var(--mc-texto);stroke-width:2.2;stroke-linecap:round;opacity:.55}
+
+/* =====================================================================
+   Título, rótulo y chip del mundo (fuera del modo esquema)
+   ===================================================================== */
+html:not(.schematic) .st.mundo.w-marceline .z-titulo h2{font-family:var(--mc-titulo);font-weight:400;letter-spacing:.012em;color:var(--mc-texto);
+  text-shadow:3px 4px 0 var(--mc-tinta)}
+html:not(.schematic) .st.mundo.w-marceline .z-titulo h2 em{font-style:normal;color:var(--mc-amarillo);text-shadow:3px 4px 0 var(--mc-tinta)}
+/* Permanent Marker no tiene minúsculas (la n del exponente saldría «N») y su «1» es un palo:
+   cifras (span.mc-cifra, lo pone la escena) y exponentes van con la letra del cuerpo, a peso 700 */
+html:not(.schematic) .st.mundo.w-marceline .z-titulo h2 .mc-cifra{font-family:var(--mc-cuerpo);font-weight:700;letter-spacing:0}
+html:not(.schematic) .st.mundo.w-marceline .z-titulo h2 :is(sup,sub){font:700 .72em/0 var(--mc-cuerpo);letter-spacing:0;text-transform:none}
+/* rótulo: cinta roja con el lado escrito con marcador y el tema a mano; empieza a la derecha del murciélago */
+html:not(.schematic) .st.mundo.w-marceline .z-titulo .chip{gap:14px;margin:0 0 6px;padding-left:var(--mc-rotulo,0px);font:400 31px/1.1 var(--mc-cuerpo);
+  letter-spacing:.02em;text-transform:none;color:var(--mc-crayon);transform:rotate(-.8deg);transform-origin:0 50%}
+html:not(.schematic) .st.mundo.w-marceline .z-titulo .chip b{display:inline-block;padding:6px 15px 3px 13px;font:400 30px/1 var(--mc-titulo);letter-spacing:.06em;
+  color:var(--mc-texto);background:var(--mc-vino);transform:rotate(-2.6deg);box-shadow:2px 3px 0 var(--mc-tinta);
+  clip-path:polygon(0 8%,4% 0,9% 9%,15% 1%,96% 0,100% 12%,97% 28%,100% 46%,97% 64%,100% 84%,96% 100%,10% 98%,5% 100%,0 90%,3% 72%,0 52%,3% 31%)}
+html:not(.schematic) .st.mundo.w-marceline .z-titulo .chip b::after{display:none}
+/* chip «S₁S₀ = 00»: etiqueta de papel pegada con cinta; su borde de marcador no cierra (4 px) */
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip{position:relative;align-items:center;gap:10px;margin:0 8px 12px 0;padding:9px 20px 7px 18px;
+  border:3px solid var(--mc-tinta);border-radius:10px 4px 12px 5px/5px 11px 4px 10px;background:var(--mc-crayon);color:var(--mc-noche);
+  font:700 30px/1.1 var(--mc-datos);letter-spacing:.02em;transform:rotate(2.4deg);box-shadow:4px 5px 0 var(--mc-tinta)}
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip i{opacity:1}
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip b{position:relative;padding:0 4px;font:400 36px/1 var(--mc-titulo);color:var(--mc-noche)}
+/* el «00» va encerrado con un óvalo de marcador rojo vino */
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip b::before{content:"";position:absolute;inset:-9px -12px -8px -11px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60' preserveAspectRatio='none'%3E%3Cpath d='M62 6C30 2 6 14 5 31S30 57 56 55S96 43 95 26S70 4 40 9' fill='none' stroke='%23B3203F' stroke-width='4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+/* trozo de cinta morada */
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip::before{content:"";position:absolute;left:14px;top:-14px;width:58px;height:22px;background:rgba(123,79,214,.7);transform:rotate(-9deg);
+  clip-path:polygon(0 10%,6% 0,12% 12%,18% 2%,82% 0,88% 14%,94% 2%,100% 12%,97% 50%,100% 90%,92% 100%,86% 88%,80% 100%,14% 100%,8% 90%,2% 100%,3% 50%)}
+/* abertura de 4 px en el borde */
+html:not(.schematic) .st.mundo.w-marceline .mundo-chip::after{content:"";position:absolute;top:-3px;right:30px;width:4px;height:3px;background:var(--mc-crayon)}
+
+/* =====================================================================
+   Cursor de plectro dentro de las estaciones del mundo (lo activa iniciar())
+   ===================================================================== */
+html.mc-vivo:not(.schematic) .st.cur.w-marceline,html.mc-vivo:not(.schematic) .st.cur.w-marceline *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='translate(3 3) rotate(135) scale(.85) translate(-16 -30)'%3E%3Cpath d='M16 30C10 24 3 15 3 9.5C3 4 8 2 16 2S29 4 29 9.5C29 15 22 24 16 30Z' fill='%23F2C14E' stroke='%231B1330' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M8 9.5C8 6.6 11 5.4 16 5.4' fill='none' stroke='%23FFF6D6' stroke-width='1.8' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E") 3 3,auto}
+html.mc-vivo:not(.schematic) .st.cur.w-marceline :is(button,[role=button],[role=radio],.tg,.seg button,a,input,label,tr[data-row],.mc-activa),
+html.mc-vivo:not(.schematic) .st.cur.w-marceline :is(button,[role=button],[role=radio],.tg,.seg button,a,input,label,tr[data-row],.mc-activa) *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='translate(3 3) rotate(135) scale(.85) translate(-16 -30)'%3E%3Cpath d='M16 30C10 24 3 15 3 9.5C3 4 8 2 16 2S29 4 29 9.5C29 15 22 24 16 30Z' fill='%23B3203F' stroke='%23F4EFE6' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M8 9.5C8 6.6 11 5.4 16 5.4' fill='none' stroke='%23F2C14E' stroke-width='1.8' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E") 3 3,pointer}
+
+/* =====================================================================
+   Barra de fases, navegación y herramientas: papel y marcador
+   (mismas posiciones y áreas táctiles ≥ 44 px que el sistema común)
+   ===================================================================== */
+html[data-theme=marceline] .realm-controls{background:var(--mc-papel);border:3px solid var(--mc-crayon);border-radius:12px 5px 14px 6px/6px 13px 5px 12px;
+  box-shadow:5px 6px 0 var(--mc-tinta);color:var(--mc-texto)}
+html[data-theme=marceline] .realm-controls::after{content:"";position:absolute;top:-3px;left:27%;width:4px;height:3px;background:var(--mc-papel);pointer-events:none}
+html[data-theme=marceline] .realm-controls button{background:var(--mc-texto);color:var(--mc-noche);border:2px solid var(--mc-tinta);
+  border-radius:7px 3px 8px 4px/4px 8px 3px 7px;box-shadow:2px 3px 0 var(--mc-tinta);font:400 20px/1 var(--mc-cuerpo);letter-spacing:.01em}
+html[data-theme=marceline] .realm-controls button:disabled{box-shadow:none}
+html[data-theme=marceline] #phaseNext{background:var(--mc-amarillo);color:var(--mc-noche);border:2px solid var(--mc-tinta);font:400 28px/1 var(--mc-titulo)}
+html[data-theme=marceline] #phaseBack{font:400 28px/1 var(--mc-titulo)}
+/* textos fijos legibles a distancia (≥ 20 px en proyección) */
+html[data-theme=marceline] #phaseLabel{font:400 24px/1 var(--mc-cuerpo);letter-spacing:.01em;color:var(--mc-texto)}
+html[data-theme=marceline] #realmPlain[aria-pressed=true]{background:var(--mc-amarillo)}
+html[data-theme=marceline] .realm-controls button:focus-visible,html[data-theme=marceline] .rbtn:focus-visible,html[data-theme=marceline] .tbtn:focus-visible{outline:3px solid var(--mc-amarillo);outline-offset:3px}
+
+html[data-theme=marceline] .route-ui .rbtn{position:relative;background:var(--mc-papel);border:3px solid var(--mc-crayon);color:var(--mc-texto);
+  border-radius:54% 46% 52% 48%/47% 55% 45% 53%;box-shadow:3px 4px 0 var(--mc-tinta)}
+html[data-theme=marceline] .route-ui .rbtn::after{content:"";position:absolute;top:-3px;left:calc(50% + 7px);width:4px;height:4px;background:var(--mc-papel);pointer-events:none}
+html[data-theme=marceline] .route-ui .rbtn svg{stroke-width:2.3}
+html[data-theme=marceline] .route-where b{font:700 20px var(--mc-datos);letter-spacing:.06em;color:var(--mc-amarillo)}
+html[data-theme=marceline] .route-where span{font:400 21px var(--mc-cuerpo);color:var(--mc-texto)}
+html[data-theme=marceline] .route-dots i{background:#4B3F69;border-radius:58% 42% 50% 50%/45% 55% 45% 55%}
+html[data-theme=marceline] .route-dots i.past{background:var(--mc-crayon)}
+html[data-theme=marceline] .route-dots i.cur{background:var(--mc-amarillo);box-shadow:none}
+
+html[data-theme=marceline] .tools .tbtn{background:var(--mc-papel);border:2px solid var(--mc-crayon);color:var(--mc-texto);
+  border-radius:52% 48% 55% 45%/48% 54% 46% 52%;box-shadow:2px 3px 0 var(--mc-tinta)}
+html[data-theme=marceline] .tools #tTimer{border-radius:16px 22px 15px 21px/21px 15px 22px 16px;font:700 15px var(--mc-datos)}
+html[data-theme=marceline] #realmSound[aria-pressed=true]{background:var(--mc-amarillo);color:var(--mc-noche)}
+
+/* =====================================================================
+   Estados: entrada en curso, modo esquema y movimiento reducido
+   ===================================================================== */
+/* la secuencia de entrada anima sus propias copias del papel y del murciélago */
+.st.mc-entrando .mc-posado,.st.mc-entrando .mc-papel{visibility:hidden}
+/* «Ver esquema»: sin decorado */
+html.schematic .mc-fondo,html.schematic .mc-posado,html.schematic .mc-gotas{display:none}
+@media (prefers-reduced-motion:reduce){.mc-fondo *,.mc-posado *,.mc-ruido{animation:none!important}}
+html.still .mc-fondo *,html.still .mc-posado *,html.still .mc-ruido{animation:none!important}

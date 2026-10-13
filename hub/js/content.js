@@ -92,14 +92,14 @@ const ANA = { mux: [], demux: [] };
 
 ANA.mux.push({
   title: "Qué es un multiplexor",
-  notes: "Un multiplexor (MUX) tiene varias entradas de datos, unas líneas de selección y una sola salida. Piensen en un bajo de cuatro cuerdas conectado a un solo amplificador: las cuerdas son las entradas I0 a I3, las clavijas S1 y S0 eligen cuál cuerda llega al amplificador, y el amplificador es la salida Y. Solo suena una a la vez. Toquen S1 y S0 para cambiar de cuerda.",
+  notes: "Un multiplexor (MUX) tiene varias entradas de datos, unas líneas de selección y una sola salida. Piensen en un bajo de cuatro cuerdas conectado a un solo amplificador: las cuerdas son las entradas I0 a I3, los interruptores de la pedalera S1 y S0 eligen cuál cuerda llega al amplificador, y el amplificador es la salida Y. Solo suena una a la vez. Toquen S1 y S0 para cambiar de cuerda.",
   build(el) {
     const L = Logic({ s1: 0, s0: 1 });
     const ys = [110, 210, 310, 410];
     el.innerHTML = shell("mux", 0, "Fundamentos", "¿Qué es un <em>multiplexor</em>?",
       "Elige <b>una</b> de varias entradas y la envía por <b>una sola</b> salida.", {
         extra: `<dl class="parts"><div><dt>Entradas de datos</dt><dd>${sub("I", 0)}–${sub("I", 3)} · las cuerdas</dd></div>
-          <div><dt>Líneas de selección</dt><dd>${sub("S", 1)} ${sub("S", 0)} · las clavijas</dd></div>
+          <div><dt>Líneas de selección</dt><dd>${sub("S", 1)} ${sub("S", 0)} · pedalera binaria</dd></div>
           <div><dt>Salida</dt><dd>Y · el amplificador</dd></div></dl><p class="readout" data-r></p>`,
         ctrl: tg("s1", "S₁") + tg("s0", "S₀"),
         fig: `<svg class="fig" viewBox="0 0 1000 560" aria-label="Cuatro cuerdas entran a un MUX y una sola llega al amplificador">
@@ -233,9 +233,10 @@ function sizesStation(side) {
         const svg = $("svg", box);
         DRESS.fig(svg);
         $("[data-f]", el).innerHTML = `${mux ? `${N}:1` : `1:${N}`} → <b>${N - 1}</b> bloques ${mux ? "2:1" : "1:2"} · <b>${Math.log2(N)}</b> ${Math.log2(N) === 1 ? "nivel" : "niveles"} = ${Math.log2(N)} ${Math.log2(N) === 1 ? "línea" : "líneas"} de selección`;
-        // el árbol termina de desplegarse y la señal lo recorre
-        if (!first && !reduced) setTimeout(() => DRESS.pulse(svg, t.trail, { ms: 900 + Math.log2(N) * 220 })
-          .then(() => { DRESS.arrive(svg.querySelector(mux ? ".pin.out" : ".pin.one")); DRESS.result(el); }), 250 + Math.log2(N) * 160);
+        svg.dataset.replay = "true";
+        const trace = () => DRESS.pulse(svg, t.trail, { ms: 650, value: "→" });
+        svg.addEventListener("replay-signal", trace);
+        if (!first) trace();
         first = false;
       };
       draw(8);
@@ -421,16 +422,20 @@ JON.demux.push({
    CARLOS · DIO · Aplicaciones — el tiempo, la selección y los usos reales
    ===================================================================== */
 const CAR = { mux: [], demux: [] };
+/* anexo de DIO: conclusiones y referencias, fuera del recorrido normal;
+   se abre con el botón secreto de la última diapositiva de DIO (MUX y DEMUX) */
+const ANEXO = [];
+const anexoBtn = () => `<button class="secreto-anexo" aria-label="Botón secreto: conclusiones y referencias"><svg viewBox="-50 -50 100 100" aria-hidden="true"><path d="M-30-24Q-14-32 0-24Q14-32 30-24V28Q14 20 0 28Q-14 20-30 28Z"/><path class="lomo" d="M0-24V28M-22-12H-8M-22-2H-8M8-12H22M8-2H22"/></svg></button>`;
 const SENS = [["Temperatura", "24 °C"], ["Presión", "1,2 bar"], ["Nivel", "68 %"], ["Velocidad", "1450 rpm"]];
 const secretBtn = () => `<button class="secret" aria-label="Botón secreto"><svg viewBox="-60 -60 120 120"><path d="${(() => {
   let d = ""; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, w = .14; d += `M${(Math.cos(a - w) * 16).toFixed(1)} ${(Math.sin(a - w) * 16).toFixed(1)}L${(Math.cos(a) * (i % 2 ? 36 : 50)).toFixed(1)} ${(Math.sin(a) * (i % 2 ? 36 : 50)).toFixed(1)}L${(Math.cos(a + w) * 16).toFixed(1)} ${(Math.sin(a + w) * 16).toFixed(1)}Z`; } return d; })()}"/><circle r="12"/></svg></button>`;
 
 /* barrido automático de S1 S0 con un reloj; «detener el tiempo» lo congela */
 function scanner(el, L, ms = 1300) {
-  let iv = 0, frozen = false;
+  let iv = 0, frozen = false, phaseReady = false;
   const btn = $("[data-stop]", el);
   const tick = () => L.set({ s1: ((L.sel + 1) % 4) >> 1, s0: ((L.sel + 1) % 4) & 1 });
-  const run = () => { clearInterval(iv); if (!frozen && !reduced) iv = setInterval(tick, ms); };
+  const run = () => { clearInterval(iv); if (!frozen && !reduced && phaseReady) iv = setInterval(tick, ms); };
   const paintBtn = () => { btn.setAttribute("aria-pressed", frozen ? "true" : "false"); btn.textContent = frozen ? "▶ Reanudar el tiempo" : "⏸ Detener el tiempo"; el.classList.toggle("frozen", frozen); };
   btn.addEventListener("click", e => {
     e.stopPropagation();
@@ -439,6 +444,11 @@ function scanner(el, L, ms = 1300) {
     run();
   });
   onStation(el, () => { if (reduced) frozen = true; paintBtn(); run(); }, () => clearInterval(iv));
+  queueMicrotask(() => {
+    const station = el.closest('.st');
+    station?.addEventListener('phasechange', e => { phaseReady=e.detail.ready; run(); });
+    mq.addEventListener('change', () => { if (reduced) { frozen=true; paintBtn(); clearInterval(iv); } });
+  });
   paintBtn();
   return { get frozen() { return frozen; } };
 }
@@ -581,7 +591,7 @@ const CONCL = [
   ["Versatilidad industrial", "Adquisición de datos (ADC), telecomunicaciones (TDM) y procesadores (ALU).",
     `<g class="tags3"><rect x="4" y="8" width="80" height="36" rx="8"/><text x="44" y="33">ADC</text><rect x="96" y="8" width="80" height="36" rx="8"/><text x="136" y="33">TDM</text><rect x="50" y="56" width="80" height="36" rx="8"/><text x="90" y="81">ALU</text></g>`]
 ];
-CAR.mux.push({
+ANEXO.push({
   title: "Conclusiones",
   notes: "Conclusiones (las presenta Ana). 1) Optimización de recursos: el MUX y el DEMUX permiten que varias señales compartan una misma línea de transmisión, lo que reduce el cableado y el costo en tarjetas PCB y en redes. 2) Síntesis universal: un MUX puede reemplazar una red de compuertas, porque implementa cualquier función booleana sin minimizarla antes (lo comprobamos con F(A,B,C) = Σm(1,3,6,7)). 3) Versatilidad industrial: son indispensables en adquisición de datos (ADC), telecomunicaciones (TDM) y en la arquitectura de los procesadores (ALU). En una frase: el MUX decide qué información pasa; el DEMUX decide hacia dónde se dirige. Toquen una tarjeta para destacarla.",
   build(el) {
@@ -607,7 +617,7 @@ const REFS = [
   ["Wakerly, J. F. (2006).", "Digital design: Principles and practices", "(4th ed.). Pearson Prentice Hall."],
   ["Roth, C. H., & Kinney, L. L. (2014).", "Fundamentals of logic design", "(7th ed.). Cengage Learning."]
 ];
-CAR.mux.push({
+ANEXO.push({
   title: "Referencias bibliográficas",
   notes: "Referencias en formato APA. Floyd, Tocci y Mano/Ciletti son los textos base del curso para MUX, DEMUX, cascada y síntesis de funciones con MUX; Wakerly cubre los circuitos integrados comerciales (como el 74x151 y el 74x153) y Roth y Kinney la implementación de funciones con multiplexores.",
   build(el) {
@@ -630,7 +640,7 @@ CAR.mux.push({
           <p class="readout">Python: <b>8 de 8</b> combinaciones coinciden</p>`,
         ctrl: seg("Captura", [["pulsos", "Pulsos"], ["tabla", "Tabla"]], "pulsos"),
         fig: `<figure class="fig sim-shot"><img src="assets/simulacion/pulsos.png" alt="Trenes de pulso de A, B, C y F: la salida del MUX coincide con la función en las 8 combinaciones" decoding="async">
-          <figcaption>Captura de respaldo · simulacion/mux_funcion.py</figcaption></figure>${secretBtn()}`
+          <figcaption>Captura de respaldo · simulacion/mux_funcion.py</figcaption></figure>${secretBtn()}${anexoBtn()}`
       });
     const img = $(".sim-shot img", el), ALT = {
       pulsos: "Trenes de pulso de A, B, C y F: la salida del MUX coincide con la función en las 8 combinaciones",
@@ -703,7 +713,7 @@ CAR.demux.push({
       $$("[data-cs]", el).forEach((t, i) => { t.textContent = `CS = ${L.demux(i)}`; });
       $$("[data-w]", el).forEach((w, i) => w.classList.toggle("v1", !!L.demux(i)));
       $$("tr[data-row]", el).forEach((tr, i) => tr.classList.toggle("on", i === L.sel));
-      $("[data-r]", el).innerHTML = `Dirección ${sub("A", 1)}${sub("A", 0)} = <b>${bits2(L.sel)}</b> → se escribe en <b>${CHF[L.sel]}</b>`;
+      $("[data-r]", el).innerHTML = `${sub("A", 1)}${sub("A", 0)} = <b>${bits2(L.sel)}</b> → destino: <b>${CHF[L.sel]}</b>`;
     });
   }
 });
@@ -716,7 +726,7 @@ CAR.demux.push({
       "Un DEMUX sincronizado entrega cada ranura de tiempo a su canal.", {
         extra: `<p class="readout" data-r></p>`,
         ctrl: `<button class="tg wide" data-stop aria-pressed="false">⏸ Detener el tiempo</button>`,
-        fig: tdmFig(true) + secretBtn()
+        fig: tdmFig(true) + secretBtn() + anexoBtn()
       });
     scanner(el, L, 950);
     L.on(L => {

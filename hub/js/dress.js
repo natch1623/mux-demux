@@ -32,11 +32,15 @@ const DRESS = (() => {
   mk("circle", { cx: 6.5, cy: 6.5, r: 2.7, fill: "#000", "fill-opacity": .7 }, grille);
   mk("circle", { cx: 5.6, cy: 5.6, r: 1, fill: "#FF8A98", "fill-opacity": .25 }, grille);
   // materia orgánica: brillo húmedo y núcleo negro
-  rad("m-goo", [[0, "#7A55C8"], [.18, "#3A2370"], [.55, "#120A24"], [1, "#000"]]);
+  rad("m-goo", [[0, "#63788E"], [.18, "#29343F"], [.55, "#090D12"], [1, "#000"]]);
   lin("m-goo-side", [[0, "#05020A"], [1, "#000"]]);
   // metal dorado bruñido
   lin("m-gold", [[0, "#FFF0B8"], [.18, "#F2C14E"], [.42, "#8C6416"], [.6, "#E3B341"], [.82, "#6B4A12"], [1, "#C9862B"]]);
   lin("m-gold-side", [[0, "#3A2606"], [1, "#140C02"]]);
+  // DIO: sombras de cel y tinta; el volumen se conserva sin metal fotográfico.
+  lin("m-manga", [[0, "#F5DE6C"], [.48, "#F5DE6C"], [.481, "#BA923C"], [.74, "#BA923C"], [.741, "#764166"], [1, "#764166"]]);
+  const manga = mk("pattern", { id: "p-manga", width: 9, height: 9, patternUnits: "userSpaceOnUse" }, defs);
+  mk("path", { d: "M-2 2L2-2M0 9L9 0M7 11L11 7", stroke: "#160c22", "stroke-width": 1.8 }, manga);
   // haz de foco
   lin("m-beam", [[0, "#FFE3E7", .5], [.35, "#FF5A6E", .16], [1, "#FF5A6E", 0]], { x1: 0, y1: 0, x2: 0, y2: 1 });
   lin("m-ray", [[0, "#FFE7A3", .0], [.5, "#FFE7A3", .14], [1, "#FFE7A3", 0]], { x1: 0, y1: 0, x2: 1, y2: 0 });
@@ -223,57 +227,58 @@ const DRESS = (() => {
     fitGlow(svg);
     $$(".blk, path.gate", svg).forEach(el => dressShape(el, theme));
     sheathe(svg);
+    if (typeof AMBIENCE !== 'undefined') AMBIENCE.figure(svg,theme);
     liftRoutes(svg);
   }
 
   /* ---------- momentos de revelación ---------- */
   // la señal recorre el circuito: un cometa que avanza por el camino d
-  function pulse(svg, d, { ms = 760, hot = true } = {}) {
-    if (reduced || !svg.isConnected) return Promise.resolve();
-    const g = mk("g", { class: "spark" + (hot ? "" : " cold"), "aria-hidden": "true" }, svg);
-    const halo = mk("path", { class: "sp-halo", d, pathLength: 1 }, g);
-    const core = mk("path", { class: "sp-core", d, pathLength: 1 }, g);
-    const kf = [{ strokeDashoffset: .16 }, { strokeDashoffset: -1 }];
-    const opt = { duration: ms, easing: "cubic-bezier(.45,.05,.35,1)", fill: "forwards" };
-    halo.animate(kf, opt);
-    return core.animate(kf, opt).finished.catch(() => {}).then(() => { g.remove(); });
+  const pulses = new WeakMap();
+  function cancelPulse(svg) {
+    const old = pulses.get(svg);
+    if (old) { old.animation.cancel(); old.group.remove(); pulses.delete(svg); }
   }
-  // al llegar: la salida se enciende con un destello
+  function pulse(svg, d, { ms = 580, hot = true, value = null } = {}) {
+    cancelPulse(svg);
+    if (reduced || MOTION.skip || !svg.isConnected || !svg.closest('.st')?.classList.contains('cur')) return Promise.resolve();
+    const g = mk('g', { class: 'spark' + (hot ? '' : ' cold'), 'aria-hidden': 'true' }, svg);
+    const route = mk('path', { d, fill: 'none', stroke: 'none' }, g);
+    const marker = mk('g', {}, g);
+    const theme = themeOf(svg);
+    mk('rect', { class:'sp-token', x:-20, y:-20, width:40, height:40, rx:theme === 'venom' ? 13 : theme === 'tsaritsa' ? 2 : 5 }, marker);
+    mk('text', { class:'sp-bit', x:0, y:1 }, marker, value ?? '→');
+    const length = route.getTotalLength();
+    const frames = Array.from({length:49}, (_,i) => {
+      const p = route.getPointAtLength(length*i/48);
+      const rotate = theme === 'marceline' ? ` rotate(${Math.sin(i*.8)*5}deg)` : '';
+      return {transform:`translate(${p.x}px,${p.y}px)${rotate}`,offset:i/48};
+    });
+    const animation = marker.animate(frames,{duration:Math.min(ms,700),easing:'linear',fill:'both'});
+    pulses.set(svg,{group:g,animation});
+    return animation.finished.catch(e=>{if(e.name!=='AbortError')throw e;}).finally(()=>{g.remove();if(pulses.get(svg)?.group===g)pulses.delete(svg);});
+  }
   function arrive(el) {
     if (!el || reduced) return;
-    el.classList.remove("arrived"); void el.getBBox?.(); el.classList.add("arrived");
-    clearTimeout(el._arr); el._arr = setTimeout(() => el.classList.remove("arrived"), 900);
+    el.classList.add('arrived'); clearTimeout(el._arr);
+    el._arr=setTimeout(()=>el.classList.remove('arrived'),160);
   }
-  // el resultado aparece cuando la señal llega
-  function result(scope) {
-    if (reduced) return;
-    $$(".readout, .formula", scope).forEach(r => r.animate([{ opacity: .15, transform: "translateY(10px)", filter: "blur(4px)" }, { opacity: 1, transform: "none", filter: "none" }], { duration: 520, easing: "cubic-bezier(.23,1,.32,1)" }));
-  }
-  /* cada vez que cambia la lógica (salvo la primera), la señal recorre el camino activo:
-     getD(L) → camino; getOut(L) → elemento de salida; la salida espera a la señal */
-  function revealOn(svg, L, getD, getOut, { ms = 760 } = {}) {
-    let first = true, token = 0, pending = null;
-    L.on(L => {
-      if (first) { first = false; return; }
-      // solo en la estación que se está viendo (varias estaciones comparten la misma lógica)
-      if (!svg.closest(".st")?.classList.contains("cur")) return;
-      const d = getD(L);
-      if (!d) return;
-      const my = ++token, out = getOut?.(L), scope = svg.closest(".st-in");
-      // si la selección cambió a mitad de camino, la salida anterior deja de esperar
-      if (pending && pending !== out) pending.classList.remove("wait");
-      pending = out;
-      out?.classList.add("wait");
-      $$(".readout", scope).forEach(r => r.classList.add("wait"));
-      pulse(svg, d, { ms, hot: L.st.en !== 0 }).then(() => {
-        if (my !== token) return;
-        pending = null;
-        out?.classList.remove("wait");
-        $$(".readout", scope).forEach(r => r.classList.remove("wait"));
-        arrive(out);
-        result(scope);
-      });
-    });
+  function result() { /* The result stays readable while the explanatory marker travels. */ }
+  function revealOn(svg, L, getD, getOut, { ms = 580 } = {}) {
+    svg.dataset.replay = "true";
+    let first = true, token = 0;
+    const run = () => {
+      const mine = ++token;
+      cancelPulse(svg);
+      if (!svg.closest('.st')?.classList.contains('cur')) return;
+      const d = getD(L); if (!d) return;
+      const sec = svg.closest('.st'), out = getOut?.(L);
+      const id = sec.dataset.id;
+      const value = id === 'mux-0-0' ? '♪' : id === 'mux-3-0' ? '→' : sec.classList.contains('side-demux') ? L.demux(L.sel) : L.mux;
+      pulse(svg,d,{ms,hot:L.st.en!==0,value}).then(()=>{if(mine===token)arrive(out);});
+    };
+    L.on(()=>{if(first){first=false;return;}run();});
+    svg.addEventListener('replay-signal',run);
+    queueMicrotask(()=>svg.closest('.st')?.addEventListener('leave',()=>{++token;cancelPulse(svg);}));
   }
 
   /* ---------- fondos de cada mundo ---------- */
@@ -347,7 +352,9 @@ const DRESS = (() => {
 
   /* ---------- montaje de una estación ---------- */
   function station(sec, theme, side, k) {
-    $(".st-bg", sec).append(backdrop(theme, side, k));
+    // los mundos ya rediseñados (js/mundos/) montan su propia escena y retícula
+    if (MUNDOS.activo(theme)) MUNDOS.montar(sec, theme, side, k);
+    else REALMS.mount(sec, theme);
     $$("svg.fig", sec).forEach(fig);
   }
 

@@ -1,0 +1,89 @@
+/* =====================================================================
+   Pantalla puente (especificación §0): mientras la cámara viaja por el cable
+   entre el HUB y un mundo, el lienzo se vuelve un esquema técnico sobrio:
+   fondo #0D0F14, cables grises de 6 unidades, brillo cian #4DF3FF en la ruta
+   activa (trazos superpuestos más anchos y translúcidos, sin filtros), bloques
+   oscuros con contorno gris claro y llaves S₁/S₀ que se vuelven cian al fijar 1.
+   Todo lo del lienzo va bajo html.puente: el HUB y las conclusiones no cambian.
+   Unidades: px de diseño a 1920 de ancho (la cámara las escala).
+   ===================================================================== */
+:root{--pt-fondo:#0D0F14;--pt-cable:#4A515E;--pt-cian:#4DF3FF;--pt-nucleo:#E4FEFF;--pt-borde:#B4BBC7;--pt-texto:#E8ECF2;--pt-dato:#AAB2BF}
+
+/* durante el vuelo solo se ven el cable, el bloque y la selección (el HUB, también .st, sigue en su sitio) */
+html.puente .st:not(.hub){visibility:hidden!important}
+/* regreso desde un mundo sin salida propia: la estación que se deja se va con la cámara */
+html.puente .st.puente-sale{visibility:visible!important}
+html.puente .realm-signature{visibility:hidden}
+
+/* cielo: el gris del puente cubre al del HUB según la distancia de la cámara (TINT en app.js) */
+.tint-puente{position:absolute;inset:0;background:var(--pt-fondo);opacity:0;will-change:opacity}
+
+/* ---------- cables del lienzo ---------- */
+.map .pt-guia{display:none}
+html.puente .map .duct{display:none}
+html.puente .map .wire,html.puente .map .pt-guia,.pt-cable{display:inline;fill:none;stroke:var(--pt-cable);stroke-width:6;stroke-linecap:round;opacity:1;stroke-dasharray:none;animation:none}
+html.puente .map .wire,html.puente .map .pt-guia{transition:stroke-width .38s cubic-bezier(.2,.8,.2,1),opacity .38s ease}
+/* la ruta elegida se ensancha (con extremos rectos: no asoma en el borde de la estación 0); las otras tres se apagan */
+html.puente .map .wire.pt-elegida{stroke-width:14;stroke-linecap:butt}
+html.puente .map .pt-apagada{opacity:.15}
+/* nodos en los huecos entre estaciones (dan referencia de avance al volver por la fila) */
+.map .pt-nodos{display:none}
+html.puente .map .pt-nodos{display:inline}
+.map .pt-nodo{fill:var(--pt-fondo);stroke:#6E7683;stroke-width:4}
+.map .pt-nodo.pt-fuera{display:none}
+
+/* ---------- la señal (capa .map.trace, encima del lienzo) ----------
+   estela: brillo cian del cable encendido detrás del pulso (halo, brillo e hilo de luz) */
+.pt-tramo path{fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width .38s cubic-bezier(.2,.8,.2,1)}
+.pt-tramo .pt-halo{stroke:var(--pt-cian);stroke-width:30;stroke-opacity:.1}
+.pt-tramo .pt-brillo{stroke:var(--pt-cian);stroke-width:14;stroke-opacity:.3}
+.pt-tramo .pt-hilo{stroke:var(--pt-nucleo);stroke-width:2.5;stroke-opacity:.95}
+.pt-tramo.ancho .pt-halo{stroke-width:48}
+.pt-tramo.ancho .pt-brillo{stroke-width:26}
+.pt-tramo.ancho .pt-hilo{stroke-width:4.5}
+.pt-tramo.recto path{stroke-linecap:butt}
+/* pulso de 40 unidades: cian con núcleo claro (grosores en PUENTE.PULSO) */
+.pt-pulso path{fill:none;stroke-linecap:round}
+.pt-pulso .pt-p-halo{stroke:var(--pt-cian);stroke-opacity:.26}
+.pt-pulso .pt-p-cuerpo{stroke:var(--pt-cian)}
+.pt-pulso .pt-p-nucleo{stroke:var(--pt-nucleo)}
+html.still .pt-tramo path{transition:none}
+
+/* ---------- bloques MUX / DEMUX del mapa ---------- */
+.dblock .b-hud,.dblock .b-flash{display:none}
+html.puente .dblock .b-glow,html.puente .dblock .b-label{display:none}
+html.puente .dblock .b-side{fill:#08090C;stroke:#262A32;stroke-width:4}
+html.puente .dblock .b-body{fill:#151920;stroke:var(--pt-borde);stroke-width:7;stroke-linejoin:round}
+html.puente .dblock .b-glint{stroke:#fff;stroke-width:6;opacity:.2}
+html.puente .dblock .b-fct{stroke:rgba(180,187,199,.1);stroke-width:3}
+html.puente .dblock .b-pin{fill:var(--pt-fondo);stroke:#8C94A1;stroke-width:5;transition:stroke .25s,fill .25s}
+html.puente .dblock .b-pin.viva{fill:#0C2E34;stroke:var(--pt-cian)}
+html.puente .dblock .b-pint{fill:var(--pt-dato)}
+/* rutas internas: posibles (discontinuas), la elegida sólida a 14, las otras al 15 % */
+html.puente .dblock .b-route{stroke:#3A404B;stroke-width:5;stroke-dasharray:10 16;stroke-linecap:round;opacity:1;transition:stroke-width .38s cubic-bezier(.2,.8,.2,1),opacity .38s ease}
+html.puente .dblock .b-route.on{stroke:var(--pt-cable);stroke-width:14;stroke-dasharray:none}
+html.puente .dblock .b-route.off{opacity:.15}
+/* líneas de selección y llaves: oscuras; al fijar, el valor; con 1, cian */
+html.puente .dblock .b-sline{stroke:#323844;stroke-width:6;opacity:1;transition:stroke .25s}
+html.puente .dblock .b-sel.fija .b-sline{stroke:#7C8491}
+html.puente .dblock .b-sel.one .b-sline{stroke:var(--pt-cian)}
+html.puente .dblock .b-key{fill:#12151B;stroke:#59606C;stroke-width:5;transition:fill .25s,stroke .25s}
+html.puente .dblock .b-sel.fija .b-key{stroke:var(--pt-borde)}
+html.puente .dblock .b-sel.one .b-key{fill:var(--pt-cian);stroke:var(--pt-cian)}
+html.puente .dblock .b-keyt{fill:var(--pt-texto);transition:fill .25s}
+html.puente .dblock .b-sel.one .b-keyt{fill:#03181C}
+/* destello al fijar (un solo parpadeo por línea) */
+html.puente .dblock .b-flash{display:inline;opacity:0}
+.dblock .b-flash path{fill:none;stroke:var(--pt-cian);stroke-width:24;stroke-opacity:.55;stroke-linecap:round}
+.dblock .b-flash rect{fill:none;stroke:var(--pt-cian);stroke-width:12;stroke-opacity:.5}
+/* rótulo técnico: nombre del bloque y combinación elegida */
+html.puente .dblock .b-hud{display:inline;opacity:0;transition:opacity .3s ease}
+html.puente .dblock.parada .b-hud{opacity:1}
+.dblock .b-hudbar{stroke:var(--pt-cian);stroke-width:6;stroke-linecap:round}
+.dblock .b-hudt{font:600 60px var(--mono);letter-spacing:.08em;fill:var(--pt-texto)}
+.dblock .b-huds{font:500 46px var(--mono);fill:var(--pt-dato);white-space:pre}
+.dblock .b-huds .v{fill:var(--pt-texto)}
+.dblock .b-huds .dst{fill:var(--pt-cian)}
+
+/* ---------- el cable del puente en una capa fija (PUENTE.cable, para los mundos) ---------- */
+.mundo-capa > svg.pt-capa{overflow:visible}
