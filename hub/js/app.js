@@ -11,7 +11,7 @@
    PROGRESO (S.done.mux / S.done.demux = integrantes con su ruta TERMINADA)
    - una ruta se termina solo al avanzar desde su última estación;
      volver antes al HUB no cuenta
-   - DIO (Carlos, 3) se desbloquea en cada lado cuando 0, 1 y 2 están terminados
+   - las cuatro rutas (incluida DIO) están abiertas desde el inicio, para poder estudiar en cualquier orden
    - el botón secreto está al final de la ruta de DIO y se activa solo si el
      otro lado ya está completo (es decir, en el segundo DIO, empiece por donde empiece)
 
@@ -357,7 +357,7 @@ const saved = store.get(SAVE, { mux: [], demux: [] });
 const S = { mode: "hub", side: null, m: null, k: 0, concl: 0, e: 0, busy: false,
   done: { mux: new Set(saved.mux), demux: new Set(saved.demux) } };
 const persist = () => store.set(SAVE, { mux: [...S.done.mux], demux: [...S.done.demux] });
-const sealed = side => ![0, 1, 2].every(i => S.done[side].has(i));      // DIO siempre después de los otros tres
+const sealed = () => false;      // todo desbloqueado: DIO se puede ver sin terminar las otras tres rutas
 const other = side => side === "mux" ? "demux" : "mux";
 const route = () => ROUTES[S.side][S.m];
 const atLast = () => S.mode === "route" && S.k === route().length - 1;
@@ -419,7 +419,7 @@ const CONCL_NOTES = [
   "Síntesis: el MUX decide qué información pasa; el DEMUX decide hacia dónde se dirige."
 ];
 function paintNotes() {
-  let meta = "HUB", text = "Portada. A la izquierda, cuatro entradas del MUX: cada integrante toca la suya; la señal sale por el borde izquierdo, entra al MUX y sale por su única salida al escenario. A la derecha, un solo botón del DEMUX: cada integrante sabe en qué zona tocarlo (arriba Ana, derecha Ameth, abajo Jonathan, izquierda Carlos) y la señal viaja al DEMUX, que la manda a su destino. Carlos (DIO) se desbloquea en cada lado cuando los otros tres terminaron su ruta. El cronómetro y el progreso se guardan en este navegador hasta pulsar «Nueva sesión» (arriba a la derecha, dos toques).";
+  let meta = "HUB", text = "Portada. A la izquierda, cuatro entradas del MUX: cada integrante toca la suya; la señal sale por el borde izquierdo, entra al MUX y sale por su única salida al escenario. A la derecha, un solo botón del DEMUX: cada integrante sabe en qué zona tocarlo (arriba Ana, derecha Ameth, abajo Jonathan, izquierda Carlos) y la señal viaja al DEMUX, que la manda a su destino. Las cuatro rutas están abiertas: se pueden ver en cualquier orden, incluida la de Carlos (DIO). El cronómetro y el progreso se guardan en este navegador hasta pulsar «Nueva sesión» (arriba a la derecha, dos toques).";
   if (S.mode === "route") { const d = route()[S.k]; meta = `${S.side.toUpperCase()} · ${MEMBERS[S.m].name} · ${S.k + 1}/${route().length} · ${d.title}`; text = d.notes; }
   if (S.mode === "concl") { meta = "Conclusiones"; text = CONCL_NOTES[S.concl]; }
   if (S.mode === "ending") { meta = `Ending · ${S.e + 1}/${MURAL.views.length}`; text = MURAL.notes[S.e]; }
