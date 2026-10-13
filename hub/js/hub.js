@@ -16,10 +16,14 @@ const HUB = (() => {
       <h1><span>MUX</span><i>/</i><em>DEMUX</em></h1>
       <div class="orn" aria-hidden="true"><i></i><b></b><i></i></div>
       <p>Multiplexores y Demultiplexores</p>
+      <dl class="hub-cred">
+        <div><dt>Asignatura</dt><dd>Circuitos Lógicos Electrónicos</dd></div>
+        <div><dt>Docente</dt><dd>Ing. Mónica M. Magallón Mariscal, M.Sc.</dd></div>
+      </dl>
     </div>
     <svg class="hub-ui" viewBox="0 0 1920 1080" role="group" aria-label="Entradas del MUX y botón del DEMUX"></svg>
     <div class="hub-bits" aria-hidden="true"><span>S₁</span><i id="lamp1"></i><span>S₀</span><i id="lamp0"></i></div>
-    <p class="hub-team">Ana · Ameth · Jonathan · Carlos</p>
+    <p class="hub-team"><b>Equipo 3</b> · Ana · Ameth · Jonathan · Carlos</p>
   </section>`);
   const art = $(".hub-art", el), ui = $(".hub-ui", el);
   const defs = $("#defs");

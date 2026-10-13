@@ -541,7 +541,7 @@ CAR.mux.push({
 });
 CAR.mux.push({
   title: "Dentro de un procesador",
-  notes: "En la ruta de datos de un procesador, los MUX eligen en cada instrucción qué registro llega a la unidad aritmético-lógica (ALU). Las líneas de selección salen de la unidad de control. Es la misma idea de todo el recorrido: muchas fuentes, una sola entrada a la ALU. Esta es la última estación de Carlos en el MUX.",
+  notes: "En la ruta de datos de un procesador, los MUX eligen en cada instrucción qué registro llega a la unidad aritmético-lógica (ALU). Las líneas de selección salen de la unidad de control. Es la misma idea de todo el recorrido: muchas fuentes, una sola entrada a la ALU. Siguen las conclusiones (Ana), las referencias y el respaldo de la simulación.",
   build(el) {
     const L = Logic({ s1: 1, s0: 0 });
     const R = [5, 12, 7, 3], ys = [110, 210, 310, 410];
@@ -558,7 +558,7 @@ CAR.mux.push({
           <text class="lbl" x="780" y="410" data-alu></text>
           <g class="box clk"><rect x="370" y="490" width="220" height="56" rx="12"/><text x="480" y="526">unidad de control</text></g>
           <path class="w sel" d="M455 490V437M505 490V403"/>
-        </svg>${secretBtn()}`
+        </svg>`
       });
     bindToggles(el, L);
     L.on(L => {
@@ -569,6 +569,74 @@ CAR.mux.push({
       $("[data-r]", el).innerHTML = `${sub("S", 1)}${sub("S", 0)} = <b>${bits2(L.sel)}</b> → la ALU recibe <b>R${L.sel}</b>`;
     });
     DRESS.revealOn($(".fig", el), L, L => `M240 ${ys[L.sel]}H420L540 260H700`, () => $(".alu", el));
+  }
+});
+
+/* ---- cierre de la ruta MUX de Carlos: conclusiones (Ana), referencias y respaldo de la simulación ---- */
+const CONCL = [
+  ["Optimización de recursos", "Comparten una línea de transmisión: menos cableado y menor costo en tarjetas PCB y redes.",
+    `<path class="w" d="M8 14C60 14 70 50 112 50M8 38C60 38 70 50 112 50M8 62C60 62 70 50 112 50M8 86C60 86 70 50 112 50"/><path class="w v1" d="M112 50H172"/><circle class="pin one" cx="172" cy="50" r="8"/>`],
+  ["Síntesis universal", "Un MUX implementa cualquier función booleana sin minimizar antes por Karnaugh.",
+    `<path class="gate" d="M8 14h22a14 14 0 0 1 0 28H8z"/><path class="gate" d="M8 58h22a14 14 0 0 1 0 28H8z"/><text x="70" y="58" class="t-mini">=</text><polygon class="blk" points="100,12 150,30 150,70 100,88"/><path class="w v1" d="M150 50H176"/>`],
+  ["Versatilidad industrial", "Adquisición de datos (ADC), telecomunicaciones (TDM) y procesadores (ALU).",
+    `<g class="tags3"><rect x="4" y="8" width="80" height="36" rx="8"/><text x="44" y="33">ADC</text><rect x="96" y="8" width="80" height="36" rx="8"/><text x="136" y="33">TDM</text><rect x="50" y="56" width="80" height="36" rx="8"/><text x="90" y="81">ALU</text></g>`]
+];
+CAR.mux.push({
+  title: "Conclusiones",
+  notes: "Conclusiones (las presenta Ana). 1) Optimización de recursos: el MUX y el DEMUX permiten que varias señales compartan una misma línea de transmisión, lo que reduce el cableado y el costo en tarjetas PCB y en redes. 2) Síntesis universal: un MUX puede reemplazar una red de compuertas, porque implementa cualquier función booleana sin minimizarla antes (lo comprobamos con F(A,B,C) = Σm(1,3,6,7)). 3) Versatilidad industrial: son indispensables en adquisición de datos (ADC), telecomunicaciones (TDM) y en la arquitectura de los procesadores (ALU). En una frase: el MUX decide qué información pasa; el DEMUX decide hacia dónde se dirige. Toquen una tarjeta para destacarla.",
+  build(el) {
+    el.innerHTML = `<div class="col-text">
+        <p class="chip"><b>MUX</b>Conclusiones · Ana</p>
+        <h2>Lo que nos <em>llevamos</em></h2>
+        <p class="lede">El MUX decide <b>qué</b> información pasa; el DEMUX decide <b>hacia dónde</b> se dirige.</p>
+      </div>
+      <div class="fig concl-cards">${CONCL.map(([t, d, ic], i) => `<article class="concl-card" role="button" tabindex="0" style="--i:${i}">
+          <svg class="fig concl-ic" viewBox="0 0 180 100" aria-hidden="true">${ic}</svg>
+          <div><p class="concl-n">0${i + 1}</p><h3>${t}</h3><p>${d}</p></div>
+        </article>`).join("")}</div>`;
+    const cards = $$(".concl-card", el);
+    cards.forEach(c => tap(c, () => cards.forEach(x => x.classList.toggle("on", x === c && !c.classList.contains("on")))));
+    onStation(el, () => { el.classList.remove("shown"); void el.offsetWidth; el.classList.add("shown"); });
+  }
+});
+
+const REFS = [
+  ["Floyd, T. L. (2006).", "Fundamentos de sistemas digitales", "(9.ª ed.). Pearson Educación."],
+  ["Mano, M. M., & Ciletti, M. D. (2013).", "Diseño digital", "(5.ª ed.). Pearson Educación."],
+  ["Tocci, R. J., Widmer, N. S., & Moss, G. L. (2007).", "Sistemas digitales: principios y aplicaciones", "(10.ª ed.). Pearson Prentice Hall."],
+  ["Wakerly, J. F. (2006).", "Digital design: Principles and practices", "(4th ed.). Pearson Prentice Hall."],
+  ["Roth, C. H., & Kinney, L. L. (2014).", "Fundamentals of logic design", "(7th ed.). Cengage Learning."]
+];
+CAR.mux.push({
+  title: "Referencias bibliográficas",
+  notes: "Referencias en formato APA. Floyd, Tocci y Mano/Ciletti son los textos base del curso para MUX, DEMUX, cascada y síntesis de funciones con MUX; Wakerly cubre los circuitos integrados comerciales (como el 74x151 y el 74x153) y Roth y Kinney la implementación de funciones con multiplexores.",
+  build(el) {
+    el.innerHTML = `<div class="col-text slim">
+        <p class="chip"><b>MUX</b>Referencias · Carlos</p>
+        <h2>Referencias <em>bibliográficas</em></h2>
+        <p class="lede">Cinco fuentes, en formato APA.</p>
+      </div>
+      <ol class="fig refs">${REFS.map(([a, t, e]) => `<li>${a} <i>${t}</i> ${e}</li>`).join("")}</ol>`;
+  }
+});
+
+CAR.mux.push({
+  title: "Ejemplo resuelto y simulación",
+  notes: "Ejemplo resuelto (lo presenta Carlos): F(A,B,C) = Σm(1,3,6,7) con un MUX 4:1. A y B van a la selección (S1 = A, S0 = B). Para AB = 00 la función vale 0 con C = 0 y 1 con C = 1, así que I0 = C; para AB = 01 pasa lo mismo, I1 = C; para AB = 10 vale 0 siempre, I2 = 0; para AB = 11 vale 1 siempre, I3 = 1. Un solo MUX reemplaza al circuito F = A'C + AB. La simulación en Python (simulacion/mux_funcion.py) recorre las 8 combinaciones: la tabla de la terminal muestra que el MUX y las compuertas coinciden en las 8, y en los trenes de pulso la curva del MUX (roja punteada) queda encima de la de compuertas (azul). Estas capturas son el respaldo por si falla la ejecución en vivo. Toquen «Tabla» o «Pulsos» para cambiar de captura.",
+  build(el) {
+    el.innerHTML = shell("mux", 3, "Simulación", "Ejemplo <em>resuelto</em>",
+      `F = Σm(1, 3, 6, 7) con un MUX 4:1: ${sub("S", 1)} = A, ${sub("S", 0)} = B.`, {
+        extra: `<ul class="map-in">${[["I", 0, "C"], ["I", 1, "C"], ["I", 2, "0"], ["I", 3, "1"]].map(([v, i, x]) => `<li>${sub(v, i)} = <b>${x}</b></li>`).join("")}</ul>
+          <p class="readout">Python: <b>8 de 8</b> combinaciones coinciden</p>`,
+        ctrl: seg("Captura", [["pulsos", "Pulsos"], ["tabla", "Tabla"]], "pulsos"),
+        fig: `<figure class="fig sim-shot"><img src="assets/simulacion/pulsos.png" alt="Trenes de pulso de A, B, C y F: la salida del MUX coincide con la función en las 8 combinaciones" decoding="async">
+          <figcaption>Captura de respaldo · simulacion/mux_funcion.py</figcaption></figure>${secretBtn()}`
+      });
+    const img = $(".sim-shot img", el), ALT = {
+      pulsos: "Trenes de pulso de A, B, C y F: la salida del MUX coincide con la función en las 8 combinaciones",
+      tabla: "Tabla de verdad impresa en la terminal: F esperada, F con compuertas y F con MUX coinciden en las 8 filas"
+    };
+    bindSeg(el, v => { img.src = `assets/simulacion/${v}.png`; img.alt = ALT[v]; });
   }
 });
 
