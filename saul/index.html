@@ -1,0 +1,1624 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Codificadores y Decodificadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Concepto: banco de laboratorio de noche. Pistas de PCB con pulsos de señal al fondo, un color de acento por integrante (cian, violeta, verde, rosa) y ámbar para el nivel lógico alto. Escenario 1280x720 escalado. */
+:root{
+  --bg:#070e12; --panel:#0e1920; --panel2:#142630; --line:#27424c; --ink:#e0edf0; --mute:#86a1aa;
+  --hi:#ffb02e; --lo:#3b5560; --cy:#46d6c8; --vi:#a78bfa; --pk:#ff7ab6; --gn:#7be495; --bl:#5aa9ff; --red:#ff6b5e;
+  --k0:#ffb02e; --k1:#46d6c8; --k2:#ff7ab6; --k3:#7be495; --k4:#a78bfa; --k5:#5aa9ff; --k6:#ff8a5c; --k7:#e6e86a;
+  --ac:#46d6c8;
+  --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#app{position:fixed;inset:0;display:grid;place-items:center;padding:0 6px 58px;z-index:1;touch-action:pan-y}
+#stage{width:1280px;height:720px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;display:none;background:rgba(7,14,19,.66);
+  border:1px solid color-mix(in srgb,var(--ac) 38%,var(--line));border-radius:10px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 0 40px color-mix(in srgb,var(--ac) 14%,transparent),inset 0 0 60px rgba(0,0,0,.35)}
+.slide.on{display:block;animation:enter .55s cubic-bezier(.2,.8,.2,1);z-index:2}
+.slide.on.in-f{animation:inF .65s cubic-bezier(.16,.84,.24,1)}
+.slide.on.in-b{animation:inB .65s cubic-bezier(.16,.84,.24,1)}
+.slide.out-f,.slide.out-b{display:block;pointer-events:none;z-index:1}
+.slide.out-f{animation:outF .5s cubic-bezier(.5,0,.8,.4) forwards}
+.slide.out-b{animation:outB .5s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes inF{from{opacity:0;transform:translateX(9%) scale(.96);filter:blur(8px) brightness(1.6)}to{opacity:1;transform:none;filter:none}}
+@keyframes inB{from{opacity:0;transform:translateX(-9%) scale(.96);filter:blur(8px) brightness(1.6)}to{opacity:1;transform:none;filter:none}}
+@keyframes outF{to{opacity:0;transform:translateX(-9%) scale(.96);filter:blur(8px)}}
+@keyframes outB{to{opacity:0;transform:translateX(9%) scale(.96);filter:blur(8px)}}
+.slide.drag{animation:none!important;transition:none!important}
+.slide.snap{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
+#sweep{position:absolute;top:0;bottom:0;left:0;width:18%;z-index:5;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--sw,#46d6c8) 35%,transparent) 55%,var(--sw,#46d6c8) 99%,transparent);mix-blend-mode:screen;filter:blur(1px)}
+#sweep.go{animation:sweep .7s cubic-bezier(.4,0,.2,1)}
+#sweep.go.rev{animation:sweepR .7s cubic-bezier(.4,0,.2,1)}
+@keyframes sweep{0%{left:-18%;opacity:0}20%{opacity:.9}100%{left:100%;opacity:0}}
+@keyframes sweepR{0%{left:100%;opacity:0;transform:scaleX(-1)}20%{opacity:.9}100%{left:-18%;opacity:0;transform:scaleX(-1)}}
+@keyframes enter{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.slide::before{content:"";position:absolute;inset:0;background-image:radial-gradient(color-mix(in srgb,var(--ac) 40%,var(--line)) 1px,transparent 1.2px);background-size:32px 32px;opacity:.28;pointer-events:none}
+.slide::after{content:"";position:absolute;inset:9px;pointer-events:none;opacity:.75;
+  background:
+   linear-gradient(var(--ac),var(--ac)) 0 0/22px 2px,linear-gradient(var(--ac),var(--ac)) 0 0/2px 22px,
+   linear-gradient(var(--ac),var(--ac)) 100% 0/22px 2px,linear-gradient(var(--ac),var(--ac)) 100% 0/2px 22px,
+   linear-gradient(var(--ac),var(--ac)) 0 100%/22px 2px,linear-gradient(var(--ac),var(--ac)) 0 100%/2px 22px,
+   linear-gradient(var(--ac),var(--ac)) 100% 100%/22px 2px,linear-gradient(var(--ac),var(--ac)) 100% 100%/2px 22px;
+  background-repeat:no-repeat}
+.hd{position:absolute;left:40px;right:40px;top:24px;display:flex;align-items:baseline;gap:18px;z-index:1;padding-bottom:12px}
+.hd::before{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1px;background:color-mix(in srgb,var(--ac) 30%,transparent)}
+.hd::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,transparent 0,var(--ac) 12%,#fff 18%,var(--ac) 24%,transparent 36%) 0 0/300% 100% no-repeat;animation:scan 4.2s linear infinite;filter:drop-shadow(0 0 4px var(--ac))}
+@keyframes scan{from{background-position:140% 0}to{background-position:-40% 0}}
+.hd h2{margin:0;font-size:38px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.tag{font-family:var(--mono);font-size:12.5px;color:var(--ac);text-transform:uppercase;letter-spacing:.14em;white-space:nowrap;padding:3px 9px;border:1px solid color-mix(in srgb,var(--ac) 50%,transparent);border-radius:4px;background:color-mix(in srgb,var(--ac) 10%,transparent)}
+.body{position:absolute;left:34px;right:34px;top:88px;bottom:44px;display:grid;grid-template-columns:4.6fr 7.4fr;gap:30px;z-index:1;align-items:center}
+.body.wide{grid-template-columns:1fr}
+.body.even{grid-template-columns:1fr 1fr}
+.txt{display:flex;flex-direction:column;gap:12px;min-width:0;font-size:20px;line-height:1.45}
+.txt ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.txt li{padding:8px 12px 8px 22px;position:relative;background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 9%,transparent),transparent 85%);border-radius:4px}
+.txt li::before{content:"";position:absolute;left:6px;top:50%;width:7px;height:7px;margin-top:-3px;border-radius:2px;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+.txt b{color:#fff;font-weight:600}
+.txt li b{color:color-mix(in srgb,var(--ac) 55%,#fff)}
+.viz svg{max-height:540px}
+.viz{min-width:0;display:flex;flex-direction:column;gap:10px;justify-content:center}
+svg{display:block;width:100%;height:auto;overflow:visible}
+code,.m{font-family:var(--mono);font-size:.92em}
+.eq{font-family:var(--mono);background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 14%,var(--panel2)),var(--panel2));border:1px solid var(--line);border-left:3px solid var(--ac);padding:10px 14px;font-size:17px;line-height:1.55;border-radius:4px}
+.note{border:1px solid var(--hi);color:#ffe2b0;background:rgba(255,176,46,.08);padding:10px 14px;font-size:18px;border-radius:4px;line-height:1.4;box-shadow:0 0 18px rgba(255,176,46,.08)}
+.who,.num{position:absolute;bottom:13px;z-index:2;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.who{left:30px;color:var(--ac);padding:3px 10px 3px 22px;border:1px solid color-mix(in srgb,var(--ac) 50%,transparent);border-radius:10px;background:rgba(0,0,0,.35)}
+.who::before{content:"";position:absolute;left:8px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac);animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.num{right:30px;color:var(--mute)}
+/* partes del circuito */
+.g{fill:var(--panel2);stroke:var(--ink);stroke-width:2}
+.g.ga{fill:rgba(90,169,255,.18);stroke:#8cc4ff}
+.g.go{fill:rgba(167,139,250,.18);stroke:#bba9ff}
+.g.gn{fill:rgba(255,122,182,.16);stroke:#ff9bc9}
+.chip{fill:color-mix(in srgb,var(--ac) 8%,var(--panel2));stroke:var(--ac);stroke-width:2;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--ac) 35%,transparent))}
+.w{fill:none;stroke:var(--lo);stroke-width:2.4;stroke-linejoin:round}
+.w[data-v="1"]{stroke:var(--hi);stroke-dasharray:7 5;animation:flow .6s linear infinite;filter:drop-shadow(0 0 3px rgba(255,176,46,.55))}
+.w.inv[data-v="1"]{stroke:var(--pk);filter:drop-shadow(0 0 3px rgba(255,122,182,.55))}
+.w.k1[data-v="1"]{stroke:var(--k1);filter:drop-shadow(0 0 3px var(--k1))}.w.k2[data-v="1"]{stroke:var(--k2);filter:drop-shadow(0 0 3px var(--k2))}
+.w.k3[data-v="1"]{stroke:var(--k3);filter:drop-shadow(0 0 3px var(--k3))}.w.k4[data-v="1"]{stroke:var(--k4);filter:drop-shadow(0 0 3px var(--k4))}
+.w.k5[data-v="1"]{stroke:var(--k5);filter:drop-shadow(0 0 3px var(--k5))}.w.k6[data-v="1"]{stroke:var(--k6);filter:drop-shadow(0 0 3px var(--k6))}
+.w.k7[data-v="1"]{stroke:var(--k7);filter:drop-shadow(0 0 3px var(--k7))}
+.w.s{stroke-width:1.6}
+@keyframes flow{to{stroke-dashoffset:-12}}
+.led{fill:#1d1710;stroke:var(--lo);stroke-width:2}
+.led[data-v="1"]{fill:var(--hi);stroke:#fff3d6;filter:drop-shadow(0 0 8px var(--hi))}
+.led.cy[data-v="1"]{fill:var(--cy);filter:drop-shadow(0 0 8px var(--cy));stroke:#d8fffb}
+.led.k1[data-v="1"]{fill:var(--k1);filter:drop-shadow(0 0 8px var(--k1))}.led.k2[data-v="1"]{fill:var(--k2);filter:drop-shadow(0 0 8px var(--k2))}
+.led.k3[data-v="1"]{fill:var(--k3);filter:drop-shadow(0 0 8px var(--k3))}.led.k4[data-v="1"]{fill:var(--k4);filter:drop-shadow(0 0 8px var(--k4))}
+.led.k5[data-v="1"]{fill:var(--k5);filter:drop-shadow(0 0 8px var(--k5))}.led.k6[data-v="1"]{fill:var(--k6);filter:drop-shadow(0 0 8px var(--k6))}
+.led.k7[data-v="1"]{fill:var(--k7);filter:drop-shadow(0 0 8px var(--k7))}
+.node{fill:var(--ink)}
+.tx{font-family:var(--mono);font-size:15px;fill:var(--ink)}
+.tx.m{fill:var(--mute)} .tx.c{fill:var(--ac)} .tx.h{fill:var(--hi)}
+.tx.b{font-weight:600} .tx.l{font-size:17px}
+.tx[data-v="1"]{fill:var(--hi)}
+.box{fill:var(--panel2);stroke:var(--line);stroke-width:1.5}
+.seg{fill:#16262c}
+.seg[data-v="1"]{fill:var(--hi);filter:drop-shadow(0 0 7px var(--hi))}
+/* interruptores tipo palanca */
+.sws{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{font-family:var(--mono);font-size:15px;color:var(--ink);background:linear-gradient(#142630,#0b171d);border:1px solid var(--line);border-radius:9px;padding:6px 11px 6px 7px;cursor:pointer;display:flex;gap:9px;align-items:center;min-height:40px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);transition:border-color .2s,box-shadow .2s,transform .08s}
+.sw:hover{border-color:var(--sc)}
+.sw:active{transform:translateY(1px)}
+.sw kbd{font-family:var(--mono);font-size:10.5px;color:var(--mute);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;line-height:16px;background:#091218}
+.sw .tg{width:36px;height:20px;border-radius:10px;background:#050c10;border:1px solid var(--line);position:relative;transition:background .2s,border-color .2s}
+.sw .kn{position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:#4a6670;transition:left .18s,background .18s,box-shadow .18s}
+.sw i{font-style:normal;min-width:14px;text-align:center;font-weight:600;color:var(--mute)}
+.sw[data-v="1"]{border-color:color-mix(in srgb,var(--sc) 65%,var(--line));box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),0 0 14px color-mix(in srgb,var(--sc) 30%,transparent)}
+.sw[data-v="1"] .tg{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 24%,#050c10)}
+.sw[data-v="1"] .kn{left:19px;background:var(--sc);box-shadow:0 0 9px var(--sc)}
+.sw[data-v="1"] i{color:var(--sc)}
+.sw:focus-visible,.kb:focus-visible,.fc:focus-visible,#ticks button:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+/* tablas */
+table.tt{border-collapse:collapse;font-family:var(--mono);font-size:17px;width:100%}
+.tt.sm td,.tt.sm th{padding:2px 6px;font-size:15px}
+.tt th{background:#0a151a;color:var(--ac);font-weight:500;padding:5px 8px;border:1px solid var(--line)}
+.tt td{padding:5px 8px;border:1px solid var(--line);text-align:center;color:var(--mute)}
+.tt tr.on td{background:rgba(255,176,46,.16);color:#fff}
+.tt tr.on td.o{color:var(--hi);font-weight:600}
+.tt td.o{color:var(--ink)}
+.tt tr{transition:background .2s}
+/* aparición automática de los recuadros */
+.st{transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1),filter .5s}
+body:not(.scroll) .st.hid{opacity:0;transform:translateY(14px);filter:blur(4px);pointer-events:none}
+/* dock de control */
+#dock{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:14px;background:rgba(8,17,22,.86);border:1px solid color-mix(in srgb,var(--cy) 30%,var(--line));backdrop-filter:blur(8px);box-shadow:0 0 22px rgba(70,214,200,.12),0 8px 28px rgba(0,0,0,.5);z-index:6;max-width:calc(100vw - 16px)}
+.kb{width:42px;height:36px;display:grid;place-items:center;border-radius:9px;border:1px solid var(--line);background:linear-gradient(#17303b,#0c1a21);color:var(--ink);cursor:pointer;padding:0;box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07);transition:border-color .15s,color .15s,box-shadow .15s,transform .08s}
+.kb:hover{border-color:var(--cy);color:var(--cy);box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 0 14px rgba(70,214,200,.35)}
+.kb:active{transform:translateY(2px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.4)}
+.kb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kb[aria-pressed="true"]{color:var(--hi);border-color:var(--hi);box-shadow:0 0 16px rgba(255,176,46,.4)}
+.kb.big{width:50px}
+#ticks{display:flex;gap:3px;align-items:center;padding:0 4px}
+#ticks button{width:8px;height:20px;border:0;padding:0;border-radius:2px;background:var(--tc);opacity:.32;cursor:pointer;transition:opacity .2s,height .2s,box-shadow .2s}
+#ticks button:hover{opacity:.8}
+#ticks button.cur{opacity:1;height:30px;box-shadow:0 0 10px var(--tc)}
+#ctr{font-family:var(--mono);font-size:12px;color:var(--mute);min-width:52px;text-align:center}
+#ctr b{color:#fff;font-weight:600}
+#bar{position:fixed;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--cy),var(--vi),var(--gn),var(--pk));width:0;z-index:7;transition:width .4s;box-shadow:0 0 10px var(--cy)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:linear-gradient(180deg,color-mix(in srgb,var(--cc,var(--ac)) 10%,var(--panel2)),var(--panel2));border:1px solid var(--line);border-top:3px solid var(--cc,var(--ac));border-radius:6px;padding:14px 16px}
+.card h4{margin:0 0 6px;font-size:21px;color:#fff}
+.card p{margin:0;font-size:17px;color:var(--mute);line-height:1.4}
+.fc{background:linear-gradient(180deg,color-mix(in srgb,var(--cc,var(--ac)) 10%,var(--panel2)),var(--panel2));border:1px solid var(--line);border-left:4px solid var(--cc,var(--ac));border-radius:6px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.4;min-height:132px;transition:border-color .2s,box-shadow .2s}
+.fc:hover{box-shadow:0 0 18px color-mix(in srgb,var(--cc,var(--ac)) 35%,transparent)}
+.fc b{display:block;color:#fff;margin-bottom:6px}
+.fc span{display:none;color:var(--mute);font-size:14.5px}
+.fc[aria-pressed="true"]{border-color:var(--hi)}
+.fc[aria-pressed="true"] span{display:block}
+.hint{font-family:var(--mono);font-size:12.5px;color:var(--mute)}
+/* modo lectura en pantallas angostas */
+body.scroll{overflow:auto}
+body.scroll #app{position:static;display:block;padding:16px}
+body.scroll #stage{width:100%;max-width:100%;overflow-x:hidden;height:auto;transform:none!important}
+body.scroll .slide{position:relative;display:block;margin-bottom:20px;padding:18px 16px 52px;overflow:hidden;animation:none}
+body.scroll .hd,body.scroll .body{position:static}
+body.scroll .hd{flex-direction:column;gap:6px;margin-bottom:12px}
+body.scroll .hd h2{font-size:24px}
+body.scroll .body,body.scroll .body.even{display:flex;flex-direction:column;gap:16px}
+body.scroll .txt{font-size:16px}
+body.scroll #dock{display:none}
+body.scroll .txt,body.scroll .viz{width:100%;min-width:0;max-width:100%}
+body.scroll table.tt{display:block;overflow-x:auto;max-width:100%}
+body.scroll svg{max-width:100%!important}
+body.scroll .cards{grid-template-columns:1fr!important}
+body.scroll [style*="grid-template-columns:210px"],body.scroll [style*="grid-template-columns:6fr"],body.scroll [style*="grid-template-columns:1fr 1fr"],body.scroll [style*="grid-template-columns:repeat"]{grid-template-columns:1fr!important}
+body.scroll [style*="position:absolute"]{position:static!important;padding:12px 0!important}
+body.scroll h1{font-size:40px!important}
+body.scroll .eq{overflow-x:auto}
+body.scroll .who,body.scroll .num{bottom:12px}
+@media (prefers-reduced-motion:reduce){.w[data-v="1"],.hd::after,.who::before{animation:none}.st,.slide.on{transition:none;animation:none}}
+
+.team{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.tm{display:flex;flex-direction:column;gap:2px;padding:8px 14px;border-left:3px solid var(--cc);background:linear-gradient(90deg,color-mix(in srgb,var(--cc) 14%,transparent),transparent);border-radius:3px}
+.tm span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cc)}
+.tm b{font-size:17px;font-weight:600;color:#fff}
+.pn{font-family:var(--mono);font-size:14px;letter-spacing:.04em;margin-top:10px}
+.who b{font-weight:600;color:#fff;letter-spacing:.06em}
+/* transiciones: variantes */
+.slide.on.in-z{animation:inZ .7s cubic-bezier(.16,.84,.24,1)}
+.slide.out-z{display:block;pointer-events:none;z-index:1;animation:outZ .55s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes inZ{from{opacity:0;transform:scale(1.12);filter:blur(10px) brightness(1.8)}to{opacity:1;transform:none;filter:none}}
+@keyframes outZ{to{opacity:0;transform:scale(.9);filter:blur(10px)}}
+.slide.on.in-c{animation:inC .8s cubic-bezier(.3,.6,.2,1)}
+.slide.out-c{display:block;pointer-events:none;z-index:1;animation:outC .6s ease-in forwards}
+@keyframes inC{from{clip-path:circle(0% at 50% 50%);filter:brightness(2)}to{clip-path:circle(75% at 50% 50%);filter:none}}
+@keyframes outC{to{opacity:0;transform:scale(.97)}}
+.slide.on.in-f .hd,.slide.on.in-b .hd,.slide.on.in-z .hd,.slide.on.in-c .hd{animation:hdIn .7s .1s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes hdIn{from{opacity:0;transform:translateY(-16px);letter-spacing:.08em}to{opacity:1;transform:none}}
+.slide.on.in-f .viz,.slide.on.in-b .viz,.slide.on.in-z .viz,.slide.on.in-c .viz{animation:vzIn .8s .2s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes vzIn{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+#banner{position:absolute;inset:0;z-index:8;display:grid;place-items:center;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at center,rgba(5,10,14,.92),rgba(5,10,14,.78))}
+#banner.go{animation:bn 1.7s ease both}
+@keyframes bn{0%{opacity:0}14%,72%{opacity:1}100%{opacity:0}}
+#banner .bi{text-align:center;border-top:2px solid var(--bc);border-bottom:2px solid var(--bc);padding:24px 70px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--bc) 14%,transparent),transparent)}
+#banner .b1{font-family:var(--mono);font-size:18px;letter-spacing:.35em;text-transform:uppercase;color:var(--bc)}
+#banner .b2{font-size:60px;font-weight:700;letter-spacing:-.01em;margin:8px 0 4px;color:#fff;text-shadow:0 0 30px var(--bc)}
+#banner .b3{font-size:22px;color:var(--mute)}
+#banner.go .bi{animation:bi 1.7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes bi{0%{transform:scaleX(.4);letter-spacing:.3em}25%{transform:none}100%{transform:scale(1.04)}}
+.tt.big td,.tt.big th{padding:6px 8px;font-size:18px}
+.tt tbody tr.on td{color:#fff}
+tr.live td{border-top:2px solid var(--ac);background:rgba(70,214,200,.07);color:#fff;font-weight:600}
+tr.live td.o{color:var(--hi)}
+tr.live.bad td{background:rgba(255,92,92,.14)}
+tr.live.bad td.o{color:#ff8a8a}
+tr.live.none td.o{color:var(--mute)}
+
+/* ===== v9: más color y movimiento ===== */
+:root{--ac2:#5aa9ff}
+.slide[data-sec="1"]{--ac2:#5aa9ff}.slide[data-sec="2"]{--ac2:#ff7ab6}.slide[data-sec="3"]{--ac2:#46d6c8}.slide[data-sec="4"]{--ac2:#ffb02e}
+.hd h2{background:linear-gradient(100deg,#fff 0%,#fff 38%,color-mix(in srgb,var(--ac) 70%,#fff) 55%,var(--ac2) 78%,#fff 100%);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 7s ease-in-out infinite}
+@keyframes shimmer{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.tag{background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 14%,transparent),color-mix(in srgb,var(--ac2) 14%,transparent));box-shadow:0 0 12px color-mix(in srgb,var(--ac) 25%,transparent)}
+.hd::after{background:linear-gradient(90deg,var(--ac),var(--ac2),transparent)!important}
+.txt li{background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 13%,transparent),color-mix(in srgb,var(--ac2) 5%,transparent) 60%,transparent 92%);border-left:2px solid color-mix(in srgb,var(--ac) 55%,transparent);transition:transform .25s,background .25s}
+.txt li:hover{transform:translateX(5px)}
+.txt li::before{background:linear-gradient(135deg,var(--ac),var(--ac2));animation:bul 2.6s ease-in-out infinite}
+@keyframes bul{50%{transform:scale(1.35);box-shadow:0 0 14px var(--ac2)}}
+.eq{background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 16%,var(--panel2)),color-mix(in srgb,var(--ac2) 8%,var(--panel2)) 70%,var(--panel2));border-left-color:var(--ac)}
+/* llegada de cada recuadro */
+.st.pop{animation:pop .9s cubic-bezier(.2,.9,.25,1.2)}
+@keyframes pop{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ac) 80%,transparent);transform:translateY(14px) scale(.96)}
+  35%{box-shadow:0 0 28px 2px color-mix(in srgb,var(--ac) 55%,transparent)}
+  100%{box-shadow:0 0 0 0 transparent;transform:none}}
+/* puertas con respiración de color */
+.g.ga{animation:gl1 4s ease-in-out infinite}.g.go{animation:gl2 4.6s ease-in-out infinite}.g.gn{animation:gl3 3.6s ease-in-out infinite}
+@keyframes gl1{50%{filter:drop-shadow(0 0 6px rgba(90,169,255,.6));fill:rgba(90,169,255,.28)}}
+@keyframes gl2{50%{filter:drop-shadow(0 0 6px rgba(167,139,250,.6));fill:rgba(167,139,250,.28)}}
+@keyframes gl3{50%{filter:drop-shadow(0 0 6px rgba(255,122,182,.6));fill:rgba(255,122,182,.26)}}
+.chip{animation:chipg 5s ease-in-out infinite}
+@keyframes chipg{50%{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--ac) 60%,transparent))}}
+/* LED y segmentos: halo que late */
+.led[data-v="1"],.seg[data-v="1"]{animation:halo 1.6s ease-in-out infinite}
+@keyframes halo{50%{filter:drop-shadow(0 0 15px currentColor) brightness(1.18)}}
+.led[data-v="1"]{color:var(--hi)}.led.k1[data-v="1"]{color:var(--k1)}.led.k2[data-v="1"]{color:var(--k2)}.led.k3[data-v="1"]{color:var(--k3)}
+.led.k4[data-v="1"]{color:var(--k4)}.led.k5[data-v="1"]{color:var(--k5)}.led.k6[data-v="1"]{color:var(--k6)}.led.k7[data-v="1"]{color:var(--k7)}
+.seg[data-v="1"]{color:var(--hi)}
+.w[data-v="1"]{animation:flow .5s linear infinite,wpulse 1.4s ease-in-out infinite}
+@keyframes wpulse{50%{stroke-width:3.2}}
+/* tablas: la fila activa destella con el color del integrante */
+.tt tr.on td{background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 22%,transparent),rgba(255,176,46,.2));animation:rowf .55s ease-out}
+@keyframes rowf{0%{filter:brightness(2.2)}100%{filter:none}}
+.tt th{background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 14%,#0a151a),#0a151a)}
+/* tarjetas */
+.card,.fc{transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+.card:hover,.fc:hover{transform:translateY(-4px);box-shadow:0 10px 28px color-mix(in srgb,var(--cc,var(--ac)) 28%,transparent)}
+.card::after,.fc::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:sheen 6s ease-in-out infinite;pointer-events:none}
+@keyframes sheen{0%,55%{left:-60%}100%{left:130%}}
+.who,.tm{transition:box-shadow .3s}
+.tm{background:linear-gradient(90deg,color-mix(in srgb,var(--cc) 20%,transparent),transparent);animation:tmf 4s ease-in-out infinite}
+@keyframes tmf{50%{box-shadow:0 0 16px color-mix(in srgb,var(--cc) 35%,transparent)}}
+/* interruptor: onda al pulsar */
+.sw{position:relative}
+.sw.tick::after{content:"";position:absolute;inset:-2px;border-radius:11px;border:2px solid var(--sc);animation:rip .55s ease-out forwards;pointer-events:none}
+@keyframes rip{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.28)}}
+.sw[data-v="1"] .tg{background:linear-gradient(90deg,color-mix(in srgb,var(--sc) 10%,#050c10),color-mix(in srgb,var(--sc) 40%,#050c10))}
+/* portada y marco */
+h1{background:linear-gradient(100deg,#fff,color-mix(in srgb,var(--ac) 60%,#fff) 40%,var(--ac2) 70%,#fff);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 8s ease-in-out infinite}
+.slide{box-shadow:0 0 0 1px rgba(0,0,0,.4),0 0 46px color-mix(in srgb,var(--ac) 18%,transparent),0 0 90px color-mix(in srgb,var(--ac2) 8%,transparent),inset 0 0 60px rgba(0,0,0,.35)}
+#bar{background:linear-gradient(90deg,var(--cy),var(--vi),var(--pk),var(--hi),var(--gn))}
+#ticks button.cur{box-shadow:0 0 12px var(--tc)}
+@media (prefers-reduced-motion:reduce){.hd h2,h1,.txt li::before,.g,.chip,.card::after,.fc::after,.tm,.led[data-v="1"],.seg[data-v="1"],.st.pop,.tt tr.on td{animation:none!important}}
+
+/* ===== v10: transiciones ===== */
+.slide.on.in-s{animation:inS .55s .32s cubic-bezier(.2,.8,.2,1) backwards}
+.slide.out-s{display:block;pointer-events:none;z-index:1;animation:outS .02s .32s forwards}
+@keyframes inS{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+@keyframes outS{to{opacity:0}}
+.slide.on.in-g{animation:inG .6s steps(1,end) both,inGs .6s ease-out both}
+.slide.out-g{display:block;pointer-events:none;z-index:1;animation:outG .3s steps(1,end) forwards}
+@keyframes inG{0%{opacity:0}12%{opacity:1;transform:translateX(-10px);clip-path:inset(8% 0 62% 0);filter:hue-rotate(80deg) saturate(2)}
+  26%{transform:translateX(12px);clip-path:inset(58% 0 6% 0);filter:hue-rotate(-70deg) saturate(2)}
+  40%{transform:translateX(-5px);clip-path:inset(0);filter:hue-rotate(40deg)}
+  54%{transform:translateX(4px);clip-path:inset(30% 0 30% 0);filter:none}
+  70%{transform:none;clip-path:inset(0);filter:brightness(1.5)}100%{transform:none;clip-path:inset(0);filter:none}}
+@keyframes inGs{from{opacity:.4}to{opacity:1}}
+@keyframes outG{0%{opacity:1;transform:translateX(8px);filter:hue-rotate(-60deg)}50%{opacity:.5;transform:translateX(-10px);clip-path:inset(40% 0 20% 0)}100%{opacity:0}}
+/* paralaje: el título y el circuito se mueven a distinta velocidad */
+.slide.out-f .viz{animation:pxO .5s cubic-bezier(.5,0,.8,.4) forwards}.slide.out-f .hd{animation:pxH .5s cubic-bezier(.5,0,.8,.4) forwards}
+.slide.out-b .viz{animation:pxOb .5s cubic-bezier(.5,0,.8,.4) forwards}.slide.out-b .hd{animation:pxHb .5s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes pxO{to{transform:translateX(-90px);opacity:0}}@keyframes pxH{to{transform:translateX(-30px);opacity:0}}
+@keyframes pxOb{to{transform:translateX(90px);opacity:0}}@keyframes pxHb{to{transform:translateX(30px);opacity:0}}
+.slide.on.in-f .viz{animation:vzInF .85s .12s cubic-bezier(.16,.84,.24,1) backwards}
+.slide.on.in-b .viz{animation:vzInB .85s .12s cubic-bezier(.16,.84,.24,1) backwards}
+@keyframes vzInF{from{opacity:0;transform:translateX(80px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes vzInB{from{opacity:0;transform:translateX(-80px) scale(.97)}to{opacity:1;transform:none}}
+/* persiana de barras */
+#shutter{position:absolute;inset:0;z-index:7;display:flex;pointer-events:none;overflow:hidden}
+#shutter i{flex:1;transform:scaleY(0);transform-origin:top;background:linear-gradient(180deg,var(--s1),var(--s2));box-shadow:0 0 18px var(--s1);margin-right:-1px}
+#shutter.go i{animation:shut .72s calc(var(--i)*10ms) cubic-bezier(.65,0,.35,1) forwards}
+@keyframes shut{0%{transform:scaleY(0);transform-origin:top}34%{transform:scaleY(1);transform-origin:top}66%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+</style>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="bar"></div>
+<div id="app"><div id="stage"></div></div>
+<div id="dock" role="toolbar" aria-label="Controles de la presentación">
+  <button class="kb" id="pv" type="button" aria-label="Diapositiva anterior" title="Anterior (←)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="kb big" id="nx" type="button" aria-label="Diapositiva siguiente" title="Siguiente (→ o espacio)"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div id="ticks" role="group" aria-label="Ir a una diapositiva"></div>
+  <span id="ctr"></span>
+  <button class="kb" id="au" type="button" aria-pressed="false" aria-label="Avance automático" title="Avance automático (A)"><svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg></button>
+  <button class="kb" id="fs" type="button" aria-label="Pantalla completa" title="Pantalla completa (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+<script>
+// ===== Ayudas de dibujo y de lógica =====
+const SL = [];
+const S = o => SL.push(o);
+const $ = (el, q) => el.querySelector(q);
+const $$ = (el, q) => [...el.querySelectorAll(q)];
+
+// Compuertas (x,y = borde izquierdo, centro vertical)
+const G = {
+  and: (x, y) => `<path class="g ga" d="M${x} ${y-20}H${x+22}A20 20 0 0 1 ${x+22} ${y+20}H${x}Z"/>`,                 // salida x+42
+  nand: (x, y) => G.and(x, y) + `<circle class="g ga" cx="${x+46}" cy="${y}" r="4"/>`,                                // salida x+50
+  or: (x, y) => `<path class="g go" d="M${x} ${y-20}Q${x+16} ${y} ${x} ${y+20}Q${x+34} ${y+20} ${x+50} ${y}Q${x+34} ${y-20} ${x} ${y-20}Z"/>`, // salida x+50
+  not: (x, y) => `<path class="g gn" d="M${x} ${y-13}L${x+26} ${y}L${x} ${y+13}Z"/><circle class="g gn" cx="${x+30}" cy="${y}" r="4"/>`, // salida x+34
+};
+// Cable con nombre (se enciende con V(el,'nombre',1))
+const P = (n, d, c = '') => {
+  let x = c; const m = n.match(/^y(\d+)$/);
+  if (m) x += ' k' + (m[1] % 8); else if (/^n[abc]$/.test(n)) x += ' inv';
+  return `<path class="w ${x}" data-w="${n}" data-v="0" d="${d}"/>`;
+};
+const T = (x, y, s, c = '', a = 'start') => `<text class="tx ${c}" x="${x}" y="${y}" text-anchor="${a}">${s}</text>`;
+const D = (x, y) => `<circle class="node" cx="${x}" cy="${y}" r="3.5"/>`;
+const LED = (n, x, y, c = '') => {
+  if (!c) { const m = n.match(/(\d+)$/); if (m) c = 'k' + (m[1] % 8); }
+  return `<circle class="led ${c}" data-w="${n}" data-v="0" cx="${x}" cy="${y}" r="10"/>`;
+};
+const SVG = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" role="img">${inner}</svg>`;
+
+// Asigna valor a todo lo que tenga data-w="nombre" (cables, LED, segmentos, textos)
+function V(el, n, v) {
+  v = v ? 1 : 0;
+  $$(el, `[data-w="${n}"]`).forEach(e => {
+    e.dataset.v = v;
+    if (e.classList.contains('val')) e.textContent = v;
+  });
+}
+// Resalta una fila de una tabla de verdad
+function HR(el, sel, i) {
+  $$(el, sel + ' tbody tr').forEach((r, k) => r.classList.toggle('on', k === i));
+}
+// Genera una tabla de verdad. cols: ['A','B',...]; rows: arreglo de arreglos; nOut = cuántas columnas finales son salidas
+function TT(cols, rows, nOut, cls = '') {
+  const h = cols.map(c => `<th>${c}</th>`).join('');
+  const b = rows.map(r => '<tr>' + r.map((v, i) => `<td class="${i >= r.length - nOut ? 'o' : ''}">${v}</td>`).join('') + '</tr>').join('');
+  return `<table class="tt ${cls}"><thead><tr>${h}</tr></thead><tbody>${b}</tbody></table>`;
+}
+const bits = (n, w) => Array.from({ length: w }, (_, i) => (n >> (w - 1 - i)) & 1);
+// Interruptores: <div class="sws" data-k="A:0,B:0,E:1"></div>
+const SWS = k => `<div class="sws" data-k="${k}"></div>`;
+const STEP = (n, html, tag = 'div', cls = '') => `<${tag} class="st ${cls}" data-s="${n}">${html}</${tag}>`;
+// Cabecera del CI en forma de patillas
+function PINS(el_x, y0, labels, side, pitch = 26, w = 120) {
+  return labels.map((t, i) => {
+    const y = y0 + i * pitch;
+    return side === 'l'
+      ? `<line class="w s" x1="${el_x - 26}" y1="${y}" x2="${el_x}" y2="${y}"/>${T(el_x - 32, y + 5, t, '', 'end')}`
+      : `<line class="w s" x1="${el_x + w}" y1="${y}" x2="${el_x + w + 26}" y2="${y}"/>${T(el_x + w + 32, y + 5, t)}`;
+  }).join('');
+}
+
+// Integrantes del grupo
+const TEAM = [
+  { n: 1, name: 'Katherine Sevillano', topic: 'Introducción', c: '#46d6c8' },
+  { n: 2, name: 'Juan Rubio', topic: 'Decodificadores', c: '#a78bfa' },
+  { n: 3, name: 'David Ruiz', topic: 'Codificadores', c: '#7be495' },
+  { n: 4, name: 'Saúl Magallón', topic: 'Aplicaciones y cierre', c: '#ff7ab6' },
+];
+const TEAMROW = () => `<div class="team">${TEAM.map(m => `<div class="tm" style="--cc:${m.c}"><span>Integrante ${m.n}</span><b>${m.name}</b></div>`).join('')}</div>`;
+// ===== Decodificador 2 a 4 reutilizable =====
+function DEC24(withE) {
+  const ys = [215, 265, 315, 365];
+  const rows = [['na', 'nb'], ['na', 'b'], ['a', 'nb'], ['a', 'b']];
+  const bx = { a: 150, na: 190, b: 230, nb: 270 };
+  let s = '';
+  s += P('a', 'M40 50H150') + P('a', 'M150 50V380') + P('a', 'M90 50V90H100') + D(90, 50);
+  s += G.not(100, 90) + P('na', 'M134 90H190') + P('na', 'M190 90V380');
+  s += P('b', 'M40 140H230') + P('b', 'M230 140V380') + P('b', 'M120 140V180H130') + D(120, 140);
+  s += G.not(130, 180) + P('nb', 'M164 180H270') + P('nb', 'M270 180V380');
+  if (withE) s += P('e', 'M40 195H310') + P('e', 'M310 195V380');
+  s += T(30, 55, 'A', 'c b l', 'end') + T(30, 145, 'B', 'c b l', 'end');
+  if (withE) s += T(30, 200, 'E', 'c b l', 'end');
+  rows.forEach(([p, q], k) => {
+    const y = ys[k];
+    s += P(p, `M${bx[p]} ${y-12}H340`) + P(q, `M${bx[q]} ${y}H340`) + D(bx[p], y - 12) + D(bx[q], y);
+    if (withE) s += P('e', `M310 ${y+12}H340`) + D(310, y + 12);
+    s += G.and(340, y) + P('y' + k, `M382 ${y}H500`) + LED('y' + k, 512, y) + T(536, y + 5, 'Y' + k, 'b l');
+  });
+  return SVG(580, 400, s);
+}
+function dec24upd(s, st) {
+  const A = st.A, B = st.B, E = 'E' in st ? st.E : 1;
+  V(s, 'a', A); V(s, 'na', !A); V(s, 'b', B); V(s, 'nb', !B); V(s, 'e', E);
+  const k = A * 2 + B;
+  for (let i = 0; i < 4; i++) V(s, 'y' + i, E && i === k);
+  if ($(s, '.tt')) HR(s, '.tt', s._o.hasE ? (E ? k + 1 : 0) : k);
+}
+
+// ===== 1. Portada =====
+S({
+  raw: true,
+  html: `<div style="position:absolute;inset:0;z-index:1;padding:70px 60px;display:grid;grid-template-columns:6fr 6fr;gap:20px;align-items:center">
+    <div>
+      <div class="tag" style="margin-bottom:18px">Circuitos lógicos electrónicos</div>
+      <h1 style="margin:0;font-size:68px;line-height:1.02;font-weight:700;letter-spacing:-.02em">Codificadores y decodificadores</h1>
+      <p style="font-size:22px;color:var(--mute);margin:22px 0 0;max-width:520px;line-height:1.4">Del código binario a las líneas de control, con circuitos que puedes accionar.</p>
+      <p class="hint" style="margin-top:34px">Exposición grupal | Prueba parcial | Octubre 2026<br>Navega con las flechas, la barra espaciadora o arrastrando</p>${TEAMROW()}
+    </div>
+    <div class="viz">${DEC24(false)}</div></div>`,
+  init(s) {
+    const st = { A: 0, B: 0 }; let n = 0;
+    const go = () => { st.A = (n >> 1) & 1; st.B = n & 1; dec24upd(s, st); n = (n + 1) % 4; };
+    go(); setInterval(go, 1400);
+  },
+});
+
+// ===== 2. Contenido =====
+S({
+  t: 'Contenido', tag: 'Introducción', cls: 'wide',
+  html: `<div style="display:flex;flex-direction:column;gap:18px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    ${[['1', 'Fundamentos', 'Circuitos combinacionales, idea de codificar y decodificar, usos y diferencias', '#46d6c8'],
+       ['2', 'Decodificadores', '2 a 4, 3 a 8, Enable, activas en alto y bajo, 74LS138 y 74LS139, expansión a 4 a 16', '#a78bfa'],
+       ['3', 'Codificadores', '4 a 2 y 8 a 3 con tablas, el problema de la prioridad, 74LS148 y teclado', '#7be495'],
+       ['4', 'Aplicaciones y cierre', 'BCD a 7 segmentos, memorias, demostración, sumador completo y cierre', '#ff7ab6']]
+      .map((c, i) => STEP(i + 1, `<div class="card" style="--cc:${c[3]};padding:22px 24px;min-height:150px"><div class="tag" style="font-size:14px;color:${c[3]};border-color:${c[3]}">Integrante ${c[0]}</div><div class="pn" style="color:${c[3]}">${TEAM[i].name}</div><h4 style="font-size:24px;margin:6px 0 8px">${c[1]}</h4><p style="font-size:17px">${c[2]}</p></div>`)).join('')}
+    </div>${STEP(5, '<p class="hint">Los circuitos se accionan con los interruptores: pulsa sobre ellos o usa las teclas 1 a 9. Flechas o espacio para avanzar, A para avance automático, F para pantalla completa.</p>')}</div>`,
+});
+
+// ===== 3. Combinacional =====
+S({
+  t: 'Circuitos combinacionales', tag: 'Fundamentos',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'La salida depende <b>solo de las entradas actuales</b>', 'li')}
+    ${STEP(2, 'Sin memoria ni realimentación (a diferencia de flip-flops y contadores)', 'li')}
+    ${STEP(3, 'Se describen con <b>tabla de verdad</b>, ecuación booleana y diagrama lógico', 'li')}
+    ${STEP(4, 'Cada compuerta tiene un retardo <code>t<sub>pd</sub></code> (74LS: unos 10 ns) y trabaja con niveles TTL: <b>0 ≤ 0,8 V</b> y <b>1 ≥ 2,0 V</b>', 'li')}</ul>
+    ${STEP(4, '<div class="eq">Y = A · B<br>Y(t) = f( A(t), B(t) )</div>')}
+    </div>
+    <div class="viz">${SWS('A:0,B:0')}
+    ${SVG(560, 200, P('a', 'M60 98H140') + P('b', 'M60 122H140') + G.and(140, 110) +
+      P('y', 'M182 110H420') + LED('y', 440, 110) + T(50, 103, 'A', 'c b l', 'end') + T(50, 127, 'B', 'c b l', 'end') + T(470, 116, 'Y', 'b l') +
+      T(140, 60, 'compuerta AND', 'm') + T(280, 170, 'La salida sigue a las entradas con un retardo t_pd', 'm', 'middle'))}
+    ${TT(['A', 'B', 'Y'], [[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 1]], 1)}</div>`,
+  upd(s, st) { V(s, 'a', st.A); V(s, 'b', st.B); V(s, 'y', st.A & st.B); HR(s, '.tt', st.A * 2 + st.B); },
+});
+
+// ===== 5. Idea central: codificar y decodificar =====
+S({
+  t: 'Codificar y decodificar: la idea central', tag: 'Fundamentos', cls: 'wide',
+  html: `<div class="viz" style="gap:6px">
+    <div class="hint">Pulsa una tecla. El codificador la convierte en 3 bits y el decodificador vuelve a activar esa línea.</div>
+    ${(() => {
+      let s = '';
+      for (let i = 0; i < 8; i++) {
+        const y = 14 + i * 40;
+        s += `<g class="key" data-i="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="Tecla ${i}"><rect class="box" data-w="k${i}" x="20" y="${y}" width="80" height="30" rx="3"/>${T(60, y + 20, 'Tecla ' + i, 'b', 'middle')}</g>`;
+        s += P('k' + i, `M100 ${y+15}H190`);
+        s += P('l' + i, `M690 ${y+15}H760`) + LED('l' + i, 782, y + 15) + T(808, y + 20, 'L' + i, 'b');
+      }
+      s += `<rect class="chip" x="190" y="6" width="130" height="328"/>` + T(255, 170, 'CODIFICADOR', 'c b', 'middle') + T(255, 192, '8 a 3', 'm', 'middle');
+      s += `<rect class="chip" x="560" y="6" width="130" height="328"/>` + T(625, 170, 'DECODIFICADOR', 'c b', 'middle') + T(625, 192, '3 a 8', 'm', 'middle');
+      [['c2', 110, 'A2'], ['c1', 170, 'A1'], ['c0', 230, 'A0']].forEach(([n, y, l]) => {
+        s += P(n, `M320 ${y}H560`) + T(440, y - 8, l, 'm', 'middle');
+      });
+      s += T(440, 270, 'bus de 3 bits', 'c', 'middle') + `<text id="cd" class="tx h b" x="440" y="304" text-anchor="middle" style="font-size:26px">000</text>`;
+      return SVG(840, 340, s).replace("<svg ", "<svg style=\"max-height:470px;margin:0 auto\" ");
+    })()}
+    </div>
+    <div class="note" style="margin-top:6px">Son operaciones inversas: 8 líneas se comprimen en 3, y 3 líneas se expanden otra vez a 8.</div>`,
+  init(s) {
+    let n = 0, auto = true;
+    const set = i => {
+      n = i;
+      for (let k = 0; k < 8; k++) { V(s, 'k' + k, k === i); V(s, 'l' + k, k === i); }
+      V(s, 'c2', i & 4); V(s, 'c1', i & 2); V(s, 'c0', i & 1);
+      $(s, '#cd').textContent = bits(i, 3).join('');
+    };
+    $$(s, '.key').forEach(g => {
+      const f = () => { auto = false; set(+g.dataset.i); };
+      g.onclick = f; g.onkeydown = e => { if (e.key === 'Enter') f(); };
+    });
+    set(0); setInterval(() => { if (auto) set((n + 1) % 8); }, 1300);
+  },
+});
+
+// ===== 6. Aplicaciones =====
+S({
+  t: 'Dónde se usan', tag: 'Fundamentos', cls: 'wide',
+  html: `<div class="cards" style="grid-template-columns:repeat(3,1fr);align-content:start;gap:18px">
+    ${[['Teclados', 'Un codificador convierte la tecla pulsada en un código para el procesador.', '74LS148'],
+       ['Memorias', 'El decodificador de direcciones elige qué chip responde (señal CS).', '74LS138'],
+       ['Displays', 'BCD a siete segmentos para mostrar dígitos con LED.', '7447 / 7448'],
+       ['Buses y periféricos', 'Selecciona a qué dispositivo de entrada/salida va dirigido el dato.', '74LS139'],
+       ['Microprocesadores', 'Decodificación de instrucciones y mapa de direcciones.', 'interno'],
+       ['Control industrial', 'Elegir un motor, relé o válvula entre muchos con pocas líneas.', '74LS154']]
+      .map((c, i) => STEP(Math.floor(i / 2) + 1, `<div class="card" style="min-height:190px;padding:20px"><h4 style="font-size:24px">${c[0]}</h4><p style="font-size:17px">${c[1]}</p><p class="m" style="margin-top:14px;color:var(--cy);font-family:var(--mono);font-size:15px">${c[2]}</p></div>`)).join('')}
+    </div>`,
+});
+
+// ===== 30. Comparación =====
+S({
+  t: 'Codificador frente a decodificador', tag: 'Fundamentos', cls: 'wide',
+  html: `<div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:grid;grid-template-columns:210px 1fr 1fr;gap:10px;font-family:var(--mono);font-size:14px;color:var(--cy)"><span></span><span>CODIFICADOR</span><span>DECODIFICADOR</span></div>
+    ${[['Entradas', '2ⁿ líneas (una activa a la vez)', 'n líneas (código binario)'],
+       ['Salidas', 'n líneas (código binario)', 'Hasta 2ⁿ líneas (una activa)'],
+       ['Función', 'Convierte una línea activa en su código', 'Activa la línea que corresponde al código'],
+       ['Compuertas', 'OR (con prioridad: OR y AND)', 'AND / NAND con inversores'],
+       ['Complicación típica', 'Entradas simultáneas: prioridad', 'Salidas activas en bajo y Enable'],
+       ['CI comerciales', '74LS148, 74LS147', '74LS138, 74LS139, 7447, 7448'],
+       ['Aplicaciones', 'Teclados, interrupciones, sensores', 'Memorias, displays, demultiplexado']]
+      .map((r, i) => STEP(Math.floor(i / 2) + 1, `<div style="display:grid;grid-template-columns:210px 1fr 1fr;gap:10px"><div class="card" style="background:transparent;border-color:transparent;padding:12px 4px;font-weight:600;color:#fff;font-size:17px">${r[0]}</div><div class="card" style="padding:12px 16px;font-size:16.5px">${r[1]}</div><div class="card" style="padding:12px 16px;font-size:16.5px">${r[2]}</div></div>`)).join('')}
+    ${STEP(4, '<div class="note">Son operaciones inversas: el codificador reduce líneas a código; el decodificador expande código a líneas.</div>')}</div>`,
+});
+
+
+// ===== 7. Decodificador: definición, 2^n =====
+S({
+  t: 'Decodificador: n entradas, hasta 2ⁿ salidas', tag: 'Decodificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Circuito combinacional con <b>n entradas</b> y hasta <b>2<sup>n</sup> salidas</b>', 'li')}
+    ${STEP(2, 'Para cada código se activa <b>una sola salida</b> (un minitérmino)', 'li')}
+    ${STEP(3, 'Casi siempre trae una o más entradas de habilitación (Enable)', 'li')}
+    ${STEP(4, 'Tipos: binario completo (2 a 4, 3 a 8, 4 a 16), BCD a decimal (7442) y BCD a 7 segmentos (7447, 7448)', 'li')}</ul>
+    ${STEP(2, '<div class="note">Analogía: el timbre de un edificio. Marcas el apartamento (código) y suena solo ese timbre.</div>')}
+    </div>
+    <div class="viz"><div class="hint">Cada entrada adicional duplica las salidas</div>
+    ${(() => {
+      let s = '';
+      [[1, 2], [2, 4], [3, 8], [4, 16], [5, 32]].forEach(([n, o], i) => {
+        const y = 14 + i * 64;
+        s += T(10, y + 30, 'n = ' + n, 'b l') + `<rect class="box bar" data-w="${o}" x="110" y="${y}" width="${o * 13}" height="44" rx="3" style="transition:width .8s ${i * .12}s"/>` +
+          `<rect fill="#ffb02e" opacity=".75" x="110" y="${y}" width="${o * 13}" height="44" rx="3" class="gr" data-w2="${o}"/>` + T(120 + o * 13, y + 30, o + ' salidas', 'h b l');
+      });
+      return SVG(720, 340, s);
+    })()}
+    </div>`,
+  enter(s) {
+    $$(s, '.gr').forEach(r => { const w = +r.dataset.w2 * 13; r.setAttribute('width', 0); r.style.transition = 'width .9s'; setTimeout(() => r.setAttribute('width', w), 80); });
+  },
+});
+
+// ===== 8. Decodificador 2 a 4 =====
+S({
+  t: 'Decodificador 2 a 4', tag: 'Decodificadores', hasE: false,
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Dos entradas, <b>A (MSB)</b> y <b>B (LSB)</b>; cuatro salidas', 'li')}
+    ${STEP(2, 'Cada salida es un minitérmino y se implementa con una <b>AND</b> de 2 entradas', 'li')}
+    ${STEP(2, 'Hardware: <b>2 inversores + 4 AND</b>', 'li')}</ul>
+    ${STEP(2, '<div class="eq">Y0 = A\'·B\'<br>Y1 = A\'·B<br>Y2 = A·B\'<br>Y3 = A·B</div>')}
+    ${TT(['A', 'B', 'Y0', 'Y1', 'Y2', 'Y3'], [0, 1, 2, 3].map(k => [...bits(k, 2), ...[0, 1, 2, 3].map(j => +(j === k))]), 4)}
+    </div>
+    <div class="viz">${SWS('A:0,B:0')}${DEC24(false)}</div>`,
+  upd: dec24upd,
+});
+
+// ===== 9. Enable =====
+S({
+  t: 'Entrada de habilitación (Enable)', tag: 'Decodificadores', hasE: true,
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Con <b>E = 0</b> el decodificador se apaga: ninguna salida se activa', 'li')}
+    ${STEP(2, 'Con <b>E = 1</b> funciona normalmente: <code>Yi = E · mi</code>', 'li')}
+    ${STEP(3, 'Sirve para ampliar decodificadores y elegir un chip entre varios', 'li')}
+    ${STEP(4, 'Si E es una línea de datos, el circuito es un <b>demultiplexor</b>: lleva el dato a la salida elegida por A y B', 'li')}</ul>
+    ${TT(['E', 'A', 'B', 'Y0', 'Y1', 'Y2', 'Y3'], [[0, 'X', 'X', 0, 0, 0, 0], ...[0, 1, 2, 3].map(k => [1, ...bits(k, 2), ...[0, 1, 2, 3].map(j => +(j === k))])], 4)}
+    </div>
+    <div class="viz">${SWS('E:1,A:0,B:0')}${DEC24(true)}</div>`,
+  upd: dec24upd,
+});
+// ===== Compuerta AND de 3 entradas, compacta =====
+const AND3 = (x, y) => `<path class="g ga" d="M${x} ${y-16}H${x+18}A16 16 0 0 1 ${x+18} ${y+16}H${x}Z"/>`; // salida x+34
+
+// ===== Decodificador 3 a 8 a nivel de compuertas =====
+function DEC38() {
+  let s = '';
+  const rx = { a: 90, na: 150, b: 210, nb: 270, c: 330, nc: 390 };
+  [['a', 'na', 'A'], ['b', 'nb', 'B'], ['c', 'nc', 'C']].forEach(([p, q, L]) => {
+    const x = rx[p], xn = rx[q];
+    s += P(p, `M${x} 26V384`) + P(q, `M${xn} 54V384`) + P(p, `M${x} 54H${x+8}`) + D(x, 54) + G.not(x + 8, 54) + P(q, `M${x+42} 54H${xn}`);
+    s += T(x, 14, L, 'c b l', 'middle') + T(xn, 14, L + "'", 'm', 'middle');
+  });
+  for (let k = 0; k < 8; k++) {
+    const y = 110 + k * 38, b = bits(k, 3);
+    const names = [b[0] ? 'a' : 'na', b[1] ? 'b' : 'nb', b[2] ? 'c' : 'nc'];
+    names.forEach((n, i) => { const yy = y - 8 + i * 8; s += P(n, `M${rx[n]} ${yy}H430`) + D(rx[n], yy); });
+    s += AND3(430, y) + P('y' + k, `M464 ${y}H540`) + LED('y' + k, 554, y, '') + T(578, y + 5, 'Y' + k, 'b');
+  }
+  return SVG(620, 400, s);
+}
+function dec38upd(s, st) {
+  const k = st.A * 4 + st.B * 2 + st.C;
+  V(s, 'a', st.A); V(s, 'na', !st.A); V(s, 'b', st.B); V(s, 'nb', !st.B); V(s, 'c', st.C); V(s, 'nc', !st.C);
+  for (let i = 0; i < 8; i++) V(s, 'y' + i, i === k);
+  HR(s, '.tt', k);
+}
+
+// ===== 10. Decodificador 3 a 8 =====
+S({
+  t: 'Decodificador 3 a 8', tag: 'Decodificadores',
+  html: `<div class="txt" style="gap:8px;font-size:17px">
+    <ul>${STEP(1, '<b>3 entradas</b> (A es el MSB) y 2³ = <b>8 salidas</b>', 'li')}
+    ${STEP(2, 'Hardware: <b>8 AND de 3 entradas + 3 inversores</b>', 'li')}</ul>
+    ${STEP(2, '<div class="eq" style="font-size:14.5px;padding:6px 12px">Y0 = A\'B\'C\'   Y4 = AB\'C\'<br>Y1 = A\'B\'C    Y5 = AB\'C<br>Y2 = A\'BC\'    Y6 = ABC\'<br>Y3 = A\'BC     Y7 = ABC</div>')}
+    ${TT(['A', 'B', 'C', ...[0,1,2,3,4,5,6,7].map(i => 'Y' + i)], [0,1,2,3,4,5,6,7].map(k => [...bits(k, 3), ...[0,1,2,3,4,5,6,7].map(j => +(j === k))]), 8, 'sm')}
+    </div>
+    <div class="viz" style="gap:8px">${SWS('A:0,B:0,C:0')}${DEC38()}</div>`,
+  upd: dec38upd,
+});
+
+// ===== 11. Activas en alto vs bajo =====
+S({
+  t: 'Salidas activas en alto y activas en bajo', tag: 'Decodificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, '<b>Activa en alto</b>: la salida elegida vale 1 y las demás 0 (se hace con AND)', 'li')}
+    ${STEP(2, '<b>Activa en bajo</b>: la elegida vale 0 y las demás 1 (se hace con NAND)', 'li')}
+    ${STEP(3, 'El apóstrofo o la barra sobre el nombre (Y0\') indica activa en bajo', 'li')}</ul>
+    ${STEP(2, '<div class="eq">Alto: Y0 = A\'·B\'<br>Bajo: Y0\' = (A\'·B\')\' = A + B</div>')}
+    ${STEP(3, '<div class="note">En TTL conviene activa en bajo: una salida en 0 puede hundir unos 8 mA y encender un LED o habilitar un chip de memoria (CS\').</div>')}
+    </div>
+    <div class="viz">${SWS('A:0,B:0')}
+    <div class="hint">Nivel de voltaje en cada salida y qué línea está “activa”</div>
+    ${(() => {
+      let s = '';
+      [['Alto', 'h', 20], ['Bajo', 'l', 175]].forEach(([nm, p, y0]) => {
+        s += T(10, y0 + 6, 'Activa en ' + nm.toLowerCase(), 'c b l');
+        for (let k = 0; k < 4; k++) {
+          const x = 30 + k * 150; 
+          s += `<rect class="box" x="${x}" y="${y0+20}" width="125" height="96" rx="3"/>` + T(x + 62, y0 + 44, 'Y' + k + (p === 'l' ? "'" : ''), 'b l', 'middle') +
+            `<text class="tx val b" data-w="${p}${k}" data-v="0" x="${x+62}" y="${y0+86}" text-anchor="middle" style="font-size:38px">0</text>` + LED(p + 'a' + k, x + 62, y0 + 104, '', 'cy').replace('r="10"', 'r="7"');
+        }
+      });
+      return SVG(630, 330, s);
+    })()}
+    ${TT(['A', 'B', 'Y0', 'Y1', 'Y2', 'Y3', "Y0'", "Y1'", "Y2'", "Y3'"], [0,1,2,3].map(k => [...bits(k, 2), ...[0,1,2,3].map(j => +(j === k)), ...[0,1,2,3].map(j => +(j !== k))]), 8, 'sm')}
+    </div>`,
+  upd(s, st) {
+    const k = st.A * 2 + st.B;
+    for (let i = 0; i < 4; i++) {
+      V(s, 'h' + i, i === k); V(s, 'l' + i, i !== k);
+      V(s, 'ha' + i, i === k); V(s, 'la' + i, i === k);
+    }
+    HR(s, '.tt', k);
+  },
+});
+
+// ===== 12. 74LS138 =====
+S({
+  t: 'CI 74LS138: decodificador 3 a 8', tag: 'Decodificadores',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, 'Entradas de selección <b>A, B, C</b> (C es el MSB) y 8 salidas <b>activas en bajo</b>', 'li')}
+    ${STEP(2, 'Tres habilitaciones: <b>G1</b> (activa en alto), <b>G2A\'</b> y <b>G2B\'</b> (activas en bajo)', 'li')}
+    ${STEP(3, 'Habilitado solo si <code>G1 = 1, G2A\' = 0 y G2B\' = 0</code>', 'li')}
+    ${STEP(4, 'Si no está habilitado, las 8 salidas quedan en 1', 'li')}
+    ${STEP(4, 'El <b>74LS139</b> es parecido: trae <b>dos decodificadores 2 a 4</b> independientes en un solo CI', 'li')}</ul>
+    ${STEP(3, '<div class="eq">EN = G1 · G2A\' · G2B\'<br>Yk\' = ( EN · mk )\'</div>')}
+    <div class="m" style="font-size:16px" id="info">Estado: habilitado | Y0' = 0</div>
+    </div>
+    <div class="viz" style="gap:8px">${SWS('C:0,B:0,A:0,G1:1,G2A_:0,G2B_:0')}
+    ${(() => {
+      const L = [['A', 1], ['B', 2], ['C', 3], ["G2A'", 4], ["G2B'", 5], ['G1', 6]];
+      const ys = i => 52 + i * 32;
+      let s = `<rect class="chip" x="250" y="20" width="130" height="${8*32+16}"/><path d="M300 20a15 15 0 0 0 30 0" fill="none" stroke="#46d6c8" stroke-width="2"/>` + T(315, 160, '74LS138', 'c b', 'middle');
+      const nm = { A: 'a', B: 'b', C: 'c', "G2A'": 'g2a', "G2B'": 'g2b', G1: 'g1' };
+      L.forEach(([t, p], i) => {
+        s += P(nm[t], `M130 ${ys(i)}H250`) + T(120, ys(i) + 5, t, 'c b', 'end') + T(262, ys(i) + 4, p, 'm');
+      });
+      s += P('g7', `M250 ${ys(6)}H225`).replace('data-w="g7"', 'data-w="x7"');
+      s += T(262, ys(6) + 4, '7', 'm') + T(262, ys(7) + 4, '8', 'm') + T(120, ys(7) + 5, 'GND', 'm', 'end') + P('gnd', `M130 ${ys(7)}H250`);
+      for (let k = 0; k < 7; k++) {
+        const y = ys(k + 1);
+        s += T(368, y + 4, 16 - k - 1 === 15 - k ? String(15 - k) : '', 'm', 'end') + P('o' + k, `M380 ${y}H470`) + LED('s' + k, 490, y, 'cy') + T(512, y + 5, "Y" + k + "'", 'b');
+      }
+      s += T(368, ys(0) + 4, '16', 'm', 'end') + T(448, ys(0) + 5, 'Vcc', 'm') + P('vcc', `M380 ${ys(0)}H440`);
+      // Y7' (pin 7) sale por la izquierda: se redirige abajo
+      s += P('o7', `M250 ${ys(6)}H215V${ys(8)+4}H470`).replace(`M250 ${ys(6)}H215V${ys(8)+4}H470`, `M250 ${ys(6)}H215V${ys(8)+10}H470`);
+      s += LED('s7', 490, ys(8) + 10, 'cy') + T(512, ys(8) + 15, "Y7'", 'b');
+      return SVG(580, 340, s);
+    })()}
+    <div class="hint">Un LED cian se enciende en la salida que está en 0 (la seleccionada). Pin 7 = Y7' sale por abajo.</div></div>`,
+  upd(s, st) {
+    const en = st.G1 && !st.G2A_ && !st.G2B_;
+    const k = st.C * 4 + st.B * 2 + st.A;
+    V(s, 'a', st.A); V(s, 'b', st.B); V(s, 'c', st.C); V(s, 'g1', st.G1); V(s, 'g2a', st.G2A_); V(s, 'g2b', st.G2B_);
+    V(s, 'vcc', 1); V(s, 'x7', 0);
+    for (let i = 0; i < 8; i++) { const sel = en && i === k; V(s, 'o' + i, !sel); V(s, 's' + i, sel); }
+    $(s, '#info').textContent = en ? `Estado: habilitado | Y${k}' = 0, las demás en 1` : 'Estado: deshabilitado | las 8 salidas en 1';
+  },
+});
+// ===== 14. Expansión 4 a 16 =====
+S({
+  t: 'Expansión: decodificador de 4 a 16', tag: 'Decodificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Dos 74LS138 forman un decodificador <b>4 a 16</b>', 'li')}
+    ${STEP(2, 'A, B y C van a los dos CI. <b>D</b> (el MSB) decide cuál se habilita', 'li')}
+    ${STEP(3, '<b>D = 0</b>: trabaja el CI #1 (salidas 0 a 7). D va a G2A\' del CI #1', 'li')}
+    ${STEP(4, '<b>D = 1</b>: trabaja el CI #2 (salidas 8 a 15). D va a G1 del CI #2', 'li')}</ul>
+    <div class="eq" id="exq">Código DCBA = 0000<br>Salida activa: Y0</div>
+    </div>
+    <div class="viz">${SWS('D:0,C:0,B:0,A:0')}
+    ${(() => {
+      let s = '';
+      [['CI #1 (D = 0)', 0, 20], ['CI #2 (D = 1)', 1, 20]].forEach(([t, c, y0]) => {
+        const x0 = 20 + c * 300;
+        s += `<rect class="chip" x="${x0}" y="${y0}" width="260" height="330"/>` + T(x0 + 130, y0 + 26, '74LS138  ' + t, 'c b', 'middle') + `<text class="tx m" data-w="en${c}" x="${x0+130}" y="${y0+48}" text-anchor="middle" id="en${c}">habilitado</text>`;
+        for (let k = 0; k < 8; k++) {
+          const y = y0 + 70 + k * 31, n = c * 8 + k;
+          s += `<rect class="box" data-w="r${n}" x="${x0+20}" y="${y-14}" width="220" height="26" rx="3"/>` + T(x0 + 34, y + 4, 'Y' + k + "'  (salida " + n + ')', '') + LED('l' + n, x0 + 216, y - 1, 'cy').replace('r="10"', 'r="7"');
+        }
+      });
+      return SVG(600, 370, s);
+    })()}</div>`,
+  upd(s, st) {
+    const k = st.D * 8 + st.C * 4 + st.B * 2 + st.A;
+    for (let n = 0; n < 16; n++) { V(s, 'l' + n, n === k); $$(s, `[data-w="r${n}"]`).forEach(r => r.style.stroke = n === k ? '#46d6c8' : ''); }
+    ['en0', 'en1'].forEach((id, c) => { const on = (c === st.D); const e = $(s, '#' + id); e.textContent = on ? 'habilitado' : 'deshabilitado (salidas en 1)'; e.style.fill = on ? '#46d6c8' : '#7f9aa3'; });
+    $(s, '#exq').innerHTML = `Código DCBA = ${[st.D, st.C, st.B, st.A].join('')}<br>Se pone en 0: Y${k % 8}' del CI #${st.D + 1} (salida ${k})`;
+  },
+});
+
+// ===== Matriz OR (codificadores a nivel de compuertas) =====
+// cols: [{n:'A1', rows:[2,3]}, ...]
+function MAT(n, cols, pitch = 44) {
+  const lastY = 30 + (n - 1) * pitch, yb = lastY + 36, cx = c => 250 + c * 110, xe = cx(cols.length - 1) + 50;
+  let s = '';
+  for (let r = 0; r < n; r++) {
+    const y = 30 + r * pitch;
+    s += P('d' + r, `M70 ${y}H${xe}`) + T(60, y + 5, 'D' + r, 'c b', 'end');
+  }
+  cols.forEach((c, i) => {
+    const x = cx(i);
+    s += P('c' + i, `M${x} 30V${yb}`);
+    c.rows.forEach(r => { s += `<rect x="${x-5}" y="${30 + r*pitch - 5}" width="10" height="10" fill="#46d6c8"/>`; });
+    s += `<rect class="box" x="${x-26}" y="${yb}" width="52" height="30" rx="2"/>` + T(x, yb + 20, '≥1', 'b', 'middle');
+    s += P('c' + i, `M${x} ${yb+30}V${yb+60}`) + LED('o' + i, x, yb + 72) + T(x, yb + 104, c.n, 'b l', 'middle');
+  });
+  return SVG(xe + 30, yb + 118, s);
+}
+function matUpd(cols, n, tag) {
+  return (s, st) => {
+    const d = Array.from({ length: n }, (_, r) => st['D' + r] ? 1 : 0);
+    d.forEach((v, r) => V(s, 'd' + r, v));
+    let code = 0;
+    cols.forEach((c, i) => { const o = c.rows.some(r => d[r]) ? 1 : 0; V(s, 'c' + i, o); V(s, 'o' + i, o); code = code * 2 + o; });
+    const act = d.map((v, i) => v ? i : -1).filter(i => i >= 0);
+    const w = cols.length;
+    $(s, '#res').innerHTML = `Entradas activas: <b>${act.length ? act.map(i => 'D' + i).join(', ') : 'ninguna'}</b><br>Código de salida: <b class="h">${code.toString(2).padStart(w, '0')}</b> (${code})`;
+    if (tag) tag(s, d, code, act);
+  };
+}
+
+// ===== 16. Codificador: definición =====
+S({
+  t: 'Codificador: 2ⁿ entradas, n salidas', tag: 'Codificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Circuito combinacional con <b>2<sup>n</sup> entradas</b> y <b>n salidas</b>', 'li')}
+    ${STEP(2, 'Hace lo contrario que el decodificador: entrega el <b>código binario</b> de la entrada activa', 'li')}
+    ${STEP(3, 'Se supone que <b>solo una entrada</b> está activa a la vez', 'li')}
+    ${STEP(4, 'Se construye con <b>compuertas OR</b>. Si pueden activarse varias entradas se necesita <b>prioridad</b>', 'li')}</ul>
+    ${STEP(2, '<div class="note">Analogía: el ascensor. Pulsas el botón del piso 5 y el sistema lo traduce a 101.</div>')}
+    </div>
+    <div class="viz"><div class="hint">Muchas líneas de entrada se reducen a pocas de salida</div>
+    ${(() => {
+      let s = '';
+      [[2, 1], [4, 2], [8, 3], [16, 4]].forEach(([e, o], i) => {
+        const y = 14 + i * 80;
+        s += T(10, y + 32, e + ' a ' + o, 'b l') + `<rect class="gr" data-w2="${e}" fill="#ffb02e" opacity=".8" x="120" y="${y}" width="${e*20}" height="26" rx="3"/>` + T(130 + e * 20, y + 19, e + ' entradas', 'h');
+        s += `<rect class="gr2" data-w2="${o}" fill="#46d6c8" opacity=".85" x="120" y="${y+32}" width="${o*20}" height="26" rx="3"/>` + T(130 + o * 20, y + 51, o + ' salidas', 'c');
+      });
+      return SVG(600, 340, s);
+    })()}</div>`,
+  enter(s) {
+    $$(s, '.gr,.gr2').forEach(r => { const w = +r.dataset.w2 * 20; r.setAttribute('width', 0); r.style.transition = 'width .9s'; setTimeout(() => r.setAttribute('width', w), 80); });
+  },
+});
+
+// ===== 17. Codificador 4 a 2 =====
+const C42 = [{ n: 'A1', rows: [2, 3] }, { n: 'A0', rows: [1, 3] }];
+S({
+  t: 'Codificador 4 a 2', tag: 'Codificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Cuatro entradas D0 a D3 y dos salidas A1, A0', 'li')}
+    ${STEP(2, 'Cada salida es una <b>OR</b> de las entradas cuyo código tiene un 1 en ese bit', 'li')}
+    ${STEP(3, 'D0 no se conecta: su código es 00', 'li')}</ul>
+    ${STEP(2, '<div class="eq">A1 = D2 + D3<br>A0 = D1 + D3</div>')}
+    ${TT(['D3', 'D2', 'D1', 'D0', 'A1', 'A0'], [[0,0,0,1,0,0],[0,0,1,0,0,1],[0,1,0,0,1,0],[1,0,0,0,1,1]], 2, 'sm')}
+    <div class="hint">Las filas iluminadas son las entradas activas. La última fila muestra lo que entrega el circuito con tu selección.</div>
+    <div class="m" id="res" style="font-size:16px"></div></div>
+    <div class="viz">${SWS('D0:1,D1:0,D2:0,D3:0')}<div style="max-width:680px">${MAT(4, C42, 60)}</div>
+    <div class="hint">Cuadrados cian = conexión de la entrada a la OR de esa columna</div></div>`,
+  upd: matUpd(C42, 4, (s, d, code) => {
+    const body = $(s, '.tt tbody');
+    let live = $(s, 'tr.live');
+    if (!live) { live = document.createElement('tr'); live.className = 'live'; live.innerHTML = '<td></td>'.repeat(6); body.appendChild(live); }
+    const rows = $$(s, '.tt tbody tr:not(.live)');
+    const n = d.filter(x => x).length;
+    // se iluminan todas las filas cuyas entradas están activas
+    rows.forEach((r, i) => r.classList.toggle('on', !!d[i]));
+    const vals = [d[3], d[2], d[1], d[0], code >> 1, code & 1];
+    [...live.children].forEach((c, i) => { c.textContent = vals[i]; c.className = i >= 4 ? 'o' : ''; });
+    live.classList.toggle('bad', n > 1);
+    live.classList.toggle('none', n === 0);
+    live.title = n > 1 ? 'Dos o más entradas activas: las OR mezclan los códigos' : '';
+  }),
+});
+
+// ===== 18. Codificador 8 a 3 =====
+const C83 = [{ n: 'A2', rows: [4, 5, 6, 7] }, { n: 'A1', rows: [2, 3, 6, 7] }, { n: 'A0', rows: [1, 3, 5, 7] }];
+S({
+  t: 'Codificador 8 a 3 (octal a binario)', tag: 'Codificadores',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, '8 entradas, 3 salidas: <b>3 OR de 4 entradas</b>', 'li')}
+    ${STEP(2, 'A2 vale 1 si el número es 4 o más; A1 si su bit 1 es 1; A0 si es impar', 'li')}</ul>
+    ${STEP(1, '<div class="eq">A2 = D4+D5+D6+D7<br>A1 = D2+D3+D6+D7<br>A0 = D1+D3+D5+D7</div>')}
+    <div class="m" id="res" style="font-size:16px"></div>
+    <div class="hint">Activa una sola entrada. Luego prueba dos a la vez.</div></div>
+    <div class="viz" style="gap:6px">${SWS('D0:0,D1:0,D2:0,D3:0,D4:0,D5:1,D6:0,D7:0')}<div style="max-width:720px">${MAT(8, C83, 38)}</div></div>`,
+  upd: matUpd(C83, 8),
+});
+
+// ===== 18b. Tabla de verdad del codificador 8 a 3 =====
+S({
+  t: 'Codificador 8 a 3: tabla de verdad', tag: 'Codificadores',
+  html: `<div class="txt" style="font-size:18px">
+    <ul>${STEP(1, 'Solo <b>una entrada</b> vale 1 a la vez; la salida es su <b>número en binario</b>', 'li')}
+    ${STEP(2, 'Cada fila de la tabla es una entrada activa (las demás en 0)', 'li')}
+    ${STEP(3, 'Se leen las columnas con un 1 para obtener las <b>ecuaciones</b>', 'li')}</ul>
+    ${STEP(3, '<div class="eq">A2 = D4 + D5 + D6 + D7<br>A1 = D2 + D3 + D6 + D7<br>A0 = D1 + D3 + D5 + D7</div>')}
+    ${STEP(4, '<div class="note">Las combinaciones con dos o más entradas en 1 no están en la tabla: por eso hace falta un codificador con prioridad.</div>')}
+    <div class="hint">Pulsa una fila para ver su código</div></div>
+    <div class="viz" style="gap:10px">
+      ${TT(['D7', 'D6', 'D5', 'D4', 'D3', 'D2', 'D1', 'D0', 'A2', 'A1', 'A0'], [0,1,2,3,4,5,6,7].map(k => [...[7,6,5,4,3,2,1,0].map(j => +(j === k)), ...bits(k, 3)]), 3, 'big')}
+      <div style="display:flex;align-items:center;gap:18px;justify-content:center"><span class="m" style="color:var(--mute)">Salida</span>
+        <span id="t83" class="m" style="font-size:34px;color:var(--hi);letter-spacing:.2em;font-weight:600">000</span>
+        <span id="t83d" class="m" style="color:var(--mute)">= D0</span></div></div>`,
+  init(s) {
+    let k = 0, auto = true;
+    const set = i => { k = i; HR(s, '.tt', i); const b = bits(i, 3).join(''); $(s, '#t83').textContent = b; $(s, '#t83d').textContent = '= D' + i; };
+    $$(s, '.tt tbody tr').forEach((r, i) => { r.style.cursor = 'pointer'; r.onclick = () => { auto = false; set(i); }; });
+    set(0); setInterval(() => { if (auto) set((k + 1) % 8); }, 1500);
+  },
+});
+
+// ===== 19. Problema del codificador simple =====
+S({
+  t: 'Problema del codificador simple', tag: 'Codificadores',
+  html: `<div class="txt">
+    <ul>${STEP(1, 'Con <b>dos entradas activas</b> las OR mezclan los códigos', 'li')}
+    ${STEP(2, 'Con <b>ninguna</b> activa la salida es 00 y se confunde con D0', 'li')}
+    ${STEP(3, 'En la práctica es común: varias teclas, varias interrupciones', 'li')}</ul>
+    <div class="m" id="res" style="font-size:16px"></div>
+    <div id="warn" class="note"></div>
+    ${STEP(3, '<div class="eq">Solución: codificador con prioridad<br>+ salida V (entrada válida)</div>')}
+    </div>
+    <div class="viz">${SWS('D0:0,D1:1,D2:1,D3:0')}<div style="max-width:680px">${MAT(4, C42, 60)}</div></div>`,
+  upd(s, st) {
+    matUpd(C42, 4, (s2, d, code, act) => {
+      const w = $(s2, '#warn');
+      if (act.length === 0) { w.textContent = 'Ninguna entrada activa: la salida 00 es ambigua (¿D0 o nada?).'; w.style.borderColor = '#ff6b5e'; }
+      else if (act.length > 1) { w.textContent = `Error: con D${act.join(' y D')} activas el codificador entrega ${code.toString(2).padStart(2, '0')}, que corresponde a D${code}.`; w.style.borderColor = '#ff6b5e'; }
+      else { w.textContent = 'Una sola entrada activa: el código es correcto.'; w.style.borderColor = '#7be495'; }
+    })(s, st);
+  },
+});
+
+// ===== 20. Codificador con prioridad 4 a 2 =====
+S({
+  t: 'Codificador con prioridad 4 a 2', tag: 'Codificadores',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, '<b>D3</b> tiene la mayor prioridad y <b>D0</b> la menor', 'li')}
+    ${STEP(2, 'Se codifica solo la entrada de mayor prioridad; las demás no importan (X)', 'li')}
+    ${STEP(3, '<b>V = 1</b> avisa que hay al menos una entrada activa', 'li')}</ul>
+    ${STEP(2, '<div class="eq">A1 = D3 + D2<br>A0 = D3 + D2\'·D1<br>V  = D3 + D2 + D1 + D0</div>')}
+    ${TT(['D3', 'D2', 'D1', 'D0', 'A1', 'A0', 'V'], [[0,0,0,0,'X','X',0],[0,0,0,1,0,0,1],[0,0,1,'X',0,1,1],[0,1,'X','X',1,0,1],[1,'X','X','X',1,1,1]], 3, 'sm')}
+    </div>
+    <div class="viz">${SWS('D3:0,D2:1,D1:1,D0:0')}
+    ${(() => {
+      const rx = { 3: 110, 2: 140, 1: 170, 0: 200 };
+      let s = '';
+      [3, 2, 1, 0].forEach(k => { s += P('d' + k, `M${rx[k]} 26V344`) + T(rx[k], 14, 'D' + k, 'c b', 'middle'); });
+      s += D(140, 150) + P('d2', 'M140 150H150') + G.not(150, 150) + P('n2', 'M184 150H230V218');
+      // A1
+      s += G.or(250, 90) + P('d3', 'M110 80H250') + D(110, 80) + P('d2', 'M140 100H250') + D(140, 100) + P('a1', 'M300 90H430') + LED('a1', 450, 90) + T(476, 96, 'A1', 'b l');
+      // A0
+      s += G.and(270, 210) + P('d1', 'M170 202H270') + D(170, 202) + P('n2', 'M230 218H270') + D(230, 218) + P('t', 'M312 210H325V198H340');
+      s += G.or(340, 190) + P('d3', 'M110 182H340') + D(110, 182) + P('a0', 'M390 190H430') + LED('a0', 450, 190) + T(476, 196, 'A0', 'b l');
+      // V
+      s += `<path class="g go" d="M250 258Q274 310 250 362Q300 362 330 310Q300 258 250 258Z"/>`;
+      [[3, 276], [2, 298], [1, 322], [0, 344]].forEach(([k, y]) => { s += P('d' + k, `M${rx[k]} ${y}H252`) + D(rx[k], y); });
+      s += P('v', 'M330 310H430') + LED('v', 450, 310, 'cy') + T(476, 316, 'V', 'b l');
+      return SVG(540, 370, s);
+    })()}</div>`,
+  upd(s, st) {
+    const d = [st.D0, st.D1, st.D2, st.D3];
+    [0, 1, 2, 3].forEach(k => V(s, 'd' + k, d[k]));
+    const hi = d[3] ? 3 : d[2] ? 2 : d[1] ? 1 : d[0] ? 0 : -1;
+    const a1 = hi >= 2, a0 = hi === 3 || hi === 1, v = hi >= 0;
+    V(s, 'n2', !d[2]); V(s, 't', !d[2] && d[1]); V(s, 'a1', a1); V(s, 'a0', a0); V(s, 'v', v);
+    HR(s, '.tt', hi + 1);
+  },
+});
+// ===== Lógica del 74LS148 (entradas y salidas activas en bajo) =====
+function enc148(I, EI) {
+  if (EI) return { a: [1, 1, 1], gs: 1, eo: 1, hi: -1 };
+  let hi = -1;
+  for (let i = 7; i >= 0; i--) if (!I[i]) { hi = i; break; }
+  if (hi < 0) return { a: [1, 1, 1], gs: 1, eo: 0, hi };
+  return { a: [1 - ((hi >> 2) & 1), 1 - ((hi >> 1) & 1), 1 - (hi & 1)], gs: 0, eo: 1, hi };
+}
+
+// ===== 21. 74LS148 =====
+S({
+  t: 'CI 74LS148: codificador de prioridad 8 a 3', tag: 'Codificadores',
+  html: `<div class="txt" style="font-size:16.5px">
+    <ul>${STEP(1, 'Entradas y salidas <b>activas en bajo</b>. La entrada <b>7\'</b> tiene la mayor prioridad', 'li')}
+    ${STEP(2, '<b>EI\'</b> debe estar en 0 para habilitar el CI', 'li')}
+    ${STEP(3, '<b>GS\' = 0</b>: hay al menos una entrada activa', 'li')}
+    ${STEP(4, '<b>EO\' = 0</b>: habilitado pero sin ninguna entrada activa (sirve para conectar en cascada)', 'li')}
+    ${STEP(4, 'Con dos 74LS148 en cascada (EO\' del alto a EI\' del bajo) se codifican <b>16 entradas</b>', 'li')}</ul>
+    <div class="eq" id="res" style="font-size:15px">Todas las entradas inactivas</div>
+    <div class="hint">Baja varias entradas a 0 (interruptor en 0): gana la de mayor número.</div>
+    </div>
+    <div class="viz" style="gap:6px">${SWS('0_:1,1_:1,2_:1,3_:1,4_:1,5_:0,6_:1,7_:1,EI_:0')}
+    ${(() => {
+      const ys = i => 40 + i * 32;
+      let s = `<rect class="chip" x="250" y="14" width="130" height="270"/><path d="M300 14a15 15 0 0 0 30 0" fill="none" stroke="#46d6c8" stroke-width="2"/>` + T(315, 160, '74LS148', 'c b', 'middle');
+      const L = [['4', 'in', 'i4'], ['5', 'in', 'i5'], ['6', 'in', 'i6'], ['7', 'in', 'i7'], ["EI'", 'in', 'ei'], ["A2'", 'out', 'a2'], ["A1'", 'out', 'a1'], ['GND', 'gnd', 'gnd']];
+      const R = [['Vcc', 'vcc', 'vcc'], ["EO'", 'out', 'eo'], ["GS'", 'out', 'gs'], ['3', 'in', 'i3'], ['2', 'in', 'i2'], ['1', 'in', 'i1'], ['0', 'in', 'i0'], ["A0'", 'out', 'a0']];
+      L.forEach(([t, k, n], i) => {
+        const y = ys(i);
+        s += P(n, `M150 ${y}H250`) + T(262, y + 4, i + 1, 'm');
+        if (k === 'out') s += LED('l' + n, 128, y, 'cy').replace('r="10"', 'r="8"') + T(108, y + 5, t, 'b', 'end');
+        else s += T(138, y + 5, t + (k === 'in' && t !== "EI'" ? "'" : ''), k === 'gnd' ? 'm' : 'c b', 'end');
+      });
+      R.forEach(([t, k, n], i) => {
+        const y = ys(i);
+        s += P(n, `M380 ${y}H480`) + T(368, y + 4, 16 - i, 'm', 'end');
+        if (k === 'out') s += LED('l' + n, 502, y, 'cy').replace('r="10"', 'r="8"') + T(522, y + 5, t, 'b');
+        else s += T(492, y + 5, t + (k === 'in' ? "'" : ''), k === 'vcc' ? 'm' : 'c b');
+      });
+      return SVG(600, 300, s);
+    })()}
+    <div class="hint">LED cian = salida activa (en 0). Los cables ámbar están en nivel alto (1).</div></div>`,
+  upd(s, st) {
+    const I = [0, 1, 2, 3, 4, 5, 6, 7].map(i => st[i + '_']);
+    const r = enc148(I, st.EI_);
+    I.forEach((v, i) => V(s, 'i' + i, v)); V(s, 'ei', st.EI_);
+    V(s, 'vcc', 1); V(s, 'gnd', 0);
+    ['a2', 'a1', 'a0'].forEach((n, k) => { V(s, n, r.a[k]); V(s, 'l' + n, !r.a[k]); });
+    V(s, 'gs', r.gs); V(s, 'lgs', !r.gs); V(s, 'eo', r.eo); V(s, 'leo', !r.eo);
+    const code = r.a.map(b => 1 - b).join('');
+    $(s, '#res').innerHTML = st.EI_ ? 'EI\' = 1: CI deshabilitado, todas las salidas en 1' :
+      r.hi < 0 ? "Sin entradas activas: A2'A1'A0' = 111, GS' = 1, EO' = 0" :
+      `Mayor prioridad: entrada ${r.hi}'<br>Salidas A2'A1'A0' = <b class="h">${r.a.join('')}</b> (código real ${code} = ${r.hi})<br>GS' = 0, EO' = 1`;
+  },
+});
+
+// ===== 23. Teclado =====
+S({
+  t: 'Aplicación: codificar un teclado', tag: 'Codificadores',
+  html: `<div class="txt" style="font-size:16.5px">
+    <ul>${STEP(1, 'Cada tecla va a una entrada del 74LS148 con una <b>resistencia pull-up</b> a +5 V (unos 10 kΩ)', 'li')}
+    ${STEP(2, 'Sin pulsar, la entrada está en 1. Al pulsar, se conecta a tierra y baja a <b>0 V</b> (activa en bajo)', 'li')}
+    ${STEP(3, 'El CI entrega el <b>código de la tecla</b>; si se pulsan dos, gana la de mayor número', 'li')}
+    ${STEP(4, '<b>GS\'</b> avisa al procesador de que hay una tecla pulsada', 'li')}</ul>
+    <div class="eq" id="res" style="font-size:15px">Sin tecla pulsada</div></div>
+    <div class="viz" style="gap:6px">${SWS('T0:0,T1:0,T2:0,T3:0,T4:0,T5:1,T6:0,T7:0')}
+    ${(() => {
+      let s = P('v5', 'M70 20V348') + T(70, 12, '+5 V', 'h b', 'middle');
+      for (let k = 0; k < 8; k++) {
+        const y = 40 + k * 40;
+        s += P('v5', `M70 ${y}H92`) + `<rect class="g" x="92" y="${y-8}" width="34" height="16"/>` + P('n' + k, `M126 ${y}H330`) + D(150, y);
+        s += P('p' + k, `M150 ${y}V${y+16}`, 's') + `<path d="M138 ${y+16}H162M142 ${y+20}H158M146 ${y+24}H154" stroke="#7f9aa3" stroke-width="2"/>`;
+        s += T(184, y - 8, 'T' + k, 'c b') + T(100, y + 24, '10k', 'm', 'start');
+      }
+      s += `<rect class="chip" x="330" y="14" width="110" height="340"/>` + T(385, 190, '74LS148', 'c b', 'middle');
+      [['A2\'', 'a2', 90], ['A1\'', 'a1', 150], ['A0\'', 'a0', 210], ["GS'", 'gs', 290]].forEach(([t, n, y]) => {
+        s += P(n, `M440 ${y}H500`) + LED('l' + n, 520, y, 'cy') + T(544, y + 5, t, 'b');
+      });
+      return SVG(600, 370, s);
+    })()}</div>`,
+  upd(s, st) {
+    const lv = [0, 1, 2, 3, 4, 5, 6, 7].map(i => st['T' + i] ? 0 : 1);
+    lv.forEach((v, i) => { V(s, 'n' + i, v); V(s, 'p' + i, !v); });
+    V(s, 'v5', 1);
+    const r = enc148(lv, 0);
+    ['a2', 'a1', 'a0'].forEach((n, k) => { V(s, n, r.a[k]); V(s, 'l' + n, !r.a[k]); });
+    V(s, 'gs', r.gs); V(s, 'lgs', !r.gs);
+    $(s, '#res').innerHTML = r.hi < 0 ? 'Sin tecla pulsada: GS\' = 1' : `Tecla <b class="h">${r.hi}</b> → A2'A1'A0' = ${r.a.join('')} (código real ${(7 - r.hi).toString(2).padStart(3, '0').replace(/./g, '')}${(r.hi).toString(2).padStart(3, '0')})`.replace(/\(código real .*?\)/, `(código real ${r.hi.toString(2).padStart(3, '0')})`);
+  },
+});
+// ===== Display de 7 segmentos (SVG) =====
+const SEGP = {
+  a: p => `M14 7L21 0H67L74 7L67 14H21Z`, g: p => `M14 80L21 73H67L74 80L67 87H21Z`, d: p => `M14 153L21 146H67L74 153L67 160H21Z`,
+  f: p => `M7 16L14 23V64L7 71L0 64V23Z`, b: p => `M83 16L90 23V64L83 71L76 64V23Z`,
+  e: p => `M7 89L14 96V137L7 144L0 137V96Z`, c: p => `M83 89L90 96V137L83 144L76 137V96Z`,
+};
+const SEG7 = (x, y, k = 1, pre = 's') => `<g transform="translate(${x} ${y}) scale(${k})">` +
+  Object.keys(SEGP).map(n => `<path class="seg" data-w="${pre}${n}" data-v="0" d="${SEGP[n]()}"/>`).join('') + `</g>`;
+const DIG = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'acdefg', 'abc', 'abcdefg', 'abcdfg'];
+function show7(s, n, pre = 's') { 'abcdefg'.split('').forEach(c => V(s, pre + c, n >= 0 && n <= 9 && DIG[n].includes(c))); }
+
+// ===== 24. BCD a 7 segmentos =====
+S({
+  t: 'Decodificador BCD a 7 segmentos', tag: 'Aplicaciones',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, 'Un display tiene <b>7 LED</b> (a a g). El número llega en <b>BCD</b>: 4 bits, de 0000 a 1001', 'li')}
+    ${STEP(2, 'El CI convierte DCBA en las 7 líneas de los segmentos', 'li')}
+    ${STEP(3, '<b>7447</b>: salidas activas en bajo (ánodo común). <b>7448</b>: activas en alto (cátodo común)', 'li')}
+    ${STEP(4, 'Entradas extra: <b>LT\'</b> prueba de lámparas, <b>RBI\'</b> y <b>BI\'/RBO\'</b> borrado de ceros', 'li')}</ul>
+    <div class="eq" id="res" style="font-size:15px"></div></div>
+    <div class="viz" style="gap:6px">${SWS('D:0,C:0,B:1,A:0')}
+    ${(() => {
+      let s = SEG7(50, 30, 1.45) + `<rect class="chip" x="300" y="40" width="130" height="200"/>` + T(365, 130, '7447', 'c b l', 'middle') + T(365, 154, 'BCD a 7 seg.', 'm', 'middle');
+      ['D', 'C', 'B', 'A'].forEach((n, i) => { const y = 70 + i * 40; s += P(n.toLowerCase(), `M250 ${y}H300`) + T(242, y + 5, n, 'c b', 'end'); });
+      'abcdefg'.split('').forEach((c, i) => {
+        const y = 52 + i * 26;
+        s += P('o' + c, `M430 ${y}H490`) + T(502, y + 5, c + "'", 'b') + `<text class="tx val" data-w="o${c}" data-v="0" x="535" y="${y+5}">1</text>`;
+      });
+      return SVG(580, 300, s);
+    })()}
+    <div class="hint">7447: 0 = segmento encendido (ánodo común). Prueba los códigos 0 a 9.</div></div>`,
+  upd(s, st) {
+    const n = st.D * 8 + st.C * 4 + st.B * 2 + st.A;
+    ['d', 'c', 'b', 'a'].forEach((k, i) => V(s, k, [st.D, st.C, st.B, st.A][i]));
+    show7(s, n);
+    'abcdefg'.split('').forEach(c => V(s, 'o' + c, !(n <= 9 && DIG[n].includes(c))));
+    $(s, '#res').innerHTML = n <= 9 ? `BCD ${[st.D, st.C, st.B, st.A].join('')} = <b class="h">${n}</b><br>Salidas a'..g' (7447): 0 = segmento encendido` : `Código ${n.toString(2).padStart(4, '0')} no es BCD: el display queda apagado aquí (el 7447 real muestra un símbolo no numérico)`;
+  },
+});
+
+// ===== 24b. Tabla de verdad BCD a 7 segmentos =====
+S({
+  t: 'BCD a 7 segmentos: tabla de verdad', tag: 'Aplicaciones',
+  html: `<div class="txt" style="font-size:18px">
+    <ul>${STEP(1, 'Entradas <b>D C B A</b> (BCD) y siete salidas <b>a a g</b>', 'li')}
+    ${STEP(2, 'En la tabla, <b>1 = segmento encendido</b>. El 7447 entrega el valor inverso (activo en bajo)', 'li')}
+    ${STEP(3, 'Los códigos <b>1010 a 1111</b> no son dígitos BCD: el CI muestra símbolos raros o apaga el display', 'li')}</ul>
+    ${STEP(3, '<div class="eq" style="font-size:15px">a = D + B + C·A + C\'·A\'<br>(cada segmento se simplifica con un mapa de Karnaugh usando los códigos 10 a 15 como X)</div>')}
+    <div class="hint">Pulsa una fila para verla en el display</div></div>
+    <div class="viz" style="flex-direction:row;align-items:center;gap:20px">
+      <div style="flex:1;min-width:0">${TT(['Nº', 'D', 'C', 'B', 'A', 'a', 'b', 'c', 'd', 'e', 'f', 'g'], [0,1,2,3,4,5,6,7,8,9].map(n => [n, ...bits(n, 4), ...'abcdefg'.split('').map(c => +DIG[n].includes(c))]), 7, 'big')}</div>
+      <div style="flex:none;width:170px"><svg viewBox="0 0 90 160" role="img" style="max-height:300px">${SEG7(0, 0, 1)}</svg></div></div>`,
+  init(s) {
+    let k = 0, auto = true;
+    const set = i => { k = i; HR(s, '.tt', i); show7(s, i); };
+    $$(s, '.tt tbody tr').forEach((r, i) => { r.style.cursor = 'pointer'; r.onclick = () => { auto = false; set(i); }; });
+    set(0); setInterval(() => { if (auto) set((k + 1) % 10); }, 1300);
+  },
+});
+
+// ===== 25. Ánodo común vs cátodo común =====
+S({
+  t: 'Display de ánodo común y de cátodo común', tag: 'Aplicaciones',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, '<b>Ánodo común</b>: los ánodos van a +5 V y el segmento se enciende cuando la salida del decodificador baja a 0 (7447)', 'li')}
+    ${STEP(2, '<b>Cátodo común</b>: los cátodos van a tierra y el segmento se enciende con un 1 (7448)', 'li')}
+    ${STEP(3, 'Cada segmento necesita su <b>resistencia limitadora</b>', 'li')}</ul>
+    ${STEP(3, '<div class="eq" style="font-size:15px">I = (V<sub>CC</sub> − V<sub>F</sub> − V<sub>OL</sub>) / R<br>I = (5 − 2 − 0,5) V / 330 Ω ≈ <b class="h">7,6 mA</b></div>')}
+    ${STEP(4, '<div class="note">El display debe coincidir con el decodificador. Si no, los segmentos salen invertidos.</div>')}</div>
+    <div class="viz" style="gap:6px">${SWS('a:1,b:1,c:0')}<div class="hint">Elige qué segmentos deben encenderse</div>
+    ${(() => {
+      let s = T(150, 18, 'Ánodo común + 7447', 'c b', 'middle') + T(450, 18, 'Cátodo común + 7448', 'c b', 'middle');
+      s += P('vp', 'M30 40H270') + T(18, 45, '+5 V', 'h', 'end') + P('gn', 'M330 320H570') + T(582, 325, 'GND', 'm');
+      ['a', 'b', 'c'].forEach((n, i) => {
+        const xa = 70 + i * 80, xc = 370 + i * 80;
+        // ánodo común: +5V -> LED -> R -> salida (0 = encendido)
+        s += P('p' + n, `M${xa} 40V88`) + LED('ca' + n, xa, 100).replace('r="10"', 'r="9"') + P('p' + n, `M${xa} 109V150`) + `<rect class="g" x="${xa-8}" y="150" width="16" height="30"/>` + P('p' + n, `M${xa} 180V260`) + `<rect class="box" x="${xa-26}" y="260" width="52" height="28" rx="2"/>` + `<text class="tx val b" data-w="q${n}" x="${xa}" y="279" text-anchor="middle">1</text>` + T(xa, 306, n + "'", 'm', 'middle');
+        // cátodo común: salida (1 = encendido) -> R -> LED -> GND
+        s += `<rect class="box" x="${xc-26}" y="40" width="52" height="28" rx="2"/>` + `<text class="tx val b" data-w="r${n}" x="${xc}" y="59" text-anchor="middle">0</text>` + P('k' + n, `M${xc} 68V150`) + `<rect class="g" x="${xc-8}" y="150" width="16" height="30"/>` + P('k' + n, `M${xc} 180V210`) + LED('cc' + n, xc, 222).replace('r="10"', 'r="9"') + P('k' + n, `M${xc} 231V320`) + T(xc, 34, n, 'm', 'middle');
+      });
+      s += `<line x1="300" y1="30" x2="300" y2="330" stroke="#27424c" stroke-dasharray="4 4"/>`;
+      return SVG(600, 340, s);
+    })()}</div>`,
+  upd(s, st) {
+    ['a', 'b', 'c'].forEach(n => {
+      const on = st[n];
+      V(s, 'p' + n, on); V(s, 'ca' + n, on); V(s, 'q' + n, !on);
+      V(s, 'k' + n, on); V(s, 'cc' + n, on); V(s, 'r' + n, on);
+    });
+    V(s, 'vp', 1); V(s, 'gn', 0);
+  },
+});
+
+// ===== 27. Memoria =====
+S({
+  t: 'Decodificación de direcciones de memoria', tag: 'Aplicaciones',
+  html: `<div class="txt" style="font-size:17px">
+    <ul>${STEP(1, 'Un bus de 16 bits direcciona <b>64 KB</b>; 8 chips de 8 KB necesitan 13 líneas cada uno (A0 a A12)', 'li')}
+    ${STEP(2, 'Los 3 bits altos <b>A15, A14, A13</b> entran a un 74LS138', 'li')}
+    ${STEP(3, 'Cada salida Yk\' va al <b>CS\'</b> (selección de chip) de una memoria', 'li')}</ul>
+    <div class="eq" id="res" style="font-size:15px"></div>
+    <div class="hint">A0 a A12 llegan a todos los chips; solo el elegido responde.</div></div>
+    <div class="viz" style="gap:6px">${SWS('A15:0,A14:1,A13:1')}
+    ${(() => {
+      let s = `<rect class="chip" x="20" y="30" width="110" height="${8*38+10}"/>` + T(75, 180, '74LS138', 'c b', 'middle');
+      [['A15', 'x2', 70], ['A14', 'x1', 110], ['A13', 'x0', 150]].forEach(([t, n, y]) => { s += P(n, `M-30 ${y}H20`) + T(-36, y + 5, t, 'c b', 'end'); });
+      for (let k = 0; k < 8; k++) {
+        const y = 52 + k * 38, a = (k * 0x2000).toString(16).toUpperCase().padStart(4, '0'), b = (k * 0x2000 + 0x1FFF).toString(16).toUpperCase().padStart(4, '0');
+        s += P('y' + k, `M130 ${y}H230`) + T(138, y - 5, "Y" + k + "'", 'm') + `<rect class="box" data-w="m${k}" x="230" y="${y-16}" width="250" height="32" rx="3"/>` + T(244, y + 5, 'Memoria 8 KB  ' + a + '-' + b, '') + LED('l' + k, 462, y, 'cy').replace('r="10"', 'r="7"');
+      }
+      return `<svg viewBox="-80 0 580 360" role="img">${s}</svg>`;
+    })()}</div>`,
+  upd(s, st) {
+    const k = st.A15 * 4 + st.A14 * 2 + st.A13;
+    V(s, 'x2', st.A15); V(s, 'x1', st.A14); V(s, 'x0', st.A13);
+    for (let i = 0; i < 8; i++) { V(s, 'y' + i, i !== k); V(s, 'l' + i, i === k); $$(s, `[data-w="m${i}"]`).forEach(r => r.style.stroke = i === k ? '#46d6c8' : ''); }
+    const a = (k * 0x2000).toString(16).toUpperCase().padStart(4, '0'), b = (k * 0x2000 + 0x1FFF).toString(16).toUpperCase().padStart(4, '0');
+    $(s, '#res').innerHTML = `A15A14A13 = ${[st.A15, st.A14, st.A13].join('')} → Y${k}' = 0<br>Direcciones <b class="h">${a}h a ${b}h</b>`;
+  },
+});
+// ===== 28. Demostración: teclado a display =====
+S({
+  t: 'Demostración: del teclado al display', tag: 'Cierre', cls: 'wide',
+  html: `<div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    ${[['1', 'Teclas', 'Con pull-up: pulsar = 0 en la entrada del 74LS148', '#46d6c8'],
+       ['2', '74LS148', 'Entrega el código <b>invertido</b> (activo en bajo)', '#a78bfa'],
+       ['3', '74LS04', 'Inversores: devuelven el binario normal', '#ff7ab6'],
+       ['4', '74LS47', 'Activa los segmentos de un display de ánodo común (D = 0)', '#ffb02e']]
+      .map(c => STEP(+c[0], `<div class="card" style="--cc:${c[3]};padding:12px 14px"><h4 style="font-size:17px;color:${c[3]}">${c[0]}. ${c[1]}</h4><p style="font-size:14px">${c[2]}</p></div>`)).join('')}</div>
+    ${SWS('T0:0,T1:0,T2:0,T3:0,T4:0,T5:0,T6:0,T7:1')}
+    ${(() => {
+      let s = '';
+      const blk = (x, t, sub, col) => `<rect class="chip" style="stroke:${col}" x="${x}" y="30" width="170" height="130"/>` + T(x + 85, 88, t, 'b l', 'middle').replace('class="tx ', `style="fill:${col}" class="tx `) + T(x + 85, 114, sub, 'm', 'middle');
+      s += blk(10, 'Teclas', 'T0 a T7', '#46d6c8') + blk(270, '74LS148', 'prioridad', '#a78bfa') + blk(530, '74LS04', 'inversores', '#ff7ab6') + blk(790, '74LS47', 'BCD a 7 seg.', '#ffb02e');
+      [[180, 270, 'k'], [440, 530, 'a'], [700, 790, 'b']].forEach(([x1, x2, p]) => {
+        [0, 1, 2].forEach(i => { s += P(p + i, `M${x1} ${68 + i * 26}H${x2}`); });
+      });
+      s += P('s0', 'M960 95H1000');
+      s += T(95, 184, 'pulsadores', 'm', 'middle') + T(355, 184, "A2'A1'A0'", 'm', 'middle') + T(615, 184, 'A2 A1 A0', 'm', 'middle') + T(875, 184, 'D=0, C, B, A', 'm', 'middle');
+      s += `<text id="b1" class="tx h b" x="225" y="150" text-anchor="middle" style="font-size:16px"></text><text id="b2" class="tx h b" x="485" y="150" text-anchor="middle" style="font-size:16px"></text><text id="b3" class="tx h b" x="745" y="150" text-anchor="middle" style="font-size:16px"></text>`;
+      s += SEG7(1010, 18, .95);
+      return SVG(1110, 205, s);
+    })()}
+    <div class="eq" id="res" style="font-size:15.5px"></div></div>`,
+  upd(s, st) {
+    const lv = [0, 1, 2, 3, 4, 5, 6, 7].map(i => st['T' + i] ? 0 : 1);
+    const r = enc148(lv, 0), n = r.hi < 0 ? 0 : r.hi;
+    const inv = r.a, tru = r.a.map(b => 1 - b);
+    [0, 1, 2].forEach(i => { V(s, 'k' + i, r.hi >= 0); V(s, 'a' + i, inv[i]); V(s, 'b' + i, tru[i]); });
+    $(s, '#b1').textContent = inv.join(''); $(s, '#b2').textContent = tru.join(''); $(s, '#b3').textContent = '0' + tru.join('');
+    show7(s, n);
+    V(s, 's0', 1);
+    $(s, '#res').innerHTML = r.hi < 0 ? "Sin tecla: A2'A1'A0' = 111 → código 000 → display 0 (GS' = 1 avisa que no hay tecla)" : `Tecla ${r.hi} → 148: ${inv.join('')} → 74LS04: ${tru.join('')} → display <b class="h">${n}</b>`;
+  },
+});
+
+// ===== 29. Ejercicio: sumador completo =====
+S({
+  t: 'Ejercicio: sumador completo con un 74LS138', tag: 'Cierre',
+  html: `<div class="txt" style="font-size:16.5px">
+    <ul>${STEP(1, 'Implementar S y Cout de un sumador completo con un 74LS138 y <b>dos NAND de 4 entradas</b>', 'li')}
+    ${STEP(2, 'A, B y Cin van a C, B, A del 138', 'li')}
+    ${STEP(3, '<b>S = Σm(1, 2, 4, 7)</b> y <b>Cout = Σm(3, 5, 6, 7)</b>', 'li')}</ul>
+    ${STEP(3, '<div class="eq" style="font-size:14.5px">S    = NAND(Y1\', Y2\', Y4\', Y7\')<br>Cout = NAND(Y3\', Y5\', Y6\', Y7\')</div>')}
+    ${TT(['A', 'B', 'Cin', 'S', 'Cout'], [0,1,2,3,4,5,6,7].map(k => [...bits(k, 3), +[1,2,4,7].includes(k), +[3,5,6,7].includes(k)]), 2, 'sm')}
+    </div>
+    <div class="viz" style="gap:6px">${SWS('A:0,B:1,Cin:1')}
+    ${(() => {
+      let s = `<rect class="chip" x="20" y="14" width="110" height="${8*34+10}"/>` + T(75, 160, '74LS138', 'c b', 'middle');
+      [['A', 'x', 60], ['B', 'y', 100], ['Cin', 'z', 140]].forEach(([t, n, y]) => { s += P(n, `M-40 ${y}H20`) + T(-46, y + 5, t, 'c b', 'end'); });
+      for (let k = 0; k < 8; k++) {
+        const y = 40 + k * 34;
+        s += P('o' + k, `M130 ${y}H420`) + T(138, y - 5, "Y" + k + "'", 'm');
+        if ([1, 2, 4, 7].includes(k)) s += `<rect x="225" y="${y-5}" width="10" height="10" fill="#46d6c8"/>`;
+        if ([3, 5, 6, 7].includes(k)) s += `<rect x="335" y="${y-5}" width="10" height="10" fill="#46d6c8"/>`;
+      }
+      [[230, 's', 'S'], [340, 'c', 'Cout']].forEach(([x, n, t]) => {
+        s += P(n, `M${x} 30V320`) + `<rect class="box" x="${x-30}" y="320" width="60" height="30" rx="2"/>` + T(x - 4, 341, '&', 'b', 'middle') + `<circle class="g" cx="${x+30}" cy="335" r="4"/>`;
+        s += P(n + 'o', `M${x} 350V380`) + LED(n + 'o', x, 392) + T(x, 424, t, 'b l', 'middle');
+      });
+      return `<svg viewBox="-70 0 520 440" role="img" style="max-width:470px">${s}</svg>`;
+    })()}</div>`,
+  upd(s, st) {
+    const k = st.A * 4 + st.B * 2 + st.Cin;
+    V(s, 'x', st.A); V(s, 'y', st.B); V(s, 'z', st.Cin);
+    for (let i = 0; i < 8; i++) V(s, 'o' + i, i !== k);
+    const S1 = [1, 2, 4, 7].includes(k), C1 = [3, 5, 6, 7].includes(k);
+    V(s, 's', S1); V(s, 'so', S1); V(s, 'c', C1); V(s, 'co', C1);
+    HR(s, '.tt', k);
+  },
+});
+
+// ===== 31. Preguntas =====
+S({
+  t: 'Preguntas frecuentes', tag: 'Cierre', cls: 'wide',
+  html: `<div><div class="hint" style="margin-bottom:12px">Pulsa una tarjeta para ver la respuesta</div>
+    <div class="cards" style="gap:14px;grid-template-columns:repeat(3,1fr)">
+    ${[['¿Para qué sirve Enable?', 'Habilita o apaga el circuito. Permite ampliar decodificadores, elegir un chip y usarlo como demultiplexor.'],
+       ['¿Por qué hace falta prioridad?', 'Con dos entradas activas el codificador simple mezcla los códigos. La prioridad codifica solo la mayor y V avisa si hay entrada válida.'],
+       ['¿Cómo se amplía un decodificador?', 'El bit más alto habilita un CI u otro y los demás bits van a todos. Dos 74LS138 dan un 4 a 16.'],
+       ['¿Activa en alto o en bajo?', 'En alto, la salida elegida vale 1. En bajo vale 0 y las demás 1. Se indica con apóstrofo o barra.'],
+       ['¿Por qué el 74LS138 es activo en bajo?', 'TTL hunde más corriente de la que entrega (8 mA contra 0,4 mA) y las entradas CS\' de las memorias son activas en bajo.'],
+       ['¿Qué pasa si el display no coincide con el CI?', 'Los segmentos salen invertidos: 7447 va con ánodo común y 7448 con cátodo común.']]
+      .map(c => `<button class="fc" type="button" aria-pressed="false"><b>${c[0]}</b><span>${c[1]}</span></button>`).join('')}</div></div>`,
+});
+
+// ===== 32. Conclusiones =====
+S({
+  t: 'Conclusiones', tag: 'Cierre', cls: 'wide',
+  html: `<div class="cards" style="grid-template-columns:repeat(3,1fr);gap:18px">
+    ${[['Traducen', 'Codificadores y decodificadores son circuitos combinacionales que <b>traducen entre líneas y códigos binarios</b>.', '#46d6c8'],
+       ['2ⁿ y n', 'Decodificador: n entradas a hasta 2<sup>n</sup> salidas, una sola activa. Codificador: lo contrario.', '#a78bfa'],
+       ['Enable', 'Permite <b>ampliar</b> decodificadores y usarlos como demultiplexores.', '#7be495'],
+       ['Prioridad', 'En los codificadores evita errores cuando varias entradas se activan a la vez.', '#ff7ab6'],
+       ['Aplicaciones', 'Funciones lógicas, direcciones de memoria, teclados y displays de 7 segmentos.', '#ffb02e'],
+       ['CI clave', '<b>74LS138, 74LS139, 74LS148, 7447 y 7448</b>.', '#5aa9ff']]
+      .map((c, i) => STEP(i + 1, `<div class="card" style="--cc:${c[2]};min-height:200px;padding:20px 22px"><div class="m" style="color:${c[2]};font-size:14px">0${i + 1}</div><h4 style="font-size:26px;margin:6px 0 10px;color:${c[2]}">${c[0]}</h4><p style="font-size:17px;color:var(--ink)">${c[1]}</p></div>`)).join('')}</div>`,
+});
+
+S({
+  raw: true,
+  html: `<div style="position:absolute;inset:0;z-index:1;padding:70px 60px;display:grid;grid-template-columns:6fr 6fr;gap:20px;align-items:center">
+    <div><div class="tag" style="margin-bottom:18px">Gracias por su atención</div>
+    <h1 style="margin:0;font-size:84px;line-height:1;font-weight:700;letter-spacing:-.02em">¿Preguntas?</h1>
+    <p class="hint" style="margin-top:34px">Codificadores y decodificadores | Circuitos lógicos electrónicos</p>${TEAMROW()}</div>
+    <div class="viz">${DEC24(false)}</div></div>`,
+  init(s) {
+    const st = { A: 0, B: 0 }; let n = 0;
+    const go = () => { st.A = (n >> 1) & 1; st.B = n & 1; dec24upd(s, st); n = (n + 1) % 4; };
+    go(); setInterval(go, 1400);
+  },
+});
+// ===== Fondo animado: pistas de PCB con pulsos de señal y bits que suben =====
+(function () {
+  const cv = document.getElementById('bg'); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const COLS = ['70,214,200', '167,139,250', '255,176,46', '123,228,149', '255,122,182', '90,169,255'];
+  const GR = 32;
+  let W = 0, H = 0, traces = [], bitsA = [], last = 0, chips = [], hexs = [], waves = [], tt = 0;
+  let boost = 0, ring = null, acc = [70, 214, 200], accT = [70, 214, 200];
+  const hx = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+  // lo llama el motor al cambiar de diapositiva: acelera pulsos, lanza una onda y tiñe el fondo
+  window.__bgBurst = (color, fwd) => { boost = 1; ring = { r: 0, a: .55, col: hx(color).join(',') }; accT = hx(color); };
+  window.__bgAccent = color => { accT = hx(color); };
+  const rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rnd(a, b + 1));
+  function mk() {
+    let x = ri(1, Math.max(2, Math.floor(W / GR) - 1)) * GR, y = ri(1, Math.max(2, Math.floor(H / GR) - 1)) * GR, hz = Math.random() < .5;
+    const pts = [[x, y]];
+    for (let i = 0, n = ri(3, 6); i < n; i++) {
+      const len = ri(3, 12) * GR * (Math.random() < .5 ? -1 : 1);
+      if (hz) x = Math.max(GR, Math.min(W - GR, x + len)); else y = Math.max(GR, Math.min(H - GR, y + len));
+      pts.push([x, y]); hz = !hz;
+    }
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.abs(pts[i][0] - pts[i - 1][0]) + Math.abs(pts[i][1] - pts[i - 1][1]));
+    const L = cum[cum.length - 1] || 1;
+    return { pts, cum, L, col: COLS[ri(0, COLS.length - 1)], sp: rnd(50, 130), p: rnd(0, L), trail: rnd(70, 150) };
+  }
+  function at(t, d) {
+    d = Math.max(0, Math.min(t.L, d)); let i = 1;
+    while (i < t.cum.length - 1 && t.cum[i] < d) i++;
+    const a = t.pts[i - 1], b = t.pts[i], s = (t.cum[i] - t.cum[i - 1]) || 1, f = (d - t.cum[i - 1]) / s;
+    return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+  }
+  function extras(dt) {
+    tt += dt;
+    for (let k = 0; k < 3; k++) acc[k] += (accT[k] - acc[k]) * Math.min(1, dt * 3);
+    const a = acc.map(Math.round).join(',');
+    const acc2 = [Math.round(acc[2]), Math.round(acc[0]), Math.round((acc[1] + 120) % 255)].join(',');
+    // resplandor del color del integrante en las esquinas
+    for (const [x, y] of [[0, 0], [W, H]]) {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, Math.max(W, H) * .55);
+      g.addColorStop(0, `rgba(${a},.16)`); g.addColorStop(1, `rgba(${a},0)`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+    // auroras suaves que derivan lentamente
+    for (const [i, c] of [[0, a], [1, acc2]]) {
+      const ox = W * (.5 + .38 * Math.sin(tt * .13 + i * 2.4)), oy = H * (.5 + .32 * Math.cos(tt * .1 + i * 1.7));
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, Math.max(W, H) * .38);
+      g.addColorStop(0, `rgba(${i ? acc2 : a},.09)`); g.addColorStop(1, `rgba(${i ? acc2 : a},0)`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+    // circuitos integrados tenues con patillas que parpadean
+    ctx.font = '11px "IBM Plex Mono",monospace'; ctx.textAlign = 'center';
+    for (const c of chips) {
+      ctx.strokeStyle = `rgba(${c.col},.16)`; ctx.lineWidth = 1.2;
+      ctx.strokeRect(c.x, c.y, c.w, c.h);
+      ctx.fillStyle = `rgba(${c.col},.22)`; ctx.fillText(c.name, c.x + c.w / 2, c.y + c.h / 2 + 4);
+      ctx.beginPath(); ctx.arc(c.x + 8, c.y + 8, 2.5, 0, 6.283); ctx.stroke();
+      for (let i = 0; i < c.n; i++) {
+        const px = c.x + 10 + i * 12, lit = Math.sin(tt * c.f + i * 1.7 + c.ph) > .72;
+        ctx.strokeStyle = lit ? `rgba(${c.col},.8)` : `rgba(${c.col},.2)`;
+        ctx.beginPath(); ctx.moveTo(px, c.y); ctx.lineTo(px, c.y - 8); ctx.moveTo(px, c.y + c.h); ctx.lineTo(px, c.y + c.h + 8); ctx.stroke();
+        if (lit) { ctx.fillStyle = `rgba(${c.col},.9)`; ctx.fillRect(px - 1.5, c.y - 10, 3, 3); }
+      }
+    }
+    ctx.textAlign = 'left';
+    // señales digitales y senoidal desplazándose (osciloscopio)
+    for (const w of waves) {
+      w.off += w.sp * dt;
+      ctx.strokeStyle = `rgba(${w.col},.2)`; ctx.lineWidth = 1.6; ctx.beginPath();
+      if (w.kind === 's') {
+        for (let x = 0; x <= W; x += 6) { const y = w.y + Math.sin((x + w.off) / w.per * 6.283) * w.amp; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      } else {
+        const step = w.per, s0 = Math.floor(w.off / step);
+        for (let i = -1; i * step - (w.off % step) < W + step; i++) {
+          const bit = w.bits[(s0 + i + 4000) % w.bits.length], x0 = i * step - (w.off % step), y = w.y - (bit ? w.amp : 0);
+          if (i === -1) ctx.moveTo(x0, y); else ctx.lineTo(x0, y);
+          ctx.lineTo(x0 + step, y);
+        }
+      }
+      ctx.stroke();
+      ctx.fillStyle = `rgba(${w.col},.3)`; ctx.fillText(w.lab, 14, w.y - w.amp - 6);
+    }
+    // etiquetas hexadecimales que caen despacio
+    ctx.font = '12px "IBM Plex Mono",monospace';
+    for (const h of hexs) {
+      h.y += h.sp * dt; if (h.y > H + 20) { h.y = -20; h.x = rnd(0, W); h.t = ri(0, 255).toString(16).toUpperCase().padStart(2, '0'); }
+      ctx.fillStyle = `rgba(${h.col},${h.a})`; ctx.fillText('0x' + h.t, h.x, h.y);
+    }
+    // onda expansiva al cambiar de diapositiva
+    if (ring) {
+      ring.r += dt * Math.max(W, H) * 1.6; ring.a -= dt * .65;
+      if (ring.a <= 0) ring = null; else {
+        ctx.strokeStyle = `rgba(${ring.col},${ring.a.toFixed(3)})`; ctx.lineWidth = 3; ctx.shadowColor = `rgb(${ring.col})`; ctx.shadowBlur = 18;
+        ctx.beginPath(); ctx.arc(W / 2, H / 2, ring.r, 0, 6.283); ctx.stroke(); ctx.shadowBlur = 0;
+      }
+    }
+    boost = Math.max(0, boost - dt * 1.3);
+  }
+  function draw(dt) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineJoin = 'round';
+    extras(dt);
+    dt *= 1 + boost * 4;
+    for (const t of traces) {
+      ctx.lineWidth = 1.5; ctx.strokeStyle = `rgba(${t.col},.13)`;
+      ctx.beginPath(); t.pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+      ctx.fillStyle = `rgba(${t.col},.28)`;
+      for (const k of [0, t.pts.length - 1]) { ctx.beginPath(); ctx.arc(t.pts[k][0], t.pts[k][1], 3, 0, 6.283); ctx.fill(); }
+      t.p += t.sp * dt; if (t.p > t.L + t.trail) t.p = -rnd(0, 250);
+      const N = 8;
+      for (let s = 0; s < N; s++) {
+        const d1 = t.p - t.trail * s / N, d0 = t.p - t.trail * (s + 1) / N;
+        if (d1 < 0 || d0 > t.L) continue;
+        const a = at(t, d0), b = at(t, d1);
+        ctx.strokeStyle = `rgba(${t.col},${(0.6 * (1 - s / N)).toFixed(3)})`; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      }
+      if (t.p >= 0 && t.p <= t.L) {
+        const h = at(t, t.p);
+        ctx.fillStyle = `rgba(${t.col},.95)`; ctx.shadowColor = `rgb(${t.col})`; ctx.shadowBlur = 10;
+        ctx.beginPath(); ctx.arc(h[0], h[1], 2.8, 0, 6.283); ctx.fill(); ctx.shadowBlur = 0;
+      }
+    }
+    ctx.font = '13px "IBM Plex Mono",monospace';
+    for (const b of bitsA) {
+      b.y -= b.sp * dt; if (b.y < -10) { b.y = H + 10; b.x = rnd(0, W); }
+      if (Math.random() < .004) b.v ^= 1;
+      ctx.fillStyle = `rgba(130,205,215,${b.a})`; ctx.fillText(b.v, b.x, b.y);
+    }
+  }
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    traces = Array.from({ length: Math.max(18, Math.min(70, Math.round(W * H / 30000))) }, mk);
+    bitsA = Array.from({ length: Math.round(W * H / 55000) + 6 }, () => ({ x: rnd(0, W), y: rnd(0, H), v: ri(0, 1), sp: rnd(8, 24), a: rnd(.07, .16) }));
+    const NM = ['74LS138', '74LS148', '74LS139', '7447', '7442', '74LS04', '74LS00'];
+    chips = Array.from({ length: Math.max(4, Math.round(W * H / 220000)) }, () => {
+      const n = ri(4, 7); return { x: ri(2, Math.max(3, Math.floor(W / GR) - 6)) * GR, y: ri(2, Math.max(3, Math.floor(H / GR) - 4)) * GR, w: n * 12 + 8, h: 34, n, name: NM[ri(0, NM.length - 1)], col: COLS[ri(0, COLS.length - 1)], f: rnd(.6, 1.6), ph: rnd(0, 6) };
+    });
+    hexs = Array.from({ length: Math.round(W / 140) }, () => ({ x: rnd(0, W), y: rnd(0, H), sp: rnd(14, 34), a: rnd(.08, .2), t: ri(0, 255).toString(16).toUpperCase().padStart(2, '0'), col: COLS[ri(0, COLS.length - 1)] }));
+    const bitsRnd = () => Array.from({ length: 64 }, () => ri(0, 1));
+    waves = [
+      { kind: 'd', y: H * .93, amp: 16, per: 46, sp: 60, off: 0, bits: bitsRnd(), col: COLS[0], lab: 'CLK' },
+      { kind: 'd', y: H * .06, amp: 14, per: 70, sp: -40, off: 3000, bits: bitsRnd(), col: COLS[1], lab: 'D0' },
+      { kind: 's', y: H * .5, amp: 40, per: 380, sp: 30, off: 0, col: COLS[4], lab: '' },
+    ];
+    draw(0);
+  }
+  function loop(ts) {
+    const dt = Math.min(.05, (ts - last) / 1000 || 0); last = ts;
+    if (!document.hidden) draw(dt);
+    requestAnimationFrame(loop);
+  }
+  addEventListener('resize', resize); resize();
+  if (!reduce) requestAnimationFrame(loop);
+})();
+// ===== Motor de la presentación (va al final) =====
+(function () {
+  const SEC = [
+    { to: 6, n: 1, name: TEAM[0].topic, who: TEAM[0].name, c: TEAM[0].c },
+    { to: 13, n: 2, name: TEAM[1].topic, who: TEAM[1].name, c: TEAM[1].c },
+    { to: 21, n: 3, name: TEAM[2].topic, who: TEAM[2].name, c: TEAM[2].c },
+    { to: 999, n: 4, name: TEAM[3].topic, who: TEAM[3].name, c: TEAM[3].c },
+  ];
+  const SWC = ['#ffb02e', '#46d6c8', '#ff7ab6', '#7be495', '#a78bfa', '#5aa9ff', '#ff8a5c', '#e6e86a', '#6fe0ff'];
+  const stage = document.getElementById('stage');
+  const total = SL.length;
+
+  const secs = SL.map((o, i) => {
+    const sec = SEC.find(x => i + 1 <= x.to);
+    const s = document.createElement('section');
+    s.className = 'slide';
+    s.dataset.sec = sec.n; s.style.setProperty('--ac', sec.c);
+    s.setAttribute('aria-label', o.t || 'Diapositiva ' + (i + 1));
+    const badge = `<div class="who">Integrante ${sec.n} · <b>${sec.who}</b></div><div class="num">${i + 1} / ${total}</div>`;
+    s.innerHTML = (o.raw ? o.html : `<div class="hd"><h2>${o.t}</h2><span class="tag">${o.tag || ''}</span></div><div class="body ${o.cls || ''}">${o.html}</div>`) + badge;
+    stage.appendChild(s);
+    s._o = o; s._st = {}; s._step = 0; s._sec = sec;
+    s._max = Math.max(0, ...[...s.querySelectorAll('.st')].map(e => +e.dataset.s || 0));
+    // interruptores tipo palanca, con tecla numérica de acceso
+    let idx = 0;
+    s.querySelectorAll('.sws[data-k]').forEach(box => {
+      box.dataset.k.split(',').forEach(kv => {
+        const [k, v0] = kv.split(':');
+        s._st[k] = +v0;
+        const lab = k.replace(/_$/, "'").replace(/_/g, ' ');
+        const b = document.createElement('button');
+        b.className = 'sw'; b.dataset.v = v0; b.dataset.k = k; b.type = 'button';
+        b.style.setProperty('--sc', SWC[idx % SWC.length]);
+        const key = idx < 9 ? idx + 1 : '';
+        idx++;
+        b.innerHTML = `${key ? `<kbd>${key}</kbd>` : ''}<span>${lab}</span><span class="tg"><span class="kn"></span></span><i>${v0}</i>`;
+        const say = () => b.setAttribute('aria-label', `Entrada ${lab}, valor ${s._st[k]}. Pulsa para cambiar`);
+        say();
+        b.onclick = () => {
+          s._st[k] = s._st[k] ? 0 : 1;
+          b.classList.remove('tick'); void b.offsetWidth; b.classList.add('tick'); setTimeout(() => b.classList.remove('tick'), 600);
+          b.dataset.v = s._st[k]; b.querySelector('i').textContent = s._st[k]; say();
+          s._o.upd && s._o.upd(s, s._st);
+        };
+        box.appendChild(b);
+      });
+    });
+    s.querySelectorAll('.fc').forEach((c, k) => {
+      c.style.setProperty('--cc', SWC[k % SWC.length]);
+      c.onclick = () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+    });
+    s.querySelectorAll('.card').forEach((c, k) => { if (!c.style.getPropertyValue('--cc')) c.style.setProperty('--cc', SWC[(k + 1) % SWC.length]); });
+    o.init && o.init(s);
+    o.upd && o.upd(s, s._st);
+    return s;
+  });
+
+  // ----- navegación y aparición automática de los recuadros -----
+  const reduceM = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let cur = 0, timer = null, auto = false;
+  const bar = document.getElementById('bar'), ctr = document.getElementById('ctr');
+  const ticks = document.getElementById('ticks');
+  secs.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.style.setProperty('--tc', s._sec.c);
+    b.title = `${i + 1}. ${s._o.t || (i ? 'Cierre' : 'Portada')} (Integrante ${s._sec.n}: ${s._sec.who})`;
+    b.setAttribute('aria-label', 'Ir a la diapositiva ' + (i + 1));
+    b.onclick = () => show(i);
+    ticks.appendChild(b);
+  });
+  function steps(s) {
+    s.querySelectorAll('.st').forEach(e => {
+      const hide = +e.dataset.s > s._step, was = e.classList.contains('hid');
+      e.classList.toggle('hid', hide);
+      if (was && !hide && !reduceM) { e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); setTimeout(() => e.classList.remove('pop'), 950); }
+    });
+  }
+  function schedule() {
+    clearTimeout(timer);
+    const s = secs[cur];
+    if (s._step < s._max) { const d = (s._step === 0 ? 450 : 700) + bannerBusy; bannerBusy = 0; timer = setTimeout(() => { s._step++; steps(s); schedule(); }, d); }
+    else if (auto && cur < secs.length - 1) timer = setTimeout(() => show(cur + 1), 7500);
+  }
+  let inited = false, extraDelay = 0;
+  const shutter = document.createElement('div'); shutter.id = 'shutter';
+  for (let k = 0; k < 14; k++) shutter.appendChild(document.createElement('i'));
+  stage.appendChild(shutter);
+  const banner = document.createElement('div'); banner.id = 'banner'; stage.appendChild(banner);
+  let bannerBusy = 0;
+  function showBanner(sec) {
+    banner.style.setProperty('--bc', sec.c);
+    banner.innerHTML = `<div class="bi"><div class="b1">Integrante ${sec.n}</div><div class="b2">${sec.who}</div><div class="b3">${sec.name}</div></div>`;
+    banner.className = ''; void banner.offsetWidth; banner.className = 'go';
+    bannerBusy = 1100;
+  }
+  const sweep = document.createElement('div'); sweep.id = 'sweep'; stage.appendChild(sweep);
+  function show(i, end) {
+    const prevI = cur; window.__bgAccent && secs[Math.max(0, Math.min(secs.length - 1, i))] && window.__bgAccent(secs[Math.max(0, Math.min(secs.length - 1, i))]._sec.c);
+    cur = Math.max(0, Math.min(secs.length - 1, i));
+    const narrowNow = document.body.classList.contains('scroll') || reduceM;
+    const fwd = cur >= prevI;
+    secs.forEach((s, k) => { s.classList.remove('out-f', 'out-b', 'in-f', 'in-b', 'in-z', 'in-c', 'in-s', 'in-g', 'out-z', 'out-c', 'out-s', 'out-g', 'drag', 'snap'); s.style.transform = ''; s.style.opacity = ''; s.classList.toggle('on', k === cur); });
+    if (!narrowNow && inited && cur !== prevI && secs[prevI]) {
+      const o = secs[prevI];
+      const newSec = secs[cur]._sec !== o._sec;
+      // tres estilos que se alternan; al cambiar de integrante, la apertura circular
+      const v = newSec ? 'c' : ['f', 's', 'z', 'g', 'f', 's'][cur % 6];
+      const vo = v === 'f' ? (fwd ? 'out-f' : 'out-b') : 'out-' + v;
+      const vi = v === 'f' ? (fwd ? 'in-f' : 'in-b') : 'in-' + v;
+      o.classList.add(vo); secs[cur].classList.add(vi);
+      if (v === 's') {
+        const c1 = secs[cur]._sec.c, c2 = getComputedStyle(secs[cur]).getPropertyValue('--ac2') || c1;
+        shutter.style.setProperty('--s1', c1); shutter.style.setProperty('--s2', c2.trim() || c1);
+        [...shutter.children].forEach((b, k) => b.style.setProperty('--i', fwd ? k : shutter.children.length - 1 - k));
+        shutter.className = ''; void shutter.offsetWidth; shutter.className = 'go';
+        extraDelay = 450;
+      }
+      window.__bgBurst && window.__bgBurst(secs[cur]._sec.c, fwd);
+      bannerBusy = extraDelay; extraDelay = 0;
+      if (newSec && inited && !(prevI === 0 && cur === 1)) showBanner(secs[cur]._sec);
+      sweep.style.setProperty('--sw', secs[cur]._sec.c);
+      sweep.className = ''; void sweep.offsetWidth; sweep.className = 'go' + (fwd ? '' : ' rev');
+      clearTimeout(show._t); show._t = setTimeout(() => o.classList.remove('out-f', 'out-b', 'out-z', 'out-c', 'out-s', 'out-g'), 700);
+    }
+    const s = secs[cur];
+    s._step = end ? s._max : 0;
+    steps(s);
+    s._o.enter && s._o.enter(s);
+    bar.style.width = ((cur + 1) / secs.length * 100) + '%';
+    ctr.innerHTML = `<b>${String(cur + 1).padStart(2, '0')}</b>/${total}`;
+    [...ticks.children].forEach((b, k) => b.classList.toggle('cur', k === cur));
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+    schedule();
+  }
+  function next() {
+    const s = secs[cur];
+    if (s._step < s._max) { s._step = s._max; steps(s); schedule(); } else show(cur + 1);
+  }
+  function prev() { show(cur - 1, true); }
+  const $id = id => document.getElementById(id);
+  $id('nx').onclick = next;
+  $id('pv').onclick = prev;
+  $id('au').onclick = () => { auto = !auto; $id('au').setAttribute('aria-pressed', auto); schedule(); };
+  $id('fs').onclick = () => {
+    try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
+  };
+  addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.closest && e.target.closest('button,input') && (e.key === ' ' || e.key === 'Enter')) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(secs.length - 1);
+    else if (e.key === 'f' || e.key === 'F') $id('fs').click();
+    else if (e.key === 'a' || e.key === 'A') $id('au').click();
+    else if (/^[1-9]$/.test(e.key) && !document.body.classList.contains('scroll')) {
+      const sw = secs[cur].querySelectorAll('.sw')[+e.key - 1]; if (sw) sw.click();
+    }
+  });
+  // ----- gestos: arrastrar (táctil o ratón), rueda, doble toque -----
+  let gx = null, gy = 0, gt = 0, drag = false, lastTap = 0;
+  const skip = t => t.closest && t.closest('button,input,.sw,.fc,.key,a,[tabindex],#dock');
+  stage.addEventListener('pointerdown', e => {
+    if (document.body.classList.contains('scroll') || skip(e.target) || (e.pointerType === 'mouse' && e.button)) return;
+    gx = e.clientX; gy = e.clientY; gt = Date.now(); drag = false;
+  });
+  addEventListener('pointermove', e => {
+    if (gx === null) return;
+    const dx = e.clientX - gx, dy = e.clientY - gy;
+    if (!drag && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) { drag = true; secs[cur].classList.add('drag'); try { stage.setPointerCapture(e.pointerId); } catch (_) {} }
+    if (drag) {
+      const w = stage.getBoundingClientRect().width;
+      const p = Math.max(-1, Math.min(1, dx / w));
+      const s = secs[cur];
+      s.style.transform = `translateX(${p * 120}px) scale(${1 - Math.abs(p) * .06})`;
+      s.style.opacity = 1 - Math.abs(p) * 1.2;
+    }
+  });
+  const endDrag = e => {
+    if (gx === null) return;
+    const dx = e.clientX - gx, dy = e.clientY - gy, fast = Date.now() - gt < 450;
+    gx = null;
+    const s = secs[cur];
+    if (drag) {
+      drag = false; s.classList.remove('drag');
+      s.style.transform = ''; s.style.opacity = '';
+      if (Math.abs(dx) > 90 || (fast && Math.abs(dx) > 40)) { dx < 0 ? next() : prev(); }
+      else { s.classList.add('snap'); setTimeout(() => s.classList.remove('snap'), 320); }
+      return;
+    }
+    if (fast && Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx) * 1.5) { dy < 0 ? next() : prev(); return; }
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && fast) {
+      const n = Date.now();
+      if (n - lastTap < 320) { $id('fs').click(); lastTap = 0; } else lastTap = n;
+    }
+  };
+  addEventListener('pointerup', endDrag);
+  addEventListener('pointercancel', () => { gx = null; if (drag) { drag = false; secs[cur].classList.remove('drag'); secs[cur].style.transform = ''; secs[cur].style.opacity = ''; } });
+  let wl = 0;
+  addEventListener('wheel', e => {
+    if (document.body.classList.contains('scroll') || e.ctrlKey) return;
+    const n = Date.now(); if (n - wl < 650) return;
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(d) < 25) return;
+    wl = n; d > 0 ? next() : prev();
+  }, { passive: true });
+  function fit() {
+    const narrow = innerWidth < 820;
+    document.body.classList.toggle('scroll', narrow);
+    if (narrow) { stage.style.width = ''; secs.forEach(s => { s.classList.add('on'); s.querySelectorAll('.st').forEach(e => e.classList.remove('hid')); }); return; }
+    secs.forEach((s, k) => s.classList.toggle('on', k === cur));
+    steps(secs[cur]);
+    const kh = (innerHeight - 62) / 720;
+    const W = Math.max(1180, Math.min(1720, (innerWidth - 12) / kh));
+    stage.style.width = W + 'px';
+    const k = Math.min(kh, (innerWidth - 12) / W);
+    stage.style.transform = `scale(${Math.max(.2, k)})`;
+  }
+  addEventListener('resize', fit);
+  window.__deck = { reveal() { const s = secs[cur]; s._step = s._max; steps(s); schedule(); } };
+  const h = parseInt(location.hash.slice(1), 10);
+  show(h > 0 ? h - 1 : 0);
+  inited = true;
+  fit();
+})();
+</script>
+
+</body></html>
