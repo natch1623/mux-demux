@@ -179,6 +179,37 @@ const SONIDO = (() => {
     "Ventisca": () => soplo({ d: .85, v: .14, f: 500, f2: 2000, q: .8, ataque: .25 }),
     "Cristal giratorio": () => { [1568, 1760, 2093, 2349, 2637].forEach((f, i) => campana({ t: i * .15, f, d: .9, v: .05 })); soplo({ d: 1, v: .04, f: 5000, q: 2, ataque: .3 }); },
     "Aurora": () => { [261, 329, 392, 523].forEach((f, i) => tono({ t: i * .05, f, d: 1.2, v: .04, tipo: "sine", ataque: .3 })); soplo({ d: 1, v: .03, f: 2500, q: 3, ataque: .3 }); },
+    // Tsaritsa, segunda versión
+    "Ventisca de arrastre": () => {
+      granos({ d: .25, n: 18, f: 6000, v: .05 });                                        // polvo y esquirlas: de dónde viene el viento
+      soplo({ d: 1.15, v: .16, f: 380, f2: 2200, q: .7, ataque: .45, cola: .45 });       // el frente crece y arrastra
+      soplo({ t: .15, d: .5, v: .06, f: 900, f2: 300, q: 2, ataque: .05 });               // el circuito resiste (grave)
+      soplo({ t: .55, d: .35, v: .1, f: 5000, q: .6, ataque: .08 });                     // nieve máxima
+      granos({ t: .3, d: .7, n: 40, f: 5200, v: .05, q: 3 });
+      campana({ t: .82, f: 1568, d: .9, v: .035 });                                       // el contenido nuevo se asienta
+    },
+    "Lluvia glacial": () => {
+      [1568, 2093, 2637].forEach((f, i) => campana({ t: i * .05, f, d: 1.2, v: .04 }));   // la esfera
+      for (let i = 0; i < 7; i++) { const t = .16 + i * .055; tono({ t, f: 2600, f2: 900, d: .1, v: .025 }); soplo({ t: t + .1, d: .05, v: .16, f: 4200, q: .7, ataque: .001, cola: .04 }); granos({ t: t + .1, d: .12, n: 6, f: 5000, v: .06 }); }
+      tono({ t: .56, f: 1800, f2: 300, d: .12, v: .05 });                                 // la última descarga
+      golpe({ t: .66, f: 70, v: .45, d: .6 }); soplo({ t: .66, d: .3, v: .25, f: 3500, f2: 900, q: .5, ataque: .001, cola: .25 });
+      granos({ t: .9, d: .45, n: 60, f: 5200, v: .1, q: 3 });                              // fractura
+      for (let i = 0; i < 5; i++) campana({ t: .92 + i * .07, f: 2400 + i * 300, d: .6, v: .03 });
+    },
+    "Sello de la soberana": () => {
+      tono({ f: 98, d: 1.3, v: .05, tipo: "triangle", ataque: .3 }); tono({ f: 147, d: 1.2, v: .03, tipo: "triangle", ataque: .3 });
+      [523, 784].forEach((f, i) => campana({ t: .05 + i * .1, f, d: 1.4, v: .05 }));      // el sello se dibuja
+      soplo({ t: .25, d: .5, v: .07, f: 800, f2: 3500, q: 3, ataque: .1 });                // el anillo recorre la escena
+      granos({ t: .35, d: .35, n: 30, f: 5500, v: .04 });                                  // siluetas que se disuelven en escarcha
+      soplo({ t: .72, d: .35, v: .05, f: 3500, f2: 900, q: 3, ataque: .05 });              // el anillo vuelve
+      [1047, 1568, 2093].forEach((f, i) => campana({ t: 1.02 + i * .03, f, d: 1.4, v: .05 }));   // se cierra
+    },
+    "Onda de ruptura": () => {
+      tono({ f: 60, f2: 180, tipo: "sawtooth", d: .2, v: .1, corte: 600, ataque: .15 });   // compresión
+      golpe({ t: .2, f: 60, v: .6, d: .7 }); soplo({ t: .2, d: .45, v: .2, f: 2500, f2: 500, q: .6, ataque: .005 });
+      for (let i = 0; i < 4; i++) { soplo({ t: .3 + i * .07, d: .06, v: .2, f: 3800, q: .6, ataque: .001, cola: .05 }); granos({ t: .3 + i * .07, d: .12, n: 10, f: 4600, v: .07 }); }
+      granos({ t: 1.05, d: .4, n: 45, f: 5000, v: .08, q: 3 }); soplo({ t: 1.05, d: .4, v: .06, f: 1200, f2: 400, q: .8 });
+    },
     "Devoración": () => { tono({ f: 40, f2: 60, tipo: "sawtooth", d: .8, v: .14, corte: 240, ataque: .15 }); soplo({ d: .8, v: .07, f: 320, q: 2, ataque: .2 }); },
     "Tentáculo barredor": () => { soplo({ d: .7, v: .1, f: 260, f2: 900, q: 2, ataque: .15 }); tono({ t: .25, f: 160, f2: 60, d: .3, v: .08 }); },
     "Goteo": () => { for (let i = 0; i < 7; i++) tono({ t: i * .1 + Math.random() * .05, f: 500 + Math.random() * 300, f2: 120, d: .14, v: .06 }); tono({ t: .3, f: 45, tipo: "sawtooth", d: .6, v: .1, corte: 200, ataque: .15 }); },
