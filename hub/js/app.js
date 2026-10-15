@@ -560,7 +560,9 @@ function paintUi() {
     const m = MEMBERS[S.m];
     $("#rwSide").textContent = S.side === "mux" ? `MUX · I${SUB[S.m]}` : `DEMUX · Y${SUB[S.m]}`;
     $("#rwWho").textContent = `${m.name} · ${m.topic}`;
-    $("#rwDots").innerHTML = route().map((_, i) => `<i class="${i === S.k ? "cur" : i < S.k ? "past" : ""}"></i>`).join("");
+    // bolitas: cuántas diapositivas quedan; la casita marca que después de la última se vuelve al HUB
+    $("#rwDots").innerHTML = route().map((_, i) => `<i class="${i === S.k ? "cur" : i < S.k ? "past" : ""}"></i>`).join("") + `<b class="dot-hub${atLast() ? " next" : ""}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5"/></svg></b>`;
+    $("#rwDots").setAttribute("aria-label", `Diapositiva ${S.k + 1} de ${route().length}`);
     ui.style.setProperty("--c", m.c);
     const fin = isSecondDio() && atLast();
     $("#bNext").setAttribute("aria-label", !atLast() ? "Siguiente" : fin ? (S.done[S.side].has(3) ? "Volver al HUB" : "Terminar la ruta") : "Terminar la sección y volver al HUB");
@@ -569,7 +571,7 @@ function paintUi() {
   } else if (S.mode === "anexo") {
     $("#rwSide").textContent = "DIO · Anexo";
     $("#rwWho").textContent = ANEXO[S.a].title;
-    $("#rwDots").innerHTML = ANEXO.map((_, i) => `<i class="${i === S.a ? "cur" : i < S.a ? "past" : ""}"></i>`).join("");
+    $("#rwDots").innerHTML = ANEXO.map((_, i) => `<i class="${i === S.a ? "cur" : i < S.a ? "past" : ""}"></i>`).join("") + `<b class="dot-hub${S.a === ANEXO.length - 1 ? " next" : ""}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5"/></svg></b>`;
     ui.style.setProperty("--c", MEMBERS[3].c);
     $("#bNext").setAttribute("aria-label", S.a === ANEXO.length - 1 ? "Terminar y volver al HUB" : "Siguiente");
   } else if (S.mode === "concl") {
@@ -760,6 +762,13 @@ function anexoToHub() {
   });
 }
 $$(".secreto-anexo").forEach(b => tap(b, () => openAnexo()));
+// referencias → final de la presentación: el alejamiento que muestra todo el circuito
+$$(".ir-final").forEach(b => tap(b, () => {
+  if (S.busy || S.mode !== "anexo") return;
+  ANEXO[S.a].el.dispatchEvent(new Event("leave"));
+  S.side = null; S.m = null;
+  openConclusions();
+}));
 
 function backToHub(completed = false) {
   if (S.mode === "hub") return;

@@ -330,5 +330,13 @@ html.still .hub .hub-title,html.still .hub .orb{animation:none!important;opacity
 
 /* sin botones en pantalla: se avanza tocando un lugar sin interacción y se regresa
    deslizando (también con las flechas del teclado). Arriba no quedan botones ni cronómetro. */
-#bHub,.route-arrows,.route-dots,.tools{display:none!important}
+#bHub,.route-arrows,.tools{display:none!important}
+/* bolitas abajo a la derecha: cuántas diapositivas quedan antes de volver al HUB */
+.route-ui{grid-template-columns:1fr auto}
+.route-dots{justify-self:end;align-items:center;gap:12px;padding:10px 16px;border-radius:999px;background:rgba(6,10,22,.55);box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.route-dots i{width:12px;height:12px}
+.route-dots .dot-hub{display:grid;place-items:center;width:22px;height:22px;margin-left:4px;opacity:.45;transition:opacity .3s,transform .3s var(--spring)}
+.route-dots .dot-hub svg{width:20px;height:20px;fill:none;stroke:var(--cream);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.route-dots .dot-hub.next{opacity:1;transform:scale(1.15)}
+.route-dots .dot-hub.next svg{stroke:var(--c)}
 .route-ui{pointer-events:none}

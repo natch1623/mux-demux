@@ -625,6 +625,7 @@ ANEXO.push({
         <p class="chip"><b>MUX</b>Referencias · Carlos</p>
         <h2>Referencias <em>bibliográficas</em></h2>
         <p class="lede">Cinco fuentes, en formato APA.</p>
+        <button class="ir-final" type="button" aria-label="Ir al final: el circuito completo">Ver todo el circuito <span aria-hidden="true">→</span></button>
       </div>
       <ol class="fig refs">${REFS.map(([a, t, e]) => `<li>${a} <i>${t}</i> ${e}</li>`).join("")}</ol>`;
   }
