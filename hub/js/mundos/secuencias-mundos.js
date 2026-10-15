@@ -41,17 +41,20 @@
     const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
     const x = cv.getContext("2d"); x.scale(dpr, dpr);
-    const copos = Array.from({ length: 60 }, (_, i) => ({ x: (i * 97.3) % W, y: -((i * 53.7) % H), r: 1 + (i % 5) * .5, v: [32, 52, 78][i % 3], f: i * .7 }));
-    const t0 = performance.now();
+    // tres planos: 40 lejanos (pequeños, lentos), 22 medios y 6 cercanos (grandes, desenfocados)
+    const plano = i => i < 40 ? 0 : i < 62 ? 1 : 2;
+    const copos = Array.from({ length: 68 }, (_, i) => { const p = plano(i); return { x: (i * 97.3) % W, y: -((i * 53.7) % H), r: [1 + (i % 3) * .4, 2.2 + (i % 4) * .6, 9 + (i % 3) * 5][p], v: [26, 52, 96][p], f: i * .7, p }; });
+    const t0 = performance.now(), k = RITMO.k;
     return new Promise(res => {
       const paso = now => {
-        const t = (now - t0) / 1000;
+        const t = (now - t0) / 1000 * k;
         if (MOTION.skip || t * 1000 > ms) { cv.remove(); res(); return; }
         x.clearRect(0, 0, W, H);
         const a = Math.min(1, t * 2, (ms / 1000 - t) * 2);
         copos.forEach(p => {
           const y = (p.y + p.v * t * 2.2 + H) % (H + 20) - 10, xx = p.x + Math.sin(t * 1.3 + p.f) * 14;
-          x.globalAlpha = a * (.45 + p.r / 8); x.fillStyle = "#EAF6FF";
+          if (p.p === 2) { const g = x.createRadialGradient(xx, y, 0, xx, y, p.r); g.addColorStop(0, "rgba(234,246,255,.55)"); g.addColorStop(1, "rgba(234,246,255,0)"); x.globalAlpha = a; x.fillStyle = g; }
+          else { x.globalAlpha = a * (p.p ? .85 : .45); x.fillStyle = "#EAF6FF"; }
           x.beginPath(); x.arc(xx, y, p.r, 0, 6.283); x.fill();
         });
         requestAnimationFrame(paso);
@@ -94,9 +97,14 @@
       const x1 = Math.ceil(Math.min(W + 40, Math.max(...xs))), y1 = Math.ceil(Math.min(H + 40, Math.max(...ys)));
       const f = html(`<div class="se-frag"></div>`);
       f.style.cssText = `position:absolute;overflow:hidden;left:${x0}px;top:${y0}px;width:${Math.max(1, x1 - x0)}px;height:${Math.max(1, y1 - y0)}px;transform-origin:${(cx - x0).toFixed(0)}px ${(cy - y0).toFixed(0)}px`;
+      // espesor: canto (la misma silueta, desplazada y oscura) y sombra sobre lo de atrás
+      const sombra = html(`<div class="se-frag-sombra"></div>`), canto = html(`<div class="se-frag-canto"></div>`);
+      const desp = (dx, dy) => `polygon(${pts.map(([x, y]) => `${(x - x0 + dx).toFixed(1)}px ${(y - y0 + dy).toFixed(1)}px`).join(",")})`;
+      sombra.style.clipPath = desp(14 * k, 20 * k); canto.style.clipPath = desp(5 * k, 8 * k);
       const copia = hoja.cloneNode(true);
       copia.style.cssText = `position:absolute;inset:auto;left:${-x0}px;top:${-y0}px;width:${W}px;height:${H}px;clip-path:${poly(pts)}`;
-      f.append(copia); c.append(f); return f;
+      f.style.overflow = "visible";
+      f.append(sombra, canto, copia); c.append(f); return f;
     };
     // juntas: radios quebrados desde el origen y un anillo irregular
     const n = 9, ang = Array.from({ length: n }, (_, j) => j / n * Math.PI * 2 + (R() - .5) * .45);

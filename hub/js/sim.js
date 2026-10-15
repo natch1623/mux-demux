@@ -13,7 +13,11 @@ function Logic(init = {}) {
     get sel() { return st.s1 * 2 + st.s0; },
     get mux() { return st.en ? st.d[api.sel] : 0; },
     demux(i) { return st.en && i === api.sel ? st.din : 0; },
-    set(p) { Object.assign(st, p); subs.forEach(f => f(api)); },
+    set(p) {
+      const antes = { ...st, d: st.d.slice() };
+      Object.assign(st, p); subs.forEach(f => f(api));
+      Logic.cambio?.(api, antes);
+    },
     toggle(k, i) {
       if (k === "d") { const d = st.d.slice(); d[i] ^= 1; api.set({ d }); }
       else api.set({ [k]: st[k] ^ 1 });

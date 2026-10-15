@@ -10,7 +10,26 @@ const MOTION = {
   finish() { this.skip = true; [...this.pending].forEach(f => f()); },
   reset() { this.skip = false; }
 };
+/* ritmo de los viajes entre mundos: k > 1 acelera todo lo que corre mientras dura el viaje
+   (tween, wait, Element.animate y los sonidos de la secuencia). Fuera del viaje k = 1. */
+const RITMO = { k: 1, ms(ms) { return ms / this.k; } };
+{
+  const animOrig = Element.prototype.animate;
+  Element.prototype.animate = function (frames, o) {
+    if (RITMO.k !== 1 && o != null) {
+      if (typeof o === "number") o = o / RITMO.k;
+      else if (o.iterations !== Infinity) {
+        o = { ...o };
+        if (typeof o.duration === "number") o.duration /= RITMO.k;
+        if (o.delay) o.delay /= RITMO.k;
+        if (o.endDelay) o.endDelay /= RITMO.k;
+      }
+    }
+    return animOrig.call(this, frames, o);
+  };
+}
 const wait = ms => new Promise(resolve => {
+  ms = RITMO.ms(ms);
   if (MOTION.skip || ms <= 0) { resolve(); return; }
   const done = () => { clearTimeout(timer); MOTION.pending.delete(done); resolve(); };
   const timer = setTimeout(done, ms); MOTION.pending.add(done);
@@ -53,17 +72,25 @@ const ease = {
 
 /* animación simple basada en requestAnimationFrame */
 function tween(ms, fn, curve = ease.inOut) {
+  ms = RITMO.ms(ms);
   return new Promise(res => {
     if (ms <= 0 || reduced || MOTION.skip) { fn(1); res(); return; }
-    const t0 = performance.now();
-    let raf = 0, done = false;
+    /* fluidez: el primer cuadro (cuando el navegador dibuja por primera vez las capas
+       nuevas) no cuenta, y un cuadro aislado de más de 60 ms cuenta como 34 ms: un tirón
+       pausa la animación un instante en vez de hacerla saltar. Nunca se alarga más de
+       400 ms en total, ni en una máquina lenta. Si un cuadro falla, la animación termina
+       (no deja la presentación esperando). */
+    let raf = 0, done = false, t = 0, prev = 0, t0 = 0;
     const finish = () => { if (done) return; done = true; cancelAnimationFrame(raf); MOTION.pending.delete(finish); fn(1); res(); };
     MOTION.pending.add(finish);
     const step = now => {
       if (done) return;
       if (reduced || MOTION.skip) { finish(); return; }
-      const p = clamp((now - t0) / ms, 0, 1);
-      fn(curve(p));
+      if (prev) { const dt = now - prev; t += dt <= 60 ? dt : 34; } else t0 = now;
+      prev = now;
+      t = Math.max(t, now - t0 - 400);
+      const p = clamp(t / ms, 0, 1);
+      try { fn(curve(p)); } catch (e) { console.error(e); done = true; MOTION.pending.delete(finish); res(); return; }
       if (p < 1) raf = requestAnimationFrame(step); else { done = true; MOTION.pending.delete(finish); res(); }
     };
     raf = requestAnimationFrame(step);

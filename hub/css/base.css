@@ -327,3 +327,8 @@ html.still .hub .hub-title,html.still .hub .orb{animation:none!important;opacity
 .orb.demux .o-body,.orb.demux .o-bezel{opacity:0}
 .orb.demux:focus-visible .o-bezel{opacity:1;stroke:var(--gold);stroke-width:5}
 .orb.t-venom .o-glow{fill:#8DA8BC}
+
+/* sin botones en pantalla: se avanza tocando un lugar sin interacción y se regresa
+   deslizando (también con las flechas del teclado). Arriba no quedan botones ni cronómetro. */
+#bHub,.route-arrows,.route-dots,.tools{display:none!important}
+.route-ui{pointer-events:none}

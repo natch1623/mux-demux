@@ -136,6 +136,9 @@
 #muralInk.on,#tbcInk.on{display:block}
 /* cuadro congelado: todo se detiene y vira a sepia */
 .frozen #viewport,.frozen #sky,.frozen #finalPhrase{filter:sepia(.88) saturate(.85) contrast(1.12) brightness(.9)}
+/* sepia con matices: luces cálidas, papel y sombras más frías (no un tono plano) */
+.frozen #viewport,.frozen #sky,.frozen #finalPhrase{filter:sepia(.82) saturate(.95) hue-rotate(-6deg) contrast(1.18) brightness(.92)}
+.frozen::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(40,24,10,.35)),repeating-linear-gradient(0deg,rgba(90,60,30,.035) 0 1px,transparent 1px 3px)}
 .frozen #world,.frozen #world *{animation-play-state:paused!important}
 .frozen #snow{visibility:hidden}
 

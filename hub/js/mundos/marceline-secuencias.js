@@ -57,6 +57,7 @@
      pausa el dibujo en vez de saltarse lo que tenía que verse. Omitir (Esc) o ?still
      dejan el estado final al instante, igual que tween. */
   function animar(ms, fn, curva = t => t, calentar = 0) {
+    ms = RITMO.ms(ms);
     return new Promise(res => {
       if (ms <= 0 || reduced || MOTION.skip) { fn(curva(1)); res(); return; }
       let raf = 0, done = false, t = 0, prev = performance.now();
@@ -414,7 +415,10 @@
       { t0: .16, d: .72, p: [B(1.14, .14), B(.58, .3), B(.62, .98), B(.2, 1.18)], e: .44, a: .18 },
       { t0: .2, d: .8, p: [B(1.1, -.12), B(.78, .58), [destino.x + .2 * w, destino.y - .34 * h], [destino.x, destino.y]], e: destino.e, a: .2, posa: true }
     ];
-    const els = vuelos.map(v => { const el = murcielago(caja); el.style.setProperty("--aleteo", v.a + "s"); el.style.opacity = 0; return el; });
+    // planos: fondo (pequeño, apagado), medio y primer plano (grande, casi fuera de foco)
+    const PLANO = [["mc-fondo-bat", .55], ["", 1], ["mc-primer-bat", 1.7], ["mc-fondo-bat", .7], ["", 1]];
+    vuelos.forEach((v, i) => { if (!v.posa) v.e *= PLANO[i][1]; });
+    const els = vuelos.map((v, i) => { const el = murcielago(caja, PLANO[i][0]); el.style.setProperty("--aleteo", v.a + "s"); el.style.opacity = 0; return el; });
     await tween(ms, T => vuelos.forEach((v, i) => {
       const el = els[i], lt = tramo(T, v.t0, v.t0 + v.d);
       if (T < v.t0 || (lt >= 1 && !v.posa)) { el.style.opacity = 0; return; }
@@ -449,6 +453,46 @@
       { visibility: "visible", opacity: o, transform: T(0, 0, 1) }
     ], { duration: 650, id: "mc-papel" });
     return papel;
+  }
+
+  /* mano dibujada (crayón en el puño) que acompaña la punta del trazo */
+  function manoDibujada(capa, s) {
+    const m = html(`<svg class="mc-mano" viewBox="-20 -120 150 150" aria-hidden="true">
+      <path class="mc-mano-crayon" d="M-6 -6L18 -40L30 -32L6 2Z"/><path class="mc-mano-punta" d="M-6 -6L6 2L-10 8Z"/>
+      <path class="mc-mano-piel" d="M14 -34C24 -60 44 -76 70 -80C96 -84 118 -70 124 -48C128 -30 116 -14 98 -10C82 -6 64 -14 52 -22C42 -12 32 -14 24 -24Z"/>
+      <path class="mc-mano-linea" d="M40 -54C52 -60 64 -62 76 -60M44 -42C56 -48 70 -48 84 -44M54 -24C66 -28 80 -28 92 -24M98 -10C110 -2 122 6 132 18"/>
+      <path class="mc-mano-manga" d="M110 -40L150 -60L150 40L118 20Z"/></svg>`);
+    capa.append(m);
+    const k = s * .62;
+    let x0 = null, y0 = null;
+    return {
+      mover(x, y, t) {
+        if (x0 == null) { x0 = x; y0 = y; }
+        // sigue con un poco de retraso y se inclina según hacia dónde va el trazo
+        x0 += (x - x0) * .5; y0 += (y - y0) * .5;
+        const inc = clamp((y - y0) * .4, -10, 10);
+        m.style.transform = `translate(${x0.toFixed(1)}px,${y0.toFixed(1)}px) scale(${k}) rotate(${inc.toFixed(1)}deg)`;
+        m.style.opacity = t < .04 ? t / .04 : 1;
+      },
+      salir(ctx) { return ctx.anim(m, [{ opacity: 1, translate: "0 0" }, { opacity: 0, translate: "160px -120px" }], { duration: 320, easing: "ease-in" }).then(() => m.remove()); }
+    };
+  }
+  /* bolas de papel arrugado que caen con giro e inercia (tres, de distinto tamaño) */
+  function bolas(ctx, capa, M) {
+    const { w, h, s } = M;
+    [[.18, .9, 70, -320], [.62, 1.15, 50, 260], [.84, .8, 36, -200]].forEach(([fx, k, R, giro], i) => {
+      const b = html(`<svg class="mc-bola" viewBox="-60 -60 120 120" aria-hidden="true"><path d="M-44 -18C-40 -44-12-52 12-46C38-44 52-20 46 6C44 34 18 50-8 46C-34 46-52 22-46-4Z"/>
+        <path class="mc-bola-pliegue" d="M-30 -20L-4 -6L-12 18M-4 -6L24 -24M-4 -6L18 14L36 4M-12 18L-30 26M18 14L10 38"/></svg>`);
+      capa.append(b);
+      const x = fx * w, sz = R * s * 2;
+      b.style.width = b.style.height = sz + "px";
+      ctx.anim(b, [
+        { transform: `translate(${x}px,${-sz}px) rotate(0deg)`, opacity: 1, easing: "cubic-bezier(.45,0,.75,.4)" },
+        { transform: `translate(${x + giro * .15 * s}px,${h * .9}px) rotate(${giro * .8}deg)`, opacity: 1, offset: .82, easing: "cubic-bezier(.2,.6,.4,1)" },
+        { transform: `translate(${x + giro * .2 * s}px,${h * .9 - 18 * s}px) rotate(${giro}deg)`, opacity: 1, offset: .92 },
+        { transform: `translate(${x + giro * .22 * s}px,${h + sz}px) rotate(${giro * 1.1}deg)`, opacity: 0 }
+      ], { duration: 1100 * k, delay: i * 120, fill: "both" });
+    });
   }
 
   async function entrar(ctx) {
@@ -500,17 +544,20 @@
       capa.style.background = "transparent";
       const rec = barridos(M, q.sg < 0, 17), yc = h / 2;
       let frente = rec.desdeIzq ? -1e5 : 1e5;
+      const manoD = manoDibujada(capa, s), ult = { x: 0, y: 0 };
       await mano(g, rec, {
         ms: 1000, destino: "borrar",
-        alPunto: (pt, wd) => { if (Math.abs(pt.y - yc) < wd * .42) frente = rec.desdeIzq ? Math.max(frente, pt.x + wd * .36) : Math.min(frente, pt.x - wd * .36); },
-        alCuadro: () => { q.svg.style.clipPath = rec.desdeIzq ? `inset(0 0 0 ${F(Math.max(0, frente))}px)` : `inset(0 ${F(Math.max(0, w - frente))}px 0 0)`; }
+        alPunto: (pt, wd) => { ult.x = pt.x; ult.y = pt.y; if (Math.abs(pt.y - yc) < wd * .42) frente = rec.desdeIzq ? Math.max(frente, pt.x + wd * .36) : Math.min(frente, pt.x - wd * .36); },
+        alCuadro: t => { manoD.mover(ult.x, ult.y, t); q.svg.style.clipPath = rec.desdeIzq ? `inset(0 0 0 ${F(Math.max(0, frente))}px)` : `inset(0 ${F(Math.max(0, w - frente))}px 0 0)`; }
       });
       q.svg.remove();
+      manoD.salir(ctx);
       // los granos de cera que quedaron se asientan
       ctx.anim(cv, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out" }).then(() => cv.remove());
 
       // 2,4 s: cae el papel arrugado
       papel = caePapel(ctx, sec);
+      bolas(ctx, capa, M);
       await ctx.esperar(800);
 
       // 3,2 s: cinco murciélagos; el último se posará en la inicial del título a los 4,8 s

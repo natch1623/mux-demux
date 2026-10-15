@@ -80,3 +80,6 @@
 .se-fx .fx-bloom{fill:#EAF6FF;opacity:.55;filter:blur(30px)}
 .se-fx .fx-pane{fill:rgba(168,216,240,.22)}
 .se-fx .fx-glint{fill:#FFFFFF;filter:drop-shadow(0 0 5px #A8D8F0) drop-shadow(0 0 14px #A8D8F0)}
+/* espesor de los fragmentos del estallido de hielo */
+.se-frag-sombra{position:absolute;inset:-60px;background:#02070F;opacity:.5}
+.se-frag-canto{position:absolute;inset:-60px;background:linear-gradient(160deg,#5C8FB4,#0A2236)}

@@ -223,7 +223,7 @@ const MAP = (() => {
     });
     top.style.visibility = "";
     return {
-      blockAt, blockEnd, blockCenter, length: L,
+      blockAt, blockEnd, blockCenter, length: L, bits: i.toString(2).padStart(2, "0"),
       point: s => pC.getPointAtLength(s),
       /* cabeza del pulso en s. Ida: la estela enciende el cable del orbe a la cabeza.
          Regreso (back): la señal sale de la estación y enciende lo que deja atrás */
@@ -370,26 +370,30 @@ async function follow(tr, to, { onT, onSignal, onBlock, onProgress, back = false
   try {
     const start = cam;
     if (back) { tr.select(); tr.route(); }               // la selección sigue fija mientras se vuelve
-    if (back && !hold) { await leg(length, 0, start, to, clamp(length / 3, 2000, 3400)); return; }
+    if (back && !hold) { const ms = clamp(length / 3, 2000, 3400); SONIDO.play("regreso", { dur: ms / 1000 }); await leg(length, 0, start, to, ms); return; }
     if (!back) {
       // 1. del orbe al bloque
+      SONIDO.play("pulso", { dur: 1.4 });
       await leg(0, blockAt, start, bc, 1400, null, pulseCurve);
       // 2. en el bloque
       applyCam(bc);
       onBlock?.(true, (reduced ? 0 : STOP_MS) + hold);
       tr.arrive();
       await pause(STOP.pause);
+      SONIDO.play("selector", { bits: tr.bits });
       tr.select(0); await pause(STOP.s1);                // S1 parpadea y fija su bit
       tr.select(1); await pause(STOP.s0);                // S0, un parpadeo después (menos de 3 por segundo)
-      tr.route(); await pause(STOP.route);               // la ruta elegida a 14, las otras al 15 %
+      tr.route(); SONIDO.play("ruta"); await pause(STOP.route);               // la ruta elegida a 14, las otras al 15 %
       await tween(STOP.cross, t => signal(blockAt + (blockEnd - blockAt) * t), ease.inOut);
       await pause(STOP.out + hold);
       // 3. del bloque a la estación 0: la cabeza del pulso llega a su centro
       onBlock?.(false);
       tr.depart();
+      SONIDO.play("salida", { dur: 1.2 });
       await leg(blockEnd, length, bc, null, clamp((length - blockEnd) / 2.4, 1000, 1400), onT, pulseCurve);
     } else {
       // 1. de la diapositiva al bloque
+      SONIDO.play("regreso", { dur: 4 });
       await leg(length, blockEnd, start, bc, clamp((length - blockEnd) / 2.6, 1300, 2400));
       // 2. en el bloque: la señal lo cruza de vuelta
       applyCam(bc);
@@ -499,9 +503,16 @@ const VEIL = (() => {
 /* ---------------- estado ---------------- */
 const SAVE = REHEARSAL ? "muxdemux-ensayo-v2" : "muxdemux-progreso-v2";
 const saved = store.get(SAVE, { mux: [], demux: [] });
-const S = { mode: "hub", side: null, m: null, k: 0, a: 0, concl: 0, e: 0, busy: false,
+const S = { mode: "hub", side: null, m: null, k: 0, a: 0, concl: 0, e: 0, busy: false, viajes: saved.viajes || 0,
   done: { mux: new Set(saved.mux), demux: new Set(saved.demux) } };
-const persist = () => store.set(SAVE, { mux: [...S.done.mux], demux: [...S.done.demux] });
+const persist = () => store.set(SAVE, { mux: [...S.done.mux], demux: [...S.done.demux], viajes: S.viajes });
+/* el viaje entre el HUB y un mundo se ve al menos 8 veces: cada vez va un poco más rápido
+   (1.º a ritmo normal; desde el 8.º, casi al doble). Vale para la ida y el regreso. */
+const ritmoViaje = n => clamp(1 + .13 * n, 1, 1.9);
+async function conRitmo(n, fn) {
+  RITMO.k = ritmoViaje(n);
+  try { return await fn(); } finally { RITMO.k = 1; }
+}
 const sealed = () => false;      // todo desbloqueado: DIO se puede ver sin terminar las otras tres rutas
 const other = side => side === "mux" ? "demux" : "mux";
 const route = () => ROUTES[S.side][S.m];
@@ -512,6 +523,14 @@ const isSecondDio = () => S.mode === "route" && S.m === 3 && S.done[other(S.side
 const secretArmed = () => isSecondDio() && atLast() && S.done[S.side].has(3);
 
 /* solo la estación activa es navegable y visible para tecnologías de asistencia */
+/* sonido de cada cambio lógico que hace quien presenta en la diapositiva actual
+   (el amplificador de Marceline toca su propio bajo: ahí solo suenan los bits) */
+Logic.cambio = (L, antes) => {
+  if (S.mode !== "route" && S.mode !== "anexo") return;
+  const cur = $(".st.cur"), id = cur?.dataset.id || "";
+  if (!cur) return;
+  SONIDO.logica(cur.dataset.realm || MEMBERS[+cur.dataset.m]?.theme, antes, L, { demux: id.startsWith("demux"), salida: !/^(mux|demux)-0-0$/.test(id) });
+};
 function setActive() {
   const cur = S.mode === "route" ? route()[S.k].el : S.mode === "anexo" ? ANEXO[S.a].el : S.mode === "hub" ? HUB.el : S.mode === "ending" ? MURAL.el : null;
   [HUB.el, MURAL.el, ...STATIONS.map(d => d.el)].forEach(el => {
@@ -521,6 +540,8 @@ function setActive() {
     el.setAttribute("aria-hidden", on ? "false" : "true");
   });
   REALMS.select(S.mode === "route" ? route()[S.k] : S.mode === "anexo" ? ANEXO[S.a] : null);
+  // ambiente sonoro del lugar donde se está
+  SONIDO.ambiente(S.mode === "route" ? MEMBERS[S.m].theme : S.mode === "anexo" ? "dio" : S.mode === "concl" ? "concl" : S.mode === "ending" ? null : "hub");
 }
 function focusStation() {
   const def = route()[S.k];
@@ -597,10 +618,14 @@ async function lock(fn) {
   return true;
 }
 
+/* el tramo final del cable (de la salida del bloque a la estación 0), en pantalla */
+const ctxMaterial = (side, m) => ({ desde: side === "mux" ? "derecha" : "izquierda" });
+
 function openRoute({ side, m, force, x, y }) {
   if (S.mode !== "hub" || S.busy) return;
   if (m === 3 && sealed(side) && !(REHEARSAL && force)) { HUB.reject(side, m); say(`Carlos se abre cuando Ana, Ameth y Jonathan terminen el ${side === "mux" ? "MUX" : "DEMUX"}.`); return; }
-  lock(async () => {
+  const n = S.viajes++; persist();
+  lock(() => conRitmo(n, async () => {
     TIMER.start();
     Object.assign(S, { mode: "route", side, m, k: 0 });
     paintHub();
@@ -631,7 +656,10 @@ function openRoute({ side, m, force, x, y }) {
     if (goo) VENOM.follow(len => toScreen(tr.point(clamp(len, 0, tr.length))), camScale);
     // el fondo pasa poco a poco al tono del destino, al ritmo de la señal
     TINT.to(theme);
-    await follow(tr, target, { onT: mundo ? null : coverAt, onProgress: TINT.set, ...batHooks(tr, bats), ...(goo ? { onSignal: VENOM.frame } : {}) });
+    // cerca del destino el cable empieza a tomar el material del mundo (PUENTE.material)
+    const material = mundo ? PUENTE.material(theme, ctxMaterial(side, m)) : null;
+    await follow(tr, target, { onT: mundo ? material.paso : coverAt, onProgress: TINT.set, ...batHooks(tr, bats), ...(goo ? { onSignal: VENOM.frame } : {}) });
+    material?.fin();
     await covered;
     FX.setTheme(theme, true);
     document.documentElement.dataset.theme = theme;
@@ -648,7 +676,7 @@ function openRoute({ side, m, force, x, y }) {
       await VEIL.uncover(theme);
     }
     focusStation();
-  });
+  }));
 }
 
 function step(dir) {
@@ -696,6 +724,7 @@ function openAnexo() {
   if (S.mode !== "route" || S.busy) return;
   lock(async () => {
     leaveStation();
+    SONIDO.play("libro");
     // directo: corte con un fundido breve (sin la transición larga del mundo)
     const c = MUNDOS.instantanea();
     Object.assign(S, { mode: "anexo", a: 0 });
@@ -735,7 +764,7 @@ $$(".secreto-anexo").forEach(b => tap(b, () => openAnexo()));
 function backToHub(completed = false) {
   if (S.mode === "hub") return;
   if (S.mode === "anexo") return anexoToHub();
-  lock(async () => {
+  lock(() => conRitmo(S.mode === "route" ? Math.max(0, S.viajes - 1) : 0, async () => {
     const was = S.mode, side = S.side, m = S.m, k = S.k;
     leaveStation();
     if (was === "route" && completed) { S.done[side].add(m); persist(); }
@@ -774,7 +803,7 @@ function backToHub(completed = false) {
     paintHub();
     if (was === "route") HUB.focusOrb(side, m);
     say(completed ? `${MEMBERS[m].name} terminó su ruta del ${side === "mux" ? "MUX" : "DEMUX"}. HUB.` : "HUB");
-  });
+  }));
 }
 
 /* ---------------- conclusiones ---------------- */
@@ -787,6 +816,7 @@ function openConclusions() {
     FX.setTheme("hub");
     document.documentElement.dataset.theme = "hub";
     paintUi(); setActive();
+    SONIDO.play("alejamiento");
     await fly(VIEW.full, { ms: 3200 });
     MAP.reveal(true);
     say("Conclusiones: el circuito completo, MUX, canal y DEMUX");
@@ -798,6 +828,7 @@ function conclStep(dir) {
   if (n > 2) return startEnding();
   lock(async () => {
     S.concl = n;
+    SONIDO.play("vuelo");
     paintUi();
     if (n === 0) { HUB.showZones(false); MAP.phrase(false); await fly(VIEW.full, { ms: 1800 }); MAP.reveal(true); }
     if (n === 1) {
@@ -815,6 +846,7 @@ function conclStep(dir) {
 function startEnding() {
   lock(async () => {
     S.mode = "ending"; S.e = 0;
+    SONIDO.play("final");
     paintUi(); setActive();
     say(MURAL.titles[0]);
     // cuadro congelado en sepia + «CONTINUARÁ... →»; debajo del papel se pasa al mural
@@ -832,6 +864,7 @@ function muralStep(dir) {
   if (n < 0 || n >= MURAL.views.length) return;
   lock(async () => {
     MURAL.leave(S.e, n);
+    SONIDO.play("lamina");
     S.e = n;
     paintUi();
     await pan(VIEW.mural(n), reduced ? 0 : MURAL.travel);
@@ -886,17 +919,32 @@ addEventListener("keydown", e => {
   else if (k === "f" || k === "F") toggleFull();
   else if (REHEARSAL && (k === "c" || k === "C") && S.mode !== "concl") openConclusions();
   else if (REHEARSAL && (k === "e" || k === "E") && S.mode !== "ending") startEnding();
-  else if (REHEARSAL && k === "R" && e.shiftKey) { S.done.mux.clear(); S.done.demux.clear(); persist(); paintHub(); say("Progreso de ensayo reiniciado"); }
+  else if (k === "m" || k === "M") $("#realmSound")?.click();                  // sonido sí / no
+  else if (k === "R" && e.shiftKey) $("#tReset").click();                      // sesión nueva (dos veces)
 });
 
-/* deslizar en pantalla táctil: siguiente / anterior */
+/* toque y deslizamiento (no hay botones en pantalla):
+   - un toque en un lugar sin interacción avanza;
+   - deslizar hacia la derecha regresa (hacia la izquierda también avanza).
+   Lo interactivo (botones, palancas, cristales, filas, todo lo que tiene cursor de mano)
+   conserva su toque y nunca avanza. */
 {
-  let sx = 0, sy = 0, on = false;
-  $("#viewport").addEventListener("pointerdown", e => { on = e.pointerType !== "mouse" && !e.target.closest("[role=button],button,tr"); sx = e.clientX; sy = e.clientY; });
+  let sx = 0, sy = 0, t0 = 0, on = false;
+  const interactivo = el => {
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      if (e.matches?.("button,a,input,select,textarea,label,tr,[role=button],[role=radio],[role=slider],[tabindex]:not([tabindex='-1']),.secret,.secreto-anexo")) return true;
+      if (e.nodeType === 1 && getComputedStyle(e).cursor === "pointer") return true;
+    }
+    return false;
+  };
+  $("#viewport").addEventListener("pointerdown", e => { on = e.isPrimary && e.button === 0; sx = e.clientX; sy = e.clientY; t0 = performance.now(); });
+  $("#viewport").addEventListener("pointercancel", () => { on = false; });
   $("#viewport").addEventListener("pointerup", e => {
     if (!on) return; on = false;
+    if (S.mode === "hub" || S.busy) return;
     const dx = e.clientX - sx, dy = e.clientY - sy;
-    if (S.mode !== "hub" && Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5) { step(dx > 0 ? -1 : 1); return; }
+    if (Math.hypot(dx, dy) < 14 && performance.now() - t0 < 600 && !interactivo(e.target)) step(1);
   });
 }
 
@@ -928,7 +976,7 @@ const TIMER = (() => {
     if (Date.now() - armed > 3000) { armed = Date.now(); toast("Toca otra vez para empezar una sesión nueva (cronómetro y progreso en cero)"); return; }
     armed = 0;
     TIMER.reset();
-    S.done.mux.clear(); S.done.demux.clear(); persist();
+    S.done.mux.clear(); S.done.demux.clear(); S.viajes = 0; persist();
     if (S.mode !== "hub") backToHub(false); else paintHub();
     toast("Sesión nueva: cronómetro y progreso en cero");
     say("Sesión nueva");

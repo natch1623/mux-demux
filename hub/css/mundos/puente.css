@@ -87,3 +87,15 @@ html.puente .dblock.parada .b-hud{opacity:1}
 
 /* ---------- el cable del puente en una capa fija (PUENTE.cable, para los mundos) ---------- */
 .mundo-capa > svg.pt-capa{overflow:visible}
+
+/* ---------- material del mundo sobre el cable, cerca del destino ---------- */
+.mundo-capa.pt-material{z-index:14}
+.pt-cuerda{fill:none;stroke:#B7AFC2;stroke-width:5;stroke-linecap:round}
+.pt-cuerda-brillo{fill:none;stroke:#F4EFE6;stroke-width:1.4;opacity:.8}
+.pt-trastes{fill:none;stroke:#D9CDB8;stroke-width:3;stroke-linecap:round}
+.pt-escarcha{fill:none;stroke:#EAF6FF;stroke-width:9;stroke-linecap:round;stroke-dasharray:2 3 6 2;opacity:.85}
+.pt-facetas{fill:rgba(168,216,240,.7);stroke:#EAF6FF;stroke-width:1}
+.pt-pelicula{fill:#050507;stroke:#2A3550;stroke-width:1.5}
+.pt-pelicula-brillo{fill:none;stroke:#A9BCDD;stroke-width:1.6;opacity:.7}
+.pt-tinta{fill:none;stroke:#0B0B0F;stroke-width:15;stroke-linecap:round}
+.pt-rojo{fill:none;stroke:#8E1B24;stroke-width:6;stroke-linecap:round}

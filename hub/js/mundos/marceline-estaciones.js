@@ -690,6 +690,7 @@
         E.llego = true; pintar();
         // el parlante (o el elegido) da un golpe al recibir
         const pa = mux ? salidas[0].pa : salidas[L.sel].pa;
+        if (valor() && enEscena(el)) SONIDO.bajo(L.sel);            // Mi, La, Re o Sol según la entrada elegida
         if (valor() && mover()) pa.cono.animate([{ transform: "scale(1)" }, { transform: "scale(1.09)" }, { transform: "scale(1)" }], { duration: 260, easing: "ease-out" });
       }).catch(() => {});
     }
@@ -701,7 +702,7 @@
       const otra = antes && (antes.sel !== ahora.sel || antes.v !== ahora.v);
       antes = ahora;
       if (otra && E.fase >= 3 && mover() && enEscena(el)) recorrido({ rapido: true });
-      else pintar();
+      else { pintar(); if (otra && E.fase >= 3 && ahora.v && enEscena(el)) SONIDO.bajo(ahora.sel); }
     });
     svg.addEventListener("replay-signal", () => recorrido());
     sec?.addEventListener("leave", () => { cancelarPulso(); if (!E.llego) { E.llego = true; quieto(pintar); } });
@@ -719,10 +720,11 @@
       cancelarPulso();
       if (!anima) { E.llego = true; quieto(pintar); return; }
       if (prev < 3 && n >= 3) E.llego = false;
+      if (n > prev && n >= 1) SONIDO.fase("marceline", (mux ? ETQ_MUX : ETQ_DEMUX)[n], { sel: L.sel });
       if (prev < 4 && n >= 4) { el.classList.add("mce-callando"); setTimeout(() => el.classList.remove("mce-callando"), 1100); }
       pintar();
       if (prev < 1 && n >= 1) encender();
-      if (prev < 2 && n >= 2) setTimeout(() => { if (E.fase >= 2 && enEscena(el)) REALMS.tone("marceline"); }, 480);
+      if (prev < 2 && n >= 2) setTimeout(() => { if (E.fase >= 2 && enEscena(el)) SONIDO.bajo(L.sel, { v: .4 }); }, 480);
       if (prev < 3 && n >= 3) recorrido();
     }
     quieto(pintar);

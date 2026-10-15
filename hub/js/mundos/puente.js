@@ -63,5 +63,44 @@ const PUENTE = (() => {
     return svg;
   }
 
-  return { empezar, terminar, cable, CABLE, ANCHO, PULSO, ESTELA };
+  /* ---------- el cable adopta el material del mundo cerca del destino ----------
+     Durante el último tramo del vuelo (onT de follow: t de 0 a 1), sobre el cable que
+     cruza la pantalla a media altura aparece gradualmente el material de destino; la
+     entrada del mundo empieza exactamente desde ese estado (mismo cable, misma altura).
+     Marceline: cuerda metálica con trastes · Tsaritsa: escarcha y facetas pequeñas ·
+     Venom: película negra que se adhiere y engrosa · DIO: contorno de tinta, rojo oscuro
+     y vibración gráfica. */
+  function material(tema, { desde }) {
+    const c = MUNDOS.capa("pt-material");
+    const s = Math.min(innerWidth / FW, innerHeight / FH), W = innerWidth, H = innerHeight, y = H / 2;
+    const svg = mk("svg", { class: "mt-svg", viewBox: `0 0 ${W} ${H}`, width: W, height: H }, c);
+    const lado = desde === "derecha" ? 1 : -1, ini = lado > 0 ? W : 0;
+    const capa = mk("g", { class: `pt-mat pt-mat-${tema}` }, svg);
+    let pinta;
+    if (tema === "marceline") {
+      const cuerda = mk("path", { class: "pt-cuerda" }, capa), brillo = mk("path", { class: "pt-cuerda-brillo" }, capa), trastes = mk("path", { class: "pt-trastes" }, capa);
+      pinta = (k, x) => { const d = `M${ini} ${y}L${x} ${y}`; cuerda.setAttribute("d", d); brillo.setAttribute("d", `M${ini} ${y - 2 * s}L${x} ${y - 2 * s}`);
+        let t = ""; for (let i = 1; i <= 4; i++) { const tx = ini - lado * i * W * .18; if ((tx - x) * lado > 0) t += `M${tx} ${y - 16 * s}V${y + 16 * s}`; } trastes.setAttribute("d", t); };
+    } else if (tema === "tsaritsa") {
+      const esc = mk("path", { class: "pt-escarcha" }, capa), fac = mk("path", { class: "pt-facetas" }, capa);
+      pinta = (k, x) => { esc.setAttribute("d", `M${ini} ${y}L${x} ${y}`); let d = "";
+        for (let i = 0; i < 40; i++) { const fx = ini - lado * (i + .5) * W / 40; if ((fx - x) * lado < 0) break; const h = (5 + (i * 7) % 7) * s, up = i % 2 ? -1 : 1; d += `M${fx} ${y}L${fx + 3 * s} ${y - up * h * .6}L${fx} ${y - up * h}L${fx - 3 * s} ${y - up * h * .6}Z`; }
+        fac.setAttribute("d", d); };
+    } else if (tema === "venom") {
+      const pel = mk("path", { class: "pt-pelicula" }, capa), lus = mk("path", { class: "pt-pelicula-brillo" }, capa);
+      pinta = (k, x) => { const g = (3 + 9 * k) * s, n = 30, p = [], q = [];
+        for (let i = 0; i <= n; i++) { const px = ini + (x - ini) * i / n, w = g * (.7 + .3 * Math.sin(i * 1.7)) * Math.min(1, (n - i) / 4 + .2); p.push(`${px.toFixed(1)} ${(y - w).toFixed(1)}`); q.unshift(`${px.toFixed(1)} ${(y + w).toFixed(1)}`); }
+        pel.setAttribute("d", `M${p.join("L")}L${q.join("L")}Z`); lus.setAttribute("d", `M${ini} ${y - g * .55}L${x} ${y - g * .55}`); };
+    } else {
+      const tinta = mk("path", { class: "pt-tinta" }, capa), rojo = mk("path", { class: "pt-rojo" }, capa);
+      pinta = (k, x, t) => { const v = Math.sin(t * 90) * 3 * s * k; const d = `M${ini} ${y}Q${(ini + x) / 2} ${y + v} ${x} ${y}`; tinta.setAttribute("d", d); rojo.setAttribute("d", d); };
+    }
+    return {
+      // t: avance del último tramo del vuelo (0..1). El material avanza desde el borde de llegada.
+      paso(t) { const k = clamp((t - .35) / .65, 0, 1), x = ini - lado * W * .55 * k; capa.style.opacity = k; pinta(k, x, t); },
+      fin() { c.remove(); }
+    };
+  }
+
+  return { empezar, terminar, cable, material, CABLE, ANCHO, PULSO, ESTELA };
 })();

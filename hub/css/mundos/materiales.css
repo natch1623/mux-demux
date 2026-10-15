@@ -1,0 +1,76 @@
+/* =====================================================================
+   Materiales de las transiciones (js/mundos/materiales.js y trans-*.js).
+   ===================================================================== */
+.mundo-capa > svg.mt-svg,.mundo-capa > canvas.mt-cv{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mundo-instantanea > svg.mt-svg,.mundo-instantanea > canvas.mt-cv{z-index:2}
+
+/* ---------- hielo con espesor ---------- */
+.mt-esq{will-change:transform,opacity}
+.mt-esq-sombra{fill:#02070F;opacity:.45}
+.mt-esq-esc{opacity:.75;mix-blend-mode:screen}
+.mt-esq-grieta{fill:none;stroke:rgba(234,246,255,.75);stroke-width:1.4;stroke-linejoin:round}
+.mt-esq-arista{fill:none;stroke:#FFFFFF;stroke-width:2.8;stroke-linecap:round}
+.tz-frente-esc{fill:none;stroke-width:58;stroke-linejoin:round;opacity:.95}
+.tz-frente-filo{fill:none;stroke:#F7FCFF;stroke-width:3.2;stroke-dasharray:14 6 3 9 22 5;stroke-linecap:round}
+.tz-rama{fill:none;stroke:#F2FBFF;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:.85}
+.tz-grieta{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 3px #A8D8F0)}
+.mt-esq-canto{stroke:rgba(168,216,240,.6);stroke-width:1.2;stroke-linejoin:round}
+.mt-esq-cara{stroke:rgba(234,246,255,.5);stroke-width:1.5;stroke-linejoin:round}
+
+/* ---------- materia viscosa ---------- */
+.vn-pliegue{fill:none;stroke:#000;stroke-width:14;stroke-opacity:.55;stroke-linecap:round}
+.vn-membrana{opacity:.7;stroke:rgba(122,140,175,.35);stroke-width:1}
+.vn-reflejo{fill:none;stroke:#A9BCDD;stroke-width:2.6;stroke-linecap:round;opacity:.8}
+.vn-reflejo-gota{fill:none;stroke:#C4D2EA;stroke-width:2.2;stroke-linecap:round;opacity:.85}
+.vn-hilo{fill:none;stroke:#0A0C12;stroke-width:3;stroke-linecap:round}
+.vn-tension{fill:none;stroke:rgba(46,91,255,.35);stroke-width:2;stroke-dasharray:4 10}
+.vn-tent2{stroke:#1D2433;stroke-width:1.5}
+.vs-canto{fill:none;stroke:#1C2433;stroke-width:40;stroke-linejoin:round;opacity:.6}
+.vs-canto-fino{fill:none;stroke:#3A4862;stroke-width:6;stroke-linejoin:round;opacity:.85}
+.vn-sombra-tent{fill:#000;opacity:.45;filter:blur(8px)}
+
+/* ---------- tinta de manga ---------- */
+.dio-borde{fill:none;stroke:#0B0B0F;stroke-width:6;stroke-linejoin:miter}
+.dio-corte{fill:#0B0B0F}
+.dio-vel-blanca{stroke:#F3E9D2;stroke-width:3;opacity:.85}
+.dio-ono-vin{font-family:"Dela Gothic One",sans-serif;fill:#FFD400;stroke:#0B0B0F;stroke-width:10;paint-order:stroke;text-anchor:middle}
+.dio-estrella{stroke:#0B0B0F;stroke-width:7;stroke-linejoin:round}
+.mt-reloj .mt-rl-sombra{fill:#0B0B0F;opacity:.55}
+.mt-reloj .mt-rl-bisel{fill:#B08A2E;stroke:#0B0B0F;stroke-width:6}
+.mt-reloj .mt-rl-esfera{fill:#F3E9D2;stroke:#0B0B0F;stroke-width:4}
+.mt-reloj .mt-rl-trama{fill:none;stroke:#0B0B0F;stroke-width:1;stroke-dasharray:2 6;opacity:.35}
+.mt-reloj .mt-rl-anillo{fill:none;stroke:#E6007E;stroke-width:3}
+.mt-reloj .mt-rl-marcas{stroke:#0B0B0F;stroke-width:3;stroke-linecap:round}
+.mt-reloj .mt-rl-num{font-family:"Cinzel",serif;font-weight:700;fill:#0B0B0F;text-anchor:middle;dominant-baseline:middle}
+.mt-reloj .mt-rl-grabado{fill:none;stroke:#B08A2E;stroke-width:2}
+.mt-reloj .mt-rl-aguja{fill:#0B0B0F;stroke:#FFD400;stroke-width:2}
+.mt-reloj .mt-rl-aguja.corta{fill:#4B1D7A}
+.mt-reloj .mt-rl-eje{fill:#E6007E;stroke:#0B0B0F;stroke-width:3}
+
+/* ---------- salidas ---------- */
+.tz-cr-cable{fill:rgba(168,216,240,.75);stroke:#EAF6FF;stroke-width:1.2}
+.tz-niebla-baja{fill:#A8C8DE;opacity:0;filter:blur(30px)}
+.tz-gota-c{fill:#A8D8F0;stroke:#EAF6FF;stroke-width:.8;opacity:0}
+.vn-gota-c{stroke:#3A4862;stroke-width:1.5}
+.vn-estela{fill:none;stroke:#050507;stroke-width:6;stroke-linecap:round}
+.dio-marco-inv{fill:none;stroke:#0B0B0F;stroke-width:7;opacity:0}
+.dio-cable-tinta{fill:none;stroke:#0B0B0F;stroke-width:16;stroke-linecap:round}
+.dio-fractura{fill:#0B0B0F;stroke:#F3E9D2;stroke-width:2}
+.mundo-puente-fondo{position:absolute;inset:0;background:#0D0F14}
+
+/* ---------- entradas de Venom y DIO ---------- */
+.vn-ojo-borde{fill:none;stroke:#2A3550;stroke-width:3}
+.dio-cable-rojo{fill:none;stroke:#8E1B24;stroke-width:7;stroke-linecap:round}
+.dio-linea-cortada{stroke:#0B0B0F;stroke-width:3;stroke-linecap:butt;opacity:.55}
+.dio-pulso-reloj{fill:none;stroke:#FFF6CC;stroke-width:14;opacity:0}
+.dio-gogo2 text{font-family:"Dela Gothic One",sans-serif;fill:#4B1D7A;stroke:#FFD400;stroke-width:5;paint-order:stroke;text-anchor:middle}
+.dio-pose-trazo{fill:none;stroke:#0B0B0F;stroke-width:9;stroke-linejoin:round;stroke-dasharray:1}
+.dio-pose-pliegue{fill:none;stroke:#0B0B0F;stroke-width:4;stroke-linecap:round;opacity:.8}
+
+/* ---------- aparición de contenidos ---------- */
+.mundo-capa.aparicion{z-index:15}
+.ap-crayon{fill:none;stroke:#7B4FD6;stroke-width:22;stroke-linecap:round;stroke-linejoin:round;opacity:.9;stroke-dasharray:30 4 12 3 40 5}
+.ap-crayon-grano{fill:none;stroke:#D9CDB8;stroke-width:3;stroke-dasharray:2 7;opacity:.6}
+.ap-escarcha{fill:none;stroke:#EAF6FF;stroke-width:2.5;stroke-dasharray:1;stroke-dashoffset:1;stroke-opacity:.95}
+.ap-membrana{fill:#050507;stroke:#3A4862;stroke-width:2}
+.ap-enfasis{fill:none;stroke:#0B0B0F;stroke-width:5;stroke-linecap:round}

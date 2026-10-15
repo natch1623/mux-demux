@@ -144,6 +144,7 @@ const MUNDOS = (() => {
   const transiciones = (tema, lista) => (soloTrans[tema] ||= []).push(...lista);
   const conTransiciones = tema => activo(tema) || !!soloTrans[tema]?.length;
   async function fundido(commit) {
+    SONIDO.sec("fundido");
     const c = instantanea();
     commit();
     try { await anim(c, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease" }); }
@@ -159,6 +160,7 @@ const MUNDOS = (() => {
       // en orden, sin repetir la misma dos veces seguidas
       turno[tema] = ((turno[tema] ?? -1) + 1) % lista.length;
       const t = lista[turno[tema]];
+      SONIDO.sec(t.nombre);
       await t.run({ commit: una, dir, desde: $(".st.cur"), hacia: () => $(".st.cur"), tema, capa, instantanea, anim, esperar, quitar });
     } finally { una(); }
   }
@@ -175,6 +177,7 @@ const MUNDOS = (() => {
   async function entrar(tema, ctx) {
     const w = sec(tema, "entrar");
     if (quieto() || !w?.entrar) return;
+    SONIDO.sec(suave() ? "fundido" : "entrada-" + tema);
     if (suave()) {
       const c = capa("mundo-puente");
       try { await anim(c, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease" }); } finally { quitar(c); }
@@ -186,6 +189,7 @@ const MUNDOS = (() => {
     const w = sec(tema, "salir");
     soltar();
     if (quieto() || !w?.salir) return;
+    SONIDO.sec(suave() ? "fundido" : "salida-" + tema);
     if (suave()) {
       cortina = capa("mundo-puente");
       await anim(cortina, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: "ease" });

@@ -132,8 +132,12 @@ html.still .mw-fondo *{animation:none!important}
 @keyframes anexo-brillo{0%,78%,100%{filter:drop-shadow(0 0 0 rgba(255,212,0,0));transform:none}86%{filter:drop-shadow(0 0 14px #FFD400) drop-shadow(0 0 32px rgba(255,212,0,.75));transform:scale(1.12) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){.st.cur .secreto-anexo{animation:none;filter:drop-shadow(0 0 8px rgba(255,212,0,.6))}}
 .secreto-anexo svg{width:100%;height:100%;overflow:visible}
-.secreto-anexo path{fill:#FFD400;stroke:#0B0B0F;stroke-width:5;stroke-linejoin:round}
-.secreto-anexo .lomo{fill:none;stroke-width:4}
+.secreto-anexo .ab-sombra{fill:#0B0B0F;opacity:.45}
+.secreto-anexo .ab-tapa{fill:url(#ab-oro);stroke:#0B0B0F;stroke-width:4;stroke-linejoin:round}
+.secreto-anexo .ab-hojas{fill:url(#ab-papel);stroke:#5A4210;stroke-width:1.5}
+.secreto-anexo .lomo{fill:none;stroke:#7A5A14;stroke-width:2.2;stroke-linecap:round}
+.secreto-anexo .ab-brillo{fill:none;stroke:#FFF6CC;stroke-width:2;stroke-linecap:round;opacity:.9}
+
 .secreto-anexo:hover,.secreto-anexo:focus-visible{opacity:1;transform:rotate(-6deg) scale(1.08)}
 .secreto-anexo:focus-visible{outline:4px solid #FFD400;outline-offset:6px}
 .st:has(.secret) .dio-pose{display:none}

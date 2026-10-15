@@ -186,7 +186,7 @@
       d.ono.setAttribute("x", d.demux ? dest.b.x - 90 : dest.x); d.ono.setAttribute("y", d.demux ? dest.y - 22 : dest.b.y - 18);
       if (adelante && n === 5 && !reduced) MUNDOS.anim(d.svg, [{ translate: "0 0" }, { translate: "8px -6px" }, { translate: "-8px 5px" }, { translate: "5px 3px" }, { translate: "0 0" }], { duration: 260, easing: "linear", fill: "none" });
     }
-    if (adelante && n === 2) REALMS.tone(d.tema, "phase");
+    if (adelante && n >= 1) SONIDO.fase(d.tema, ETIQUETAS[d.tema][n], { sel: s, y });
   }
   // Venom: el valor viaja por la masa desde el tentáculo elegido hasta la boca
   function viaje(d, s) {

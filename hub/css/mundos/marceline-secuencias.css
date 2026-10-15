@@ -85,3 +85,16 @@
 .mc-esp-linea path{stroke:var(--mc-crayon,#D9CDB8);stroke-width:calc(var(--mc-s)*12px);stroke-dasharray:calc(var(--mc-s)*70px) calc(var(--mc-s)*5px) calc(var(--mc-s)*24px) calc(var(--mc-s)*4px)}
 .mc-esp-sombra{transform:translate(calc(var(--mc-s)*4px),calc(var(--mc-s)*5px))}
 .mc-esp-sombra path{stroke:var(--mc-vino,#B3203F);stroke-width:calc(var(--mc-s)*18px);stroke-opacity:.85}
+
+/* mano dibujada, bolas de papel y planos de los murciélagos (refinamiento de la entrada) */
+.mc-mano{position:absolute;left:0;top:0;width:150px;height:150px;transform-origin:0 0;pointer-events:none;overflow:visible;opacity:0;z-index:3}
+.mc-mano-crayon{fill:#7B4FD6;stroke:#1B1330;stroke-width:3}
+.mc-mano-punta{fill:#5E37B0;stroke:#1B1330;stroke-width:2}
+.mc-mano-piel{fill:#8FA3B8;stroke:#1B1330;stroke-width:4;stroke-linejoin:round}
+.mc-mano-linea{fill:none;stroke:#1B1330;stroke-width:2.5;stroke-linecap:round;opacity:.7}
+.mc-mano-manga{fill:#2A2140;stroke:#1B1330;stroke-width:4}
+.mc-bola{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:2}
+.mc-bola path:first-child{fill:#E9DFC9;stroke:#3A2E28;stroke-width:3;stroke-linejoin:round}
+.mc-bola-pliegue{fill:none;stroke:#8D7B66;stroke-width:2;stroke-linecap:round}
+.mc-murcielago.mc-fondo-bat{opacity:.55!important;filter:brightness(.7)}
+.mc-murcielago.mc-primer-bat{filter:blur(1.5px);z-index:4}

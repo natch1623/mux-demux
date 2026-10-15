@@ -49,19 +49,11 @@ const REALMS = (() => {
     } finally { c.hidden = true; c.innerHTML = ""; }
   }
   function finish() { activeAnimations.forEach(a => { try { a.finish(); } catch {} }); }
-  // Optional, synthesized confirmations. Audio is unlocked only by the sound button.
-  let audio = null, sound = false;
-  function tone(theme, kind = "touch") {
-    if (!sound || !audio || audio.state !== "running") return;
-    const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
-    const hz = { marceline: 110, tsaritsa: 880, venom: 58, dio: 220 }[theme] || 330;
-    o.type = theme === "venom" ? "sawtooth" : "sine";
-    o.frequency.setValueAtTime(hz * (kind === "phase" ? 1.5 : 1), t);
-    o.frequency.exponentialRampToValueAtTime(hz * .7, t + .16);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.045, t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+.22);
-    o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t+.24);
-    o.onended = () => { o.disconnect(); g.disconnect(); };
-  }
+  // confirmaciones sonoras con el timbre de cada mundo (js/sonido.js)
+  function tone(theme, kind = "touch") { SONIDO.toque(theme, kind); }
+  // cada fase suena según lo que aparece (su etiqueta); las de 5 toques suenan desde su dibujo
+  function sonarFase(theme, p) { if (!p.custom) SONIDO.fase(theme, p.labels[p.phase]); }
+
   let selected = null, defs = [], guided = !new URLSearchParams(location.search).has("libre"), plain = false;
   const phases = new WeakMap();
   function prepare(def) {
@@ -91,10 +83,11 @@ const REALMS = (() => {
     for (const [el, n] of p.groups) {
       const hide = guided && p.phase < n;
       // lo que aparece entra con su transición (sube y se aclara)
-      if (!hide && el.classList.contains("phase-hidden") && !reduced && !MOTION.skip)
-        el.animate([{ opacity: 0, translate: "0 26px", filter: "blur(6px)" }, { opacity: 1, translate: "0 0", filter: "blur(0)" }], { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" });
+      // lo que aparece entra con el gesto de su mundo (js/mundos/aparicion.js), sin desenfoque
+      const aparece = !hide && el.classList.contains("phase-hidden") && !reduced && !MOTION.skip;
       if (hide && el.contains(document.activeElement)) $("#phaseNext").focus({preventScroll:true});
       el.classList.toggle("phase-hidden", hide); el.inert = hide;
+      if (aparece) APARICION.aparecer(el, selected.el.dataset.realm);
       if (hide) { if (!el.hasAttribute("data-phase-aria")) el.dataset.phaseAria = el.getAttribute("aria-hidden") ?? "absent"; el.setAttribute("aria-hidden", "true"); }
       else if (el.hasAttribute("data-phase-aria")) { if (el.dataset.phaseAria === "absent") el.removeAttribute("aria-hidden"); else el.setAttribute("aria-hidden",el.dataset.phaseAria); delete el.dataset.phaseAria; }
     }
@@ -120,7 +113,7 @@ const REALMS = (() => {
     const next = () => {
       if (selected !== def || p.phase >= p.labels.length - 1) { autoTimer = 0; return; }
       if (document.documentElement.classList.contains("busy")) { autoTimer = setTimeout(next, 300); return; }
-      p.phase++; renderPhase(); tone(def.el.dataset.realm, "phase");
+      p.phase++; renderPhase(); sonarFase(def.el.dataset.realm, p);
       autoTimer = setTimeout(next, p.custom ? PASO_TOQUE : PASO);
     };
     autoTimer = setTimeout(next, reduced ? 600 : 900);
@@ -129,7 +122,7 @@ const REALMS = (() => {
     if (!selected) return;
     stopAuto();
     const p = phases.get(selected.el); p.phase = clamp(p.phase+dir,0,p.labels.length-1);
-    renderPhase(); tone(selected.el.dataset.realm,"phase");
+    renderPhase(); if (dir > 0) sonarFase(selected.el.dataset.realm, p);
   }
   function select(def) {
     if (def !== selected) stopAuto();
@@ -158,8 +151,8 @@ const REALMS = (() => {
     stations.forEach(d => { d.el.addEventListener("enter", () => auto(d)); d.el.addEventListener("leave", stopAuto); });
     $("#realmPlain").onclick=()=>{ plain=!plain; document.documentElement.classList.toggle("schematic",plain); $("#realmPlain").setAttribute("aria-pressed",String(plain)); $("#realmPlain").textContent=plain?"Volver al mundo":"Ver esquema"; };
     $("#realmReplay").onclick=()=>{ if (!selected) return; $$("svg.fig[data-replay]",selected.el).forEach(s=>s.dispatchEvent(new Event("replay-signal"))); };
-    const soundBtn=html('<button class="tbtn" id="realmSound" aria-label="Activar sonido" aria-pressed="false" title="Sonidos originales, opcionales">♪</button>'); $(".tools").append(soundBtn);
-    soundBtn.onclick=async()=>{ try { if(!audio) audio=new (window.AudioContext||window.webkitAudioContext)(); await audio.resume(); sound=!sound; soundBtn.setAttribute("aria-pressed",String(sound)); soundBtn.setAttribute("aria-label",sound?"Silenciar sonido":"Activar sonido"); tone(selected?.el.dataset.realm); } catch { sound=false; soundBtn.textContent="♪ ×"; soundBtn.setAttribute("aria-label","Audio no disponible"); } };
+    const soundBtn=html(`<button class="tbtn" id="realmSound" aria-pressed="${SONIDO.activo}" aria-label="${SONIDO.activo ? "Silenciar sonido" : "Activar sonido"}" title="Sonido sintetizado (activar o silenciar)">♪</button>`); $(".tools").append(soundBtn);
+    soundBtn.onclick=()=>{ const on=!SONIDO.activo; SONIDO.activar(on); soundBtn.setAttribute("aria-pressed",String(on)); soundBtn.setAttribute("aria-label",on?"Silenciar sonido":"Activar sonido"); if(on) tone(selected?.el.dataset.realm||"hub"); };
     const skip=html('<button id="skipJourney" class="skip-journey">Omitir transición <kbd>Esc</kbd></button>'); document.body.append(skip);
     skip.onclick=()=>{MOTION.finish();finish();document.getAnimations().forEach(a=>{if(Number.isFinite(a.effect?.getComputedTiming().iterations))try{a.finish();}catch{}});};
     document.addEventListener("click", e=>{
